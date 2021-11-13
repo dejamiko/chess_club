@@ -1,0 +1,17 @@
+[
+  {
+    "model": "clubs.user",
+    "pk": 1,
+    "fields": {
+      "username": "johndoe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "johndoe@example.com",
+      "bio": "Hi, I'm John Doe",
+      "chess_exp": "Beginner",
+      "password": "pbkdf2_sha256$260000$VEDi9wsMYG6eNVeL8WSPqj$LHEiR2iUkusHCIeiQdWS+xQGC9/CjhhrjEOESMMp+c0=",
+      "personal_statement": "I've started playing chess after I've watched the Queen's Gambit on Netflix. Such a cool game!",
+      "is_active": true
+    }
+  }
+]
