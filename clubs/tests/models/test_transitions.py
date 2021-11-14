@@ -1,0 +1,139 @@
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from clubs.models import User, Member, Officer, Owner, make_member, make_user, make_officer, make_owner
+
+
+class TransitionsBetweenModelsTestCase(TestCase):
+    fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json']
+
+    def setUp(self):
+        self.user = User.objects.get(email='johndoe@example.com')
+
+    def test_make_user_a_member(self):
+        self._assert_user_is_valid()
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self._assert_user_is_valid()
+
+    def test_make_member_a_user(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_user(self.user)
+        self.assertIsInstance(self.user, User)
+        self._assert_user_is_valid()
+
+    def test_make_member_an_officer(self):
+        self._assert_user_is_valid()
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self._assert_user_is_valid()
+
+    def test_make_officer_a_member(self):
+        self._assert_user_is_valid()
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self._assert_user_is_valid()
+
+    def test_make_officer_an_owner(self):
+        self._assert_user_is_valid()
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_owner(self.user)
+        self.assertIsInstance(self.user, Owner)
+        self._assert_user_is_valid()
+
+    def test_make_owner_an_officer(self):
+        self._assert_user_is_valid()
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_owner(self.user)
+        self.assertIsInstance(self.user, Owner)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self._assert_user_is_valid()
+
+    def test_make_user_a_user_fails(self):
+        with self.assertRaises(ValueError):
+            self.user = make_user(self.user)
+
+    def test_make_officer_a_user_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        with self.assertRaises(ValueError):
+            self.user = make_user(self.user)
+
+    def test_make_owner_a_user_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_owner(self.user)
+        self.assertIsInstance(self.user, Owner)
+        with self.assertRaises(ValueError):
+            self.user = make_user(self.user)
+
+    def test_make_member_a_member_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        with self.assertRaises(ValueError):
+            self.user = make_member(self.user)
+
+    def test_make_owner_a_member_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_owner(self.user)
+        self.assertIsInstance(self.user, Owner)
+        with self.assertRaises(ValueError):
+            self.user = make_member(self.user)
+
+    def test_make_user_an_officer_fails(self):
+        with self.assertRaises(ValueError):
+            self.user = make_officer(self.user)
+
+    def test_make_officer_an_officer_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        with self.assertRaises(ValueError):
+            self.user = make_officer(self.user)
+
+    def test_make_user_an_owner_fails(self):
+        with self.assertRaises(ValueError):
+            self.user = make_owner(self.user)
+
+    def test_make_member_an_owner_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        with self.assertRaises(ValueError):
+            self.user = make_owner(self.user)
+
+    def test_make_owner_an_owner_fails(self):
+        self.user = make_member(self.user)
+        self.assertIsInstance(self.user, Member)
+        self.user = make_officer(self.user)
+        self.assertIsInstance(self.user, Officer)
+        self.user = make_owner(self.user)
+        self.assertIsInstance(self.user, Owner)
+        with self.assertRaises(ValueError):
+            self.user = make_owner(self.user)
+
+    def _assert_user_is_valid(self):
+        try:
+            self.user.full_clean()
+        except ValidationError:
+            self.fail('Test user should be valid')
