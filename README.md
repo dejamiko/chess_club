@@ -6,6 +6,7 @@ The members of the team are:
 - Yasath Dias
 - Amman Kiani
 - Zafira Shah
+- Brendon Zoto
 
 *Add any further information about the team here, such as absent team members.*
 
