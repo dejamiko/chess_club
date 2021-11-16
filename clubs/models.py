@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from libgravatar import Gravatar
 
-
+# The user model was inspired by the one written for clucker.
 class User(AbstractUser):
     class ChessExperience(models.TextChoices):
         NEW_TO_CHESS = 'New to chess'
