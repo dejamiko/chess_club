@@ -3,6 +3,7 @@ from django.test import TestCase
 from clubs.models import User
 
 
+# The tests were inspired by those written for clucker.
 class UserModelTestCase(TestCase):
     fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json']
 
