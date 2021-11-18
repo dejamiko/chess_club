@@ -132,6 +132,50 @@ class TransitionsBetweenModelsTestCase(TestCase):
         with self.assertRaises(ValueError):
             self.user = make_owner(self.user)
 
+    def test_promote_applicant_to_member(self):
+        self.user.promote()
+        self.assertEqual(self.user.user_level(), "Member")
+
+    def test_promote_member_to_officer(self):
+        self.user = make_member(self.user)
+        self.user.promote()
+        self.assertEqual(self.user.user_level(), "Officer")
+
+    def test_demote_officer_to_member(self):
+        self.user = make_member(self.user)
+        self.user = make_officer(self.user)
+        self.user.demote()
+        self.assertEqual(self.user.user_level(), "Member")
+
+    def test_promote_officer_fails(self):
+        self.user = make_member(self.user)
+        self.user = make_officer(self.user)
+        with self.assertRaises(ValueError):
+            self.user.promote()
+
+    def test_promote_owner_fails(self):
+        self.user = make_member(self.user)
+        self.user = make_officer(self.user)
+        self.user = make_owner(self.user)
+        with self.assertRaises(ValueError):
+            self.user.promote()
+
+    def test_demote_owner_fails(self):
+        self.user = make_member(self.user)
+        self.user = make_officer(self.user)
+        self.user = make_owner(self.user)
+        with self.assertRaises(ValueError):
+            self.user.demote()
+
+    def test_demote_member_fails(self):
+        self.user = make_member(self.user)
+        with self.assertRaises(ValueError):
+            self.user.demote()
+
+    def test_demote_applicant_fails(self):
+        with self.assertRaises(ValueError):
+            self.user.demote()
+
     def _assert_user_is_valid(self):
         try:
             self.user.full_clean()
