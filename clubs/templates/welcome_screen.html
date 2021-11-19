@@ -10,7 +10,7 @@
       {% endfor %}
       <form action="{% url 'welcome' %}" method="post">
         {% csrf_token %}
-        {{ login_form.as_p }}
+        {{ form.as_p }}
         <input type="submit" value ="Log in">
         <p><small>Don't have an account? <a href={% url 'sign_up' %}>Sign up</a></small></p>
   </body>

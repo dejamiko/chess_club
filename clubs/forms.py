@@ -25,25 +25,14 @@ class SignUpForm(forms.ModelForm):
     )
     password_confirmation = forms.CharField(label = 'Password confirmation', widget=forms.PasswordInput())
 
-
-
-class EditForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email',
-        'bio', 'chess_exp', 'personal_statement']
-        widgets = { 'bio': forms.Textarea() }
-
-
-
-def clean(self):
+    def clean(self):
         super().clean()
         new_password=self.cleaned_data.get('new_password')
         password_confirmation=self.cleaned_data.get('password_confirmation')
         if new_password!=password_confirmation:
             self.add_error('password_confirmation', 'Confirmation does not match password.')
 
-def save(self):
+    def save(self):
         super().save(commit=False)
         user = User.objects.create_user(
             self.cleaned_data.get('username'),
@@ -56,3 +45,11 @@ def save(self):
             password= self.cleaned_data.get('new_password'),
         )
         return user
+
+
+class EditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email',
+        'bio', 'chess_exp', 'personal_statement']
+        widgets = { 'bio': forms.Textarea() }

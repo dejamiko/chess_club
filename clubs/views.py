@@ -52,8 +52,10 @@ def edit_profile(request):
     if request.method == 'POST':
         form = EditForm(request.POST, instance=current_user)
         if form.is_valid():
-            print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE -=-=-=-=-=-=-=-=-=")
-            messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            #print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
+            #messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            #^^^^^^^^^^^^^^^^^^^^ appears on home page
+
             form.save()
             return redirect('home_page')
     else:
@@ -61,19 +63,26 @@ def edit_profile(request):
     return render(request, 'edit_profile.html', {'profile': form})
 
 
-def welcome_screen(request):
+def log_in(request):
     if request.method == 'POST':
         form = LogInForm(request.POST)
         if form.is_valid():
+            print("FORM IS VALID=============================")
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
+            print("USERNAME = " + username)
+            print("PASSWORD = " + password)
             user = authenticate(username=username, password=password)
             if user is not None:
+                print("USER IS NOT NONE!==============================================")
                 login(request, user)
                 return redirect('home_page') #for now home page is placeholder
+            else:
+                print("USER IS NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
-    return render(request, 'welcome_screen.html', {'login_form': form})
+    return render(request, 'welcome_screen.html', {'form': form})
+
 
 def log_out(request):
     logout(request)
@@ -89,4 +98,4 @@ def sign_up(request):
             return redirect('home_page')
      else:
         form = SignUpForm()
-     return render(request, 'sign_up.html', {'signup_form': form})
+     return render(request, 'sign_up.html', {'form': form})

@@ -3,10 +3,13 @@
 </head>
   <body>
       <h1>My profile</h1>
-        <p>{{ curr_user.username }}</p>
-        <p>{{ curr_user.first_name }}</p>
-        <p>{{ curr_user.last_name }}</p>
-        <p>{{ curr_user.email }}</p>
+        <p>username: {{ curr_user.username }}</p>
+        <p>first name: {{ curr_user.first_name }}</p>
+        <p>last name: {{ curr_user.last_name }}</p>
+        <p>email: {{ curr_user.email }}</p>
+        <p>bio: {{ curr_user.bio }}</p>
+        <p>chess experience: {{ curr_user.chess_exp }}</p>
+        <p>personal statement: {{ curr_user.personal_statement }}</p>
         <br><br>
         <a href='{%url 'edit_profile' %}'>Edit profile</a>
           <a href='{%url 'home_page' %}'>Home</a>
