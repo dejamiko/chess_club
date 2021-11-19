@@ -3,10 +3,12 @@
 </head>
   <body>
       <h1>Edit my profile</h1>
-        <p> username: {{ profile.username }}</p>
-        <p> first name: {{ profile.first_name }}</p>
-        <p> last name: {{ profile.last_name }}</p>
-        <p> email: {{ profile.email }}</p>
+        <form action="{% url 'edit_profile' %}" method="post">
+       {% csrf_token %}
+       <p>{{ profile.as_p }}</p>
+
+       <input type="submit" value="Update" class="btn btn-primary">
+     </form>
         <br><br>
 
   </body>

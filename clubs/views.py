@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import User, Member, make_owner, make_officer
-from .forms import SignUpForm, LogInForm, EditProfile
+from .forms import SignUpForm, LogInForm, EditForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -48,13 +48,17 @@ def profile(request):
 
 @login_required
 def edit_profile(request):
-    #the profile to be edited
-    profile = EditProfile(instance=request.user)
-    return render(request, 'edit_profile.html', {'profile': profile})
-
-
-
-    return render(request, 'edit_profile.html', )
+    current_user = request.user
+    if request.method == 'POST':
+        form = EditForm(request.POST, instance=current_user)
+        if form.is_valid():
+            print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE -=-=-=-=-=-=-=-=-=")
+            messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            form.save()
+            return redirect('home_page')
+    else:
+        form = EditForm(instance=current_user)
+    return render(request, 'edit_profile.html', {'profile': form})
 
 
 def welcome_screen(request):

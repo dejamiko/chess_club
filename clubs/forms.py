@@ -26,7 +26,8 @@ class SignUpForm(forms.ModelForm):
     password_confirmation = forms.CharField(label = 'Password confirmation', widget=forms.PasswordInput())
 
 
-class EditProfile(forms.ModelForm):
+
+class EditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email',
