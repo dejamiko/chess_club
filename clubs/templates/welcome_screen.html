@@ -1,0 +1,17 @@
+<html>
+<head>
+  <title>Chess club</title>
+</head>
+  <body>
+      <h1>welcome to chess club</h1>
+      <h2>Log in</h2>
+      {% for message in messages %}
+        <p><b>{{ message }}</b></p>
+      {% endfor %}
+      <form action="{% url 'welcome' %}" method="post">
+        {% csrf_token %}
+        {{ login_form.as_p }}
+        <input type="submit" value ="Log in">
+        <p><small>Don't have an account? <a href={% url 'sign_up' %}>Sign up</a></small></p>
+  </body>
+</html>
