@@ -1,29 +1,31 @@
-# from clucker
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import check_password
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
-from django.shortcuts import render
-from .models import User
+from .models import User, Member, make_owner, make_officer
 
-# Create your views here.
+# from django.contrib.auth.decorators import login_required
+# @login_required
+# when log-in page is created, this will redirect there if current user not authenticated
+def user_list(request):
+    # TODO if applicant, redirect straight to home
 
-#@login_prohibited
-def home(request):
-    return render(request, 'home.html')
+    if request.GET.get("listed_user"):
+        listed_user = User.objects.get(username=request.GET.get("listed_user"))
 
-@login_required
-def profile(request):
-    current_user = request.user
-    if request.method == 'POST':
-        form = UserForm(instance=current_user, data=request.POST)
-        if form.is_valid():
-            messages.add_message(request, messages.SUCCESS, "Profile updated!")
-            form.save()
-            return redirect('feed')
+        # check request.user can actually do what they're trying to do
+        listed_user.promote() if request.GET.get("promote") else None
+        listed_user.demote() if request.GET.get("demote") else None
+        if request.GET.get("switch_owner"):
+            make_owner(listed_user)
+            make_officer(request.user)
+            # FIXME redirect to homepage when it exists
+
+        return redirect("users")
+
+    if request.user.user_level() == "Member":
+        user_dict = Member.objects.all()
     else:
-        form = UserForm(instance=current_user)
-    return render(request, 'profile.html', {'form': form})
+        user_dict = User.objects.all()
+
+    # TODO filter the user_dict if a filter (by role / by chess exp) is in the GET
+    # TODO sort (everything in that column alphabetically) the user_dict if a sort is in the GET
+
+    return render(request, "user_list.html", {"users": user_dict})

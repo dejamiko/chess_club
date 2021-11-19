@@ -18,7 +18,7 @@ from django.urls import path
 from clubs import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
-    path('profile/', views.profile, name='profile'),
+    path("admin/", admin.site.urls),
+    path("users/", views.user_list, name="users"),
+    path("profile/", views.profile, name="profile"),
 ]

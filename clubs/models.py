@@ -33,6 +33,32 @@ class User(AbstractUser):
         """Return a URL to a small version of the user's gravatar."""
         return self.gravatar(size=60)
 
+    def user_level(self):
+        if Member.objects.filter(username=self.username).count() > 0:
+            return "Member"
+
+        if Officer.objects.filter(username=self.username).count() > 0:
+            return "Officer"
+
+        if Owner.objects.filter(username=self.username).count() > 0:
+            return "Owner"
+
+        return "Applicant"
+
+    def promote(self):
+        if self.user_level() == "Applicant":
+            make_member(self)
+        elif self.user_level() == "Member":
+            make_officer(self)
+        else:
+            raise ValueError
+
+    def demote(self):
+        if self.user_level() == "Officer":
+            make_member(self)
+        else:
+            raise ValueError
+
     # On user groups:
     # Django provides the Group and Permission framework, as in you create a group and
     # create permissions for that group and then add users to be in a group (or many groups).
@@ -55,28 +81,28 @@ class Owner(User):
 
 
 def make_owner(user):
-    if type(user) == Officer:
+    if user.user_level() == "Officer":
         return change_user_level(user, Owner)
     else:
         raise ValueError
 
 
 def make_officer(user):
-    if type(user) == Member or type(user) == Owner:
+    if user.user_level() == "Member" or user.user_level() == "Owner":
         return change_user_level(user, Officer)
     else:
         raise ValueError
 
 
 def make_member(user):
-    if type(user) == User or type(user) == Officer:
+    if user.user_level() == "Applicant" or user.user_level() == "Officer":
         return change_user_level(user, Member)
     else:
         raise ValueError
 
 
 def make_user(user):
-    if type(user) == Member:
+    if user.user_level() == "Member":
         return change_user_level(user, User)
     else:
         raise ValueError
@@ -86,6 +112,16 @@ def change_user_level(old_user, new_class):
     data_dict = extract_data(old_user)
     old_user.delete()
     new_user = assign_data(data_dict, new_class)
+
+    if old_user.user_level() == "Owner":
+        new_user.is_staff = False
+        new_user.is_superuser = False
+        new_user.is_admin = False
+    if new_class == Owner:
+        new_user.is_staff = True
+        new_user.is_superuser = True
+        new_user.is_admin = True
+
     new_user.save()
     return new_user
 
