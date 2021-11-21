@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
-from .models import User, Member, make_owner, make_officer
+from .models import User, make_owner, make_officer
+
 
 # from django.contrib.auth.decorators import login_required
 # @login_required
@@ -20,8 +21,8 @@ def user_list(request):
 
         return redirect("users")
 
-    if request.user.user_level() == "Member":
-        user_dict = Member.objects.all()
+    if request.user.user_level == "Member":
+        user_dict = User.objects.filter(user_level='Member')
     else:
         user_dict = User.objects.all()
 

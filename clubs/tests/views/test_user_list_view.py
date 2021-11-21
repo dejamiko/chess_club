@@ -1,14 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from clubs.models import (
-    User,
-    Member,
-    Officer,
-    Owner,
-    make_member,
-    make_officer,
-    make_owner,
-)
+from clubs.models import User, make_member, make_officer, make_owner
 
 
 class UserListTest(TestCase):
@@ -25,9 +17,9 @@ class UserListTest(TestCase):
         make_member(self.user)
 
         self._create_test_users(start_id=5, count=5)
-        self._create_test_users(start_id=10, count=5, level=Member)
-        self._create_test_users(start_id=15, count=5, level=Officer)
-        self._create_test_users(start_id=20, count=1, level=Owner)
+        self._create_test_users(start_id=10, count=5, level="Member")
+        self._create_test_users(start_id=15, count=5, level="Officer")
+        self._create_test_users(start_id=20, count=1, level="Owner")
 
         response = self._access_user_list_page()
         self.assertEqual(len(response.context["users"]), 6)
@@ -57,12 +49,12 @@ class UserListTest(TestCase):
 
     def test_officer_can_see_everyone(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
         self._create_test_users(start_id=5, count=5)
-        self._create_test_users(start_id=10, count=5, level=Member)
-        self._create_test_users(start_id=15, count=5, level=Officer)
-        self._create_test_users(start_id=20, count=1, level=Owner)
+        self._create_test_users(start_id=10, count=5, level="Member")
+        self._create_test_users(start_id=15, count=5, level="Officer")
+        self._create_test_users(start_id=20, count=1, level="Owner")
 
         response = self._access_user_list_page()
         self.assertEqual(len(response.context["users"]), 17)
@@ -74,7 +66,7 @@ class UserListTest(TestCase):
 
     def test_officer_sees_all_variables(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -86,13 +78,13 @@ class UserListTest(TestCase):
 
     def test_owner_can_see_everyone(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
-        make_owner(Officer.objects.get(username=self.user.username))
+        make_officer(self.user)
+        make_owner(self.user)
 
         self._create_test_users(start_id=5, count=5)
-        self._create_test_users(start_id=10, count=5, level=Member)
-        self._create_test_users(start_id=15, count=5, level=Officer)
-        self._create_test_users(start_id=20, count=1, level=Owner)
+        self._create_test_users(start_id=10, count=5, level="Member")
+        self._create_test_users(start_id=15, count=5, level="Officer")
+        self._create_test_users(start_id=20, count=1, level="Owner")
 
         response = self._access_user_list_page()
         self.assertEqual(len(response.context["users"]), 17)
@@ -104,8 +96,8 @@ class UserListTest(TestCase):
 
     def test_owner_sees_all_variables(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
-        make_owner(Officer.objects.get(username=self.user.username))
+        make_officer(self.user)
+        make_owner(self.user)
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -117,7 +109,7 @@ class UserListTest(TestCase):
 
     def test_officer_has_promote_button_for_applicant(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1)
 
@@ -126,57 +118,57 @@ class UserListTest(TestCase):
 
     def test_officer_has_promote_button_for_member(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Member)
+        self._create_test_users(start_id=0, count=1, level="Member")
 
         response = self._access_user_list_page()
         self.assertContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_officer(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Officer)
+        self._create_test_users(start_id=0, count=1, level="Officer")
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_owner(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
+        make_officer(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Owner)
+        self._create_test_users(start_id=0, count=1, level="Owner")
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_no_promote_button_for_officer(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
-        make_owner(Officer.objects.get(username=self.user.username))
+        make_officer(self.user)
+        make_owner(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Officer)
+        self._create_test_users(start_id=0, count=1, level="Officer")
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_demote_button_for_officer(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
-        make_owner(Officer.objects.get(username=self.user.username))
+        make_officer(self.user)
+        make_owner(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Officer)
+        self._create_test_users(start_id=0, count=1, level="Officer")
 
         response = self._access_user_list_page()
         self.assertContains(response, "Demote")
 
     def test_owner_has_switch_ownership_button_for_officer(self):
         make_member(self.user)
-        make_officer(Member.objects.get(username=self.user.username))
-        make_owner(Officer.objects.get(username=self.user.username))
+        make_officer(self.user)
+        make_owner(self.user)
 
-        self._create_test_users(start_id=0, count=1, level=Officer)
+        self._create_test_users(start_id=0, count=1, level="Officer")
 
         response = self._access_user_list_page()
         self.assertContains(response, "Switch ownership")
@@ -188,13 +180,14 @@ class UserListTest(TestCase):
         self.assertTemplateUsed(response, "user_list.html")
         return response
 
-    def _create_test_users(self, start_id=0, count=5, level=User):
+    def _create_test_users(self, start_id=0, count=5, level="Applicant"):
         for user_id in range(start_id, start_id + count):
-            level.objects.create_user(
+            User.objects.create_user(
                 id=user_id,
                 username=f"user{user_id}",
                 first_name=f"First {user_id}",
                 last_name=f"Last {user_id}",
                 email=f"{user_id}@test.com",
                 chess_exp="Beginner",
+                user_level=level
             )
