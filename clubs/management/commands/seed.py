@@ -47,10 +47,10 @@ class Command(BaseCommand):
         xp_levels = ['New to chess', 'Beginner', 'Intermediate', 'Advanced', 'Expert']
         xp_chooser = random.randint(0,4)
         return xp_levels[xp_chooser]
-        
+
 
     def createEmail(self, first_name, last_name):
-        email = f'{first_name.lower()}.{last_name.lower()}@example.org'
+        email = f'{first_name.lower()}.{last_name.lower()}@fakerseed.org'
         return email
 
     def createUsername(self, first_name, last_name):
