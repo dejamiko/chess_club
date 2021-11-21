@@ -67,18 +67,12 @@ def log_in(request):
     if request.method == 'POST':
         form = LogInForm(request.POST)
         if form.is_valid():
-            print("FORM IS VALID=============================")
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            print("USERNAME = " + username)
-            print("PASSWORD = " + password)
             user = authenticate(username=username, password=password)
             if user is not None:
-                print("USER IS NOT NONE!==============================================")
                 login(request, user)
                 return redirect('home_page') #for now home page is placeholder
-            else:
-                print("USER IS NONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
     return render(request, 'welcome_screen.html', {'form': form})

@@ -1,7 +1,10 @@
-<html>
-<head>
-</head>
-  <body>
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container vh-100">
+  <div class="row h-100">
+    <div class="col-9" my-auto>
+      <div class="card offset-sm-1 offset-md-3 offset-lg-4">
+
       <h1>Edit my profile</h1>
         <form action="{% url 'edit_profile' %}" method="post">
        {% csrf_token %}
@@ -11,5 +14,7 @@
      </form>
         <br><br>
 
-  </body>
-</html>
+      </div>
+    </div>
+  </div>
+  {% endblock %}

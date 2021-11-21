@@ -1,16 +1,23 @@
-<html>
-<head>
-  <title>HOME page placeholder</title>
-  <body>
-    <h1><b>Home page placeholder</h1></p> <br><br><br><br><br> <h1><b>Home page placeholder</b></h1>
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container vh-100">
+  <div class="row h-100">
+    <div class="col-9" my-auto>
+      <div class="card offset-sm-1 offset-md-3 offset-lg-4">
 
-{% if user.is_authenticated %}
-<a href="log_out">logout</a>
-<br><br>
-<a href="users">View users</a>
-<br><br>
-<a href='{%url 'profile' %}'>View my profile</a>
-{%endif%}
+        <h1><b>Home page placeholder</h1>
+        </p> <br><br><br><br><br>
+        <h1><b>Home page placeholder</b></h1>
 
-  </body>
-</html>
+        {% if user.is_authenticated %}
+        <a href='{%url 'edit_profile' %}'>logout</a>
+        <br><br>
+        <a href='{%url 'users' %}'>View users</a>
+        <br><br>
+        <a href='{%url 'profile' %}'>View my profile</a>
+        {%endif%}
+
+      </div>
+    </div>
+  </div>
+  {% endblock %}

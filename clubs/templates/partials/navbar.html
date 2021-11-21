@@ -3,7 +3,7 @@
 {# Navbar inspired by the one created for clucker #}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
     <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="{% url 'home_page' %}">
             <span class="fas fa-chess"></span>&nbsp;&nbsp;Chess Club
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -15,6 +15,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'users' %}">Users</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                </li>
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item dropdown">
@@ -23,12 +26,12 @@
                         <span class="bi-person-circle"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user_account_dropdown">
-                        <li><a class="dropdown-item" href="#">Edit profile</a></li>
+                        <li><a class="dropdown-item" href='{%url 'edit_profile' %}'>Edit profile</a></li>
                         <li><a class="dropdown-item" href="#">Change password</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Log out</a></li>
+                        <li><a class="dropdown-item" href="{%url 'log_out' %}">Log out</a></li>
                     </ul>
                 </li>
             </ul>

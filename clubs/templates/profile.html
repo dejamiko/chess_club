@@ -1,8 +1,11 @@
-<html>
-<head>
-</head>
-  <body>
-      <h1>My profile</h1>
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container vh-100">
+  <div class="row h-100">
+    <div class="col-9" my-auto>
+      <div class="card offset-sm-1 offset-md-3 offset-lg-4">
+
+        <h1>My profile</h1>
         <p>username: {{ curr_user.username }}</p>
         <p>first name: {{ curr_user.first_name }}</p>
         <p>last name: {{ curr_user.last_name }}</p>
@@ -12,7 +15,9 @@
         <p>personal statement: {{ curr_user.personal_statement }}</p>
         <br><br>
         <a href='{%url 'edit_profile' %}'>Edit profile</a>
-          <a href='{%url 'home_page' %}'>Home</a>
+        <a href='{%url 'home_page' %}'>Home</a>
 
-  </body>
-</html>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
