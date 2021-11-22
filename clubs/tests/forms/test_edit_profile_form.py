@@ -8,20 +8,14 @@ from django.urls import reverse
 
 class EditFormTestCase(TestCase):
     """UNit tests of the edit form."""
+    fixtures = ["clubs/tests/fixtures/default_user.json"]
 
     def setUp(self):
         self.url = reverse('edit_profile')
         self.sign_up_url = reverse('sign_up')
-        self.user = User.objects.create_user(
-            username="@johndoe",
-            first_name="john",
-            last_name="doe",
-            email="johndoe@test.com",
-            bio='My bio',
-            password='#NDGDR98adada123',
-            chess_exp="Beginner",
-            personal_statement='john doe personal statement',
-        )
+        self.user = User.objects.get(email="johndoe@example.com")
+
+
         self.sign_up_form_input = {
             'username': '@janedoe',
             'first_name': 'Jane',
