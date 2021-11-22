@@ -79,7 +79,7 @@ def edit_profile(request):
             #^^^^^^^^^^^^^^^^^^^^ appears on home page
 
             form.save()
-            return redirect('home_page')
+            return redirect('profile')
     else:
         form = EditForm(instance=current_user)
     return render(request, 'edit_profile.html', {'form': form})
