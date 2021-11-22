@@ -7,21 +7,20 @@ from django import forms
 
 
 class SignUpFormTestCase(TestCase):
-    """UNit tests of the sign up form."""
+    """Unit tests of the sign up form."""
 
     def setUp(self):
         self.form_input = {
-        'username': '@janedoe',
-        'first_name': 'Jane',
-        'last_name': 'Doe',
-        'email': 'janedoe@example.org',
-        'bio': 'My bio',
-        'chess_exp': 'Beginner',
-        'personal_statement': 'jane doe personal statement',
-        'new_password': '#NDGDR98adada123',
-        'password_confirmation': '#NDGDR98adada123'
+            'username': '@janedoe',
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'email': 'janedoe@example.org',
+            'bio': 'My bio',
+            'chess_exp': 'Beginner',
+            'personal_statement': 'jane doe personal statement',
+            'new_password': '#NDGDR98adada123',
+            'password_confirmation': '#NDGDR98adada123'
         }
-
 
     # form accepts valid input data
     def test_valid_sign_up_form(self):
@@ -34,7 +33,7 @@ class SignUpFormTestCase(TestCase):
     #     form = SignUpForm(data=self.form_input)
     #     self.assertFalse(form.is_valid())
 
-    #form has necessary fields
+    # form has necessary fields
     def test_form_has_necessary_fields(self):
         form = SignUpForm()
         self.assertIn('first_name', form.fields)
@@ -53,24 +52,24 @@ class SignUpFormTestCase(TestCase):
         password_confirmation_widget = form.fields['password_confirmation'].widget
         self.assertTrue(isinstance(password_confirmation_widget, forms.PasswordInput))
 
-    #test username uniqueness
+    # test username uniqueness
     def test_unique_username(self):
         form = SignUpForm(data=self.form_input)
         form_duplicate = {
-        'username': '@janedoe',
-        'first_name': 'jane2',
-        'last_name': 'Doe2',
-        'email': 'janedoe2@example.org',
-        'bio': 'My bio2',
-        'chess_exp': 'Beginner2',
-        'personal_statement': 'jane doe personal statement2',
-        'new_password': '#NDGDR98adada123',
-        'password_confirmation': '#NDGDR98adada123'
+            'username': '@janedoe',
+            'first_name': 'jane2',
+            'last_name': 'Doe2',
+            'email': 'janedoe2@example.org',
+            'bio': 'My bio2',
+            'chess_exp': 'Beginner2',
+            'personal_statement': 'jane doe personal statement2',
+            'new_password': '#NDGDR98adada123',
+            'password_confirmation': '#NDGDR98adada123'
         }
-        form2=SignUpForm(data=form_duplicate)
+        form2 = SignUpForm(data=form_duplicate)
         self.assertFalse(form2.is_valid())
 
-    #new password has correct format
+    # new password has correct format
     def test_password_must_contain_uppercase_character(self):
         self.form_input['new_password'] = 'ndgdr98adada123'
         self.form_input['password_confirmation'] = 'ndgdr98adada123'
@@ -89,7 +88,6 @@ class SignUpFormTestCase(TestCase):
         form = SignUpForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
-
     def test_password_and_password_confirmation_are_identical(self):
         self.form_input['password_confirmation'] = 'NOT_NDGDR98adada123'
         form = SignUpForm(data=self.form_input)
@@ -100,7 +98,7 @@ class SignUpFormTestCase(TestCase):
         before_count = User.objects.count()
         form.save()
         after_count = User.objects.count()
-        self.assertEqual(after_count, before_count+1)
+        self.assertEqual(after_count, before_count + 1)
         user = User.objects.get(username='@janedoe')
         self.assertEqual(user.first_name, 'Jane')
         self.assertEqual(user.last_name, 'Doe')

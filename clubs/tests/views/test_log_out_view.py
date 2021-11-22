@@ -4,6 +4,7 @@ from clubs.models import User
 from django.urls import reverse
 from .helpers import LogInTester
 
+
 class LogOutViewTestCase(TestCase, LogInTester):
     """Tests of the log out view"""
 
@@ -18,8 +19,7 @@ class LogOutViewTestCase(TestCase, LogInTester):
             password='#NDGDR98adada123',
             chess_exp="Beginner",
             personal_statement='john doe personal statement',
-            )
-
+        )
 
     def test_log_out_url(self):
         self.assertEqual(self.url, '/home/log_out/')
@@ -29,8 +29,8 @@ class LogOutViewTestCase(TestCase, LogInTester):
         self.assertTrue(self._is_logged_in())
         response = self.client.get(self.url, follow=True)
         response_url = reverse('log_in')
-        self.assertRedirects(response, response_url, status_code=302, target_status_code = 200)
-        template_dict = { 'log_in.html', 'base_content.html', 'base.html', 'partials/navbar.html' }
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        template_dict = {'log_in.html', 'base_content.html', 'base.html', 'partials/navbar.html'}
         for t in template_dict:
             self.assertTemplateUsed(response, t)
         self.assertFalse(self._is_logged_in())

@@ -58,14 +58,13 @@ def change_password(request):
         form = PasswordChangeForm(data=request.POST, user=current_user)
         if form.is_valid():
             form.save()
-            #User is logged out by default after password change
-            #hence need for importing 'update_session_auth_hash'
+            # User is logged out by default after password change
+            # hence need for importing 'update_session_auth_hash'
             update_session_auth_hash(request, form.user)
             return redirect('home_page')
     else:
         form = PasswordChangeForm(user=current_user)
     return render(request, 'change_password.html', {'form': form})
-
 
 
 @login_required
@@ -74,9 +73,9 @@ def edit_profile(request):
     if request.method == 'POST':
         form = EditForm(request.POST, instance=current_user)
         if form.is_valid():
-            #print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
-            #messages.add_message(request, messages.SUCCESS, "Profile updated!")
-            #^^^^^^^^^^^^^^^^^^^^ appears on home page
+            # print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
+            # messages.add_message(request, messages.SUCCESS, "Profile updated!")
+            # ^^^^^^^^^^^^^^^^^^^^ appears on home page
 
             form.save()
             return redirect('profile')
@@ -94,7 +93,7 @@ def log_in(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home_page') #for now home page is placeholder
+                return redirect('home_page')  # for now home page is placeholder
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
     return render(request, 'log_in.html', {'form': form})
@@ -106,12 +105,12 @@ def log_out(request):
 
 
 def sign_up(request):
-     if request.method == 'POST':
+    if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('home_page')
-     else:
+    else:
         form = SignUpForm()
-     return render(request, 'sign_up.html', {'form': form})
+    return render(request, 'sign_up.html', {'form': form})
