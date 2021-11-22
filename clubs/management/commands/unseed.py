@@ -5,5 +5,6 @@ class Command(BaseCommand):
         """The database unseeder."""
 
         def handle(self, *args, **options):
-             User.objects.filter(is_superuser = False).delete()
-             #^this was needed for debugging log in issues
+             email_substring = "@fakerseed.org"
+             User.objects.filter(is_staff=False, email__contains=email_substring, is_superuser=False).delete()
+             print('All users have been unseeded...')
