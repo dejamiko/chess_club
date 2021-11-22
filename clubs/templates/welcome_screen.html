@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block body %}
+  <div class="container vh-100">
+    <div class="row h-100">
+      <div class="col-12 my-auto">
+        <div class="card cover-card offset-sm-2 offset-md-4 offset-lg-7">
+          <h1 class="cover-heading">Chess club</h1>
+          <p class="cover-text">Welcome to the chess club</p>
+          <p><a href='{% url 'log_in' %}' class="btn btn-sm btn-secondary">Log in</a></p>
+          <p><small>Don't have an account?
+              <a href='{% url 'sign_up' %}' class="btn btn-sm btn-secondary">Sign up</a></small></p>
+            </form>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
