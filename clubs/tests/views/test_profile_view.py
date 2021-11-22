@@ -6,6 +6,7 @@ from clubs.models import User
 from django.urls import reverse
 from .helpers import LogInTester
 
+
 class EditProfileTestCase(TestCase, LogInTester):
     """Tests of the edit profile view"""
 
@@ -30,21 +31,19 @@ class EditProfileTestCase(TestCase, LogInTester):
             password=self.password,
             chess_exp=self.chess_exp,
             personal_statement=self.personal_statement,
-            )
-
+        )
 
     def test_profile_url(self):
         self.assertEqual(self.url, '/home/profile/')
-
 
     def test_profile_is_correct(self):
         self.client.login(username='@johndoe', password='#NDGDR98adada123')
         curr_profile = self.client.get(self.url)
         profile_user = curr_profile.context["user"]
-        self.assertEqual (self.username, profile_user.username)
-        self.assertEqual (self.first_name, profile_user.first_name)
-        self.assertEqual (self.last_name, profile_user.last_name)
-        self.assertEqual (self.email, profile_user.email)
-        self.assertEqual (self.bio, profile_user.bio)
-        self.assertEqual (self.chess_exp, profile_user.chess_exp)
-        self.assertEqual (self.personal_statement, profile_user.personal_statement)
+        self.assertEqual(self.username, profile_user.username)
+        self.assertEqual(self.first_name, profile_user.first_name)
+        self.assertEqual(self.last_name, profile_user.last_name)
+        self.assertEqual(self.email, profile_user.email)
+        self.assertEqual(self.bio, profile_user.bio)
+        self.assertEqual(self.chess_exp, profile_user.chess_exp)
+        self.assertEqual(self.personal_statement, profile_user.personal_statement)

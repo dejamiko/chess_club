@@ -3,6 +3,7 @@ from django.test import TestCase
 from django import forms
 from clubs.forms import LogInForm
 
+
 class LogInFormTestCase(TestCase):
     """Unit tests of the log in form."""
 
@@ -17,17 +18,17 @@ class LogInFormTestCase(TestCase):
         self.assertTrue(isinstance(password_field.widget, forms.PasswordInput))
 
     def test_form_accepts_valid_input(self):
-        form=LogInForm(data=self.form_input)
+        form = LogInForm(data=self.form_input)
         self.assertTrue(form.is_valid())
 
     def test_form_rejects_blank_username(self):
         self.form_input['username'] = ''
-        form=LogInForm(data=self.form_input)
+        form = LogInForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     def test_form_rejects_blank_password(self):
         self.form_input['password'] = ''
-        form=LogInForm(data=self.form_input)
+        form = LogInForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     # def test_form_accepts_incorrect_username(self):
@@ -37,5 +38,5 @@ class LogInFormTestCase(TestCase):
 
     def test_form_accepts_incorrect_password(self):
         self.form_input['password'] = '#NDGDR98adada1234'
-        form=LogInForm(data=self.form_input)
+        form = LogInForm(data=self.form_input)
         self.assertTrue(form.is_valid())

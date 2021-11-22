@@ -15,7 +15,6 @@ class EditFormTestCase(TestCase):
         self.sign_up_url = reverse('sign_up')
         self.user = User.objects.get(email="johndoe@example.com")
 
-
         self.sign_up_form_input = {
             'username': '@janedoe',
             'first_name': 'Jane',
@@ -28,7 +27,7 @@ class EditFormTestCase(TestCase):
             'password_confirmation': '#NDGDR98adada123'
         }
 
-     # form accepts valid input data
+    # form accepts valid input data
     def test_valid_edit_form(self):
         form = EditForm(data=self.sign_up_form_input)
         self.assertTrue(form.is_valid())
@@ -45,14 +44,13 @@ class EditFormTestCase(TestCase):
         self.assertTrue(isinstance(email_field, forms.EmailField))
         self.assertIn('bio', form.fields)
 
-
     def test_form_must_save_correctly(self):
         current_user = self.user
-        form = EditForm(self.sign_up_form_input, instance = current_user)
+        form = EditForm(self.sign_up_form_input, instance=current_user)
         before_count = User.objects.count()
         form.save()
         after_count = User.objects.count()
-        #edit form shouldn't increase users - edits existing one
+        # edit form shouldn't increase users - edits existing one
         self.assertEqual(after_count, before_count)
         user = User.objects.get(username='@janedoe')
         self.assertEqual(user.first_name, 'Jane')
