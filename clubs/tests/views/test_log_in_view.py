@@ -24,7 +24,7 @@ class LogInViewTestCase(TestCase, LogInTester):
 
 
     def test_log_in_url(self):
-        self.assertEqual(self.url, '/') # log in url is nothing
+        self.assertEqual(self.url, '/log_in/')
 
     def test_get_log_in(self):
         response=self.client.get(self.url)

@@ -47,6 +47,8 @@ def profile(request):
     return render(request, 'profile.html', {'curr_user': request.user})
 
 
+def welcome_screen(request):
+    return render(request, 'welcome_screen.html')
 
 
 @login_required
