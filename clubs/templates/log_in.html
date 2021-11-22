@@ -14,9 +14,10 @@
         <form action="{% url 'log_in' %}" method="post">
           {% csrf_token %}
           {% include 'partials/bootstrap_form.html' with form=form %}
-          <input type="submit" value="Log in">
+          <input type="submit" value="Log in" class="btn btn-sm btn-secondary">
           <p><small>Don't have an account?
-              <a href='{% url 'sign_up' %}' class="btn btn-lg btn-secondary">Sign up</a></small></p>
+              <a href='{% url 'sign_up' %}' class="btn btn-sm btn-secondary">Sign up</a></small></p>
+            </form>
       </div>
     </div>
   </div>

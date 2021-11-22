@@ -19,7 +19,7 @@ class UserListTest(TestCase):
         self.user = User.objects.get(email="johndoe@example.com")
 
     def test_user_list_url(self):
-        self.assertEqual(self.url, "/users/")
+        self.assertEqual(self.url, "/home/users/")
 
     def test_member_can_only_see_members(self):
         make_member(self.user)

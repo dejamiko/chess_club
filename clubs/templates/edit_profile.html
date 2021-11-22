@@ -5,11 +5,11 @@
     <div class="col-9" my-auto>
       <div class="card offset-sm-1 offset-md-3 offset-lg-4">
 
+
       <h1>Edit my profile</h1>
         <form action="{% url 'edit_profile' %}" method="post">
        {% csrf_token %}
        <p>{{ form.as_p }}</p>
-
        <input type="submit" value="Update" class="btn btn-primary">
      </form>
         <br><br>

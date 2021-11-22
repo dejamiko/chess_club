@@ -47,6 +47,8 @@ def profile(request):
     return render(request, 'profile.html', {'curr_user': request.user})
 
 
+
+
 @login_required
 def change_password(request):
     current_user = request.user
@@ -54,12 +56,12 @@ def change_password(request):
         form = PasswordChangeForm(data=request.POST, user=current_user)
         if form.is_valid():
             form.save()
+            #User is logged out by default after password change
+            #hence need for importing 'update_session_auth_hash'
             update_session_auth_hash(request, form.user)
-            print("-----------------should redirect to home page------------------------")
             return redirect('home_page')
     else:
         form = PasswordChangeForm(user=current_user)
-        print("-----------------should redirect to CURRENT page------------------------")
     return render(request, 'change_password.html', {'form': form})
 
 
