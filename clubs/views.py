@@ -1,8 +1,9 @@
 from django.shortcuts import redirect, render
 from .models import User, Member, make_owner, make_officer
 from .forms import SignUpForm, LogInForm, EditForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
 
@@ -46,6 +47,27 @@ def profile(request):
     return render(request, 'profile.html', {'curr_user': request.user})
 
 
+def welcome_screen(request):
+    return render(request, 'welcome_screen.html')
+
+
+@login_required
+def change_password(request):
+    current_user = request.user
+    if request.method == 'POST':
+        form = PasswordChangeForm(data=request.POST, user=current_user)
+        if form.is_valid():
+            form.save()
+            #User is logged out by default after password change
+            #hence need for importing 'update_session_auth_hash'
+            update_session_auth_hash(request, form.user)
+            return redirect('home_page')
+    else:
+        form = PasswordChangeForm(user=current_user)
+    return render(request, 'change_password.html', {'form': form})
+
+
+
 @login_required
 def edit_profile(request):
     current_user = request.user
@@ -60,7 +82,7 @@ def edit_profile(request):
             return redirect('profile')
     else:
         form = EditForm(instance=current_user)
-    return render(request, 'edit_profile.html', {'profile': form})
+    return render(request, 'edit_profile.html', {'form': form})
 
 
 def log_in(request):
@@ -75,12 +97,12 @@ def log_in(request):
                 return redirect('home_page') #for now home page is placeholder
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
-    return render(request, 'welcome_screen.html', {'form': form})
+    return render(request, 'log_in.html', {'form': form})
 
 
 def log_out(request):
     logout(request)
-    return redirect('welcome')
+    return redirect('log_in')
 
 
 def sign_up(request):

@@ -1,23 +1,16 @@
-{% extends 'base_content.html' %}
-{% block content %}
-<div class="container vh-100">
-  <div class="row h-100">
-    <div class="col-9" my-auto>
-      <div class="card offset-sm-1 offset-md-3 offset-lg-4">
-        <!-- This will be edited ^^^^^^^^^^^^^^^^
-          to keep the log in page in the middle!-->
-        <h1>welcome to chess club</h1>
-        <h2>Log in</h2>
-        {% for message in messages %}
-        <p><b>{{ message }}</b></p>
-        {% endfor %}
-        <form action="{% url 'welcome' %}" method="post">
-          {% csrf_token %}
-          {% include 'partials/bootstrap_form.html' with form=form %}
-          <input type="submit" value="Log in">
+{% extends 'base.html' %}
+{% block body %}
+  <div class="container vh-100">
+    <div class="row h-100">
+      <div class="col-12 my-auto">
+        <div class="card cover-card offset-sm-2 offset-md-4 offset-lg-7">
+          <h1 class="cover-heading">Chess club</h1>
+          <p class="cover-text">Welcome to the chess club</p>
+          <p><a href='{% url 'log_in' %}' class="btn btn-sm btn-secondary">Log in</a></p>
           <p><small>Don't have an account?
-              <a href='{% url 'sign_up' %}' class="btn btn-lg btn-secondary">Sign up</a></small></p>
-      </div>
+              <a href='{% url 'sign_up' %}' class="btn btn-sm btn-secondary">Sign up</a></small></p>
+            </form>
+        </div>
     </div>
   </div>
 </div>
