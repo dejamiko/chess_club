@@ -118,6 +118,13 @@ class Club(models.Model):
     def get_owner(self):
         return self.owner
 
+    def get_all_users(self):
+        return self.get_members().union(self.get_officers()).union(
+            User.objects.filter(username=self.get_owner().username))
+
+    def get_all_applicants(self):
+        return User.objects.difference(self.get_all_users())
+
 
 def toggle_superuser(user):
     user.is_staff = not user.is_staff

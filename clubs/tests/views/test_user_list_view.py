@@ -62,8 +62,7 @@ class UserListTest(TestCase):
         self.club.save()
 
         response = self._access_user_list_page()
-        self.assertEqual(len(response.context["users"]),
-                         self.club.get_number_of_members() + self.club.get_number_of_officers() + 1)
+        self.assertEqual(len(response.context["users"]), User.objects.count())
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
@@ -95,8 +94,7 @@ class UserListTest(TestCase):
         self.club.save()
 
         response = self._access_user_list_page()
-        self.assertEqual(len(response.context["users"]),
-                         self.club.get_number_of_members() + self.club.get_number_of_officers() + 1)
+        self.assertEqual(len(response.context["users"]), User.objects.count())
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
@@ -117,15 +115,14 @@ class UserListTest(TestCase):
         self.assertContains(response, "Role")
         self.assertContains(response, "Options")
 
-    # There are no more applicants in the list
-    # def test_officer_has_promote_button_for_applicant(self):
-    #     self.club.make_member(self.user)
-    #     self.club.make_officer(self.user)
-    #
-    #     self._create_test_users(start_id=0, count=1)
-    #
-    #     response = self._access_user_list_page()
-    #     self.assertContains(response, "Promote")
+    def test_officer_has_promote_button_for_applicant(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+
+        self._create_test_users(start_id=0, count=1)
+
+        response = self._access_user_list_page()
+        self.assertContains(response, "Promote")
 
     def test_officer_has_promote_button_for_member(self):
         self.club.make_member(self.user)

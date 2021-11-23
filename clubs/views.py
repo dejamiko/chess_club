@@ -31,9 +31,7 @@ def user_list(request):
     if request.user.user_level(club) == "Member":
         user_dict = club.get_members()
     else:
-        user_dict = club.get_members()
-        user_dict = user_dict.union(club.get_officers())
-        user_dict = user_dict.union(User.objects.filter(username=club.get_owner().username))
+        user_dict = User.objects.all()
 
     user_dict_with_levels = []
     for user in user_dict:
