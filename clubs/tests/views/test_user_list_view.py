@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from clubs.tests.views.helpers import reverse_with_next
 from clubs.models import (
     User,
     Member,
@@ -20,6 +21,11 @@ class UserListTest(TestCase):
 
     def test_user_list_url(self):
         self.assertEqual(self.url, "/home/users/")
+
+    def test_logged_in_redirect(self):
+        redirect_url=reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_member_can_only_see_members(self):
         make_member(self.user)

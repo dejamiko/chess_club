@@ -4,6 +4,7 @@ from django.test import TestCase
 from clubs.forms import LogInForm
 from clubs.models import User
 from django.urls import reverse
+from clubs.tests.views.helpers import reverse_with_next
 from .helpers import LogInTester
 
 class EditProfileTestCase(TestCase, LogInTester):
@@ -32,6 +33,10 @@ class EditProfileTestCase(TestCase, LogInTester):
             personal_statement=self.personal_statement,
             )
 
+    def test_logged_in_redirect(self):
+        redirect_url=reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_profile_url(self):
         self.assertEqual(self.url, '/home/profile/')

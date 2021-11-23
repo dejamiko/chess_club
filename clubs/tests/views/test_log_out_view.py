@@ -20,6 +20,9 @@ class LogOutViewTestCase(TestCase, LogInTester):
             personal_statement='john doe personal statement',
             )
 
+    def test_redirect(self):
+        #Test redirect behaviour for logged in and logged out users
+        pass
 
     def test_log_out_url(self):
         self.assertEqual(self.url, '/home/log_out/')

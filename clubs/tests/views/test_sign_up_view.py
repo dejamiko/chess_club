@@ -9,19 +9,27 @@ from .helpers import LogInTester
 class SignUpViewTestCase(TestCase, LogInTester):
     """Tests of the sign up view"""
 
+    fixtures = ["clubs/tests/fixtures/default_user.json"]
+
     def setUp(self):
         self.url = reverse('sign_up')
+
+        self.user = User.objects.get(email="johndoe@example.com")
         self.form_input = {
-        'username': '@janedoe',
-        'first_name': 'Jane',
-        'last_name': 'Doe',
-        'email': 'janedoe@example.org',
-        'bio': 'My bio',
-        'chess_exp' : 'Beginner',
-        'personal_statement' : 'Jane doe personal statement',
-        'new_password': '#NDGDR98adada123',
-        'password_confirmation': '#NDGDR98adada123'
+        'username': self.user.username,
+        'first_name': self.user.first_name,
+        'last_name': self.user.last_name,
+        'email': self.user.email,
+        'bio': self.user.bio,
+        'chess_exp' : self.user.chess_exp,
+        'personal_statement' : self.user.personal_statement,
+        'new_password': self.user.password,
+        'password_confirmation' : self.user.password
         }
+
+    def test_redirect(self):
+        #Test redirect behaviour for logged in and logged out users
+        pass
 
     def test_sign_up_url(self):
         self.assertEqual(self.url, '/sign_up/')
@@ -33,6 +41,13 @@ class SignUpViewTestCase(TestCase, LogInTester):
         form = response.context['form']
         self.assertTrue(isinstance(form,SignUpForm))
         self.assertFalse(form.is_bound)
+
+    def test_get_sign_up_redirect_when_logged_in(self):
+        self.client.login(username=self.user.username, password='#NDGDR98adada123')
+        response=self.client.get(self.url, follow=True)
+        redirect_url=reverse('home_page')
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code = 200)
+        self.assertTemplateUsed(response, 'home_page.html')
 
     def test_unsuccesful_sign_up(self):
         self.form_input['username'] = ''
@@ -67,3 +82,13 @@ class SignUpViewTestCase(TestCase, LogInTester):
         is_password_correct = check_password('#NDGDR98adada123', user.password)
         self.assertTrue(is_password_correct)
         self.assertTrue(self._is_logged_in())
+    #
+    # def test_post_log_in_redirect_when_logged_in(self):
+    #     self.client.login(username=self.user.username, password=self.user.password)
+    #     before_count = User.objects.count()
+    #     response=self.client.post(self.url, self.form_input, follow=True)
+    #     after_count = User.objects.count()
+    #     self.assertEqual(after_count, before_count)
+    #     redirect_url=reverse('home_page')
+    #     self.assertRedirects(response, redirect_url, status_code=302, target_status_code = 200)
+    #     self.assertTemplateUsed(response, 'home_page.html')
