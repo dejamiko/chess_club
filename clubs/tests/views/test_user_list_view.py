@@ -17,7 +17,6 @@ class UserListTest(TestCase):
 
     def test_member_can_only_see_members(self):
         self.club.make_member(self.user)
-        self.club.save()
 
         self._create_test_users(start_id=5, count=5)
         self._create_test_users(start_id=10, count=5, level="Member")
@@ -41,7 +40,6 @@ class UserListTest(TestCase):
 
     def test_member_sees_limited_variables(self):
         self.club.make_member(self.user)
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -59,7 +57,6 @@ class UserListTest(TestCase):
         self._create_test_users(start_id=10, count=5, level="Member")
         self._create_test_users(start_id=15, count=5, level="Officer")
         self._create_test_users(start_id=20, count=1, level="Owner")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertEqual(len(response.context["users"]), User.objects.count())
@@ -72,7 +69,6 @@ class UserListTest(TestCase):
     def test_officer_sees_all_variables(self):
         self.club.make_member(self.user)
         self.club.make_officer(self.user)
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -91,7 +87,6 @@ class UserListTest(TestCase):
         self._create_test_users(start_id=10, count=5, level="Member")
         self._create_test_users(start_id=15, count=5, level="Officer")
         self._create_test_users(start_id=20, count=1, level="Owner")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertEqual(len(response.context["users"]), User.objects.count())
@@ -105,7 +100,6 @@ class UserListTest(TestCase):
         self.club.make_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -129,7 +123,6 @@ class UserListTest(TestCase):
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Member")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Promote")
@@ -139,7 +132,6 @@ class UserListTest(TestCase):
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Officer")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
@@ -149,7 +141,6 @@ class UserListTest(TestCase):
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Owner")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
@@ -160,7 +151,6 @@ class UserListTest(TestCase):
         self.club.make_owner(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Officer")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertNotContains(response, "Promote")
@@ -171,7 +161,6 @@ class UserListTest(TestCase):
         self.club.make_owner(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Officer")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Demote")
@@ -182,7 +171,6 @@ class UserListTest(TestCase):
         self.club.make_owner(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Officer")
-        self.club.save()
 
         response = self._access_user_list_page()
         self.assertContains(response, "Switch ownership")

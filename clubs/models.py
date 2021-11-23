@@ -78,6 +78,7 @@ class Club(models.Model):
             toggle_superuser(self.owner)
             self.owner = user
             toggle_superuser(user)
+            self.save()
         else:
             raise ValueError
 
@@ -85,21 +86,25 @@ class Club(models.Model):
         if self.user_level(user) == "Member":
             self.members.remove(user)
             self.officers.add(user)
+            self.save()
         else:
             raise ValueError
 
     def make_member(self, user):
         if self.user_level(user) == "Applicant":
             self.members.add(user)
+            self.save()
         elif self.user_level(user) == "Officer":
             self.members.add(user)
             self.officers.remove(user)
+            self.save()
         else:
             raise ValueError
 
     def make_user(self, user):
         if self.user_level(user) == "Member":
             self.members.remove(user)
+            self.save()
         else:
             raise ValueError
 
