@@ -1,7 +1,5 @@
 """Tests of the log in view"""
-from django.contrib import messages
 from django.test import TestCase
-from clubs.forms import LogInForm
 from clubs.models import User
 from django.urls import reverse
 from .helpers import LogInTester

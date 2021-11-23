@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import User, Member, make_owner, make_officer
+from .models import User, Club
 from .forms import SignUpForm, LogInForm, EditForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -10,32 +10,40 @@ from django.contrib.auth.decorators import login_required
 # when log-in page is created, this will redirect there if current user not authenticated
 @login_required
 def user_list(request):
-    # TODO if applicant, redirect straight to home
+    # Temporary fake club with some members, officers and stuff
+    club = Club.objects.get(name="Saint Louis Chess Club")
+
+    if club.user_level(request.user) == 'Applicant':
+        redirect('home_page')
 
     if request.GET.get("listed_user"):
         listed_user = User.objects.get(username=request.GET.get("listed_user"))
 
         # check request.user can actually do what they're trying to do
-        listed_user.promote() if request.GET.get("promote") else None
-        listed_user.demote() if request.GET.get("demote") else None
+        listed_user.promote(club) if request.GET.get("promote") else None
+        listed_user.demote(club) if request.GET.get("demote") else None
         if request.GET.get("switch_owner"):
-            make_owner(listed_user)
-            make_officer(request.user)
-            # FIXME redirect to homepage when it exists
+            club.make_owner(listed_user)
             return redirect('home_page')
 
         return redirect("users")
 
-    if request.user.user_level() == "Member":
-        user_dict = Member.objects.all()
+    if request.user.user_level(club) == "Member":
+        user_dict = club.get_members()
     else:
-        user_dict = User.objects.all()
+        user_dict = club.get_members()
+        user_dict = user_dict.union(club.get_officers())
+        user_dict = user_dict.union(User.objects.filter(username=club.get_owner().username))
+
+    user_dict_with_levels = []
+    for user in user_dict:
+        user_dict_with_levels.append((user, club.user_level(user)))
 
     # TODO filter the user_dict if a filter (by role / by chess exp) is in the GET
     # TODO sort (everything in that column alphabetically) the user_dict if a sort is in the GET
 
-    return render(request, "user_list.html", {"users": user_dict})
-
+    return render(request, "user_list.html",
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
 
 @login_required
 def home_page(request):
