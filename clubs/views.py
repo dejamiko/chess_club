@@ -104,7 +104,6 @@ def log_in(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home_page')  # for now home page is placeholder
                 redirect_url = request.POST.get('next') or 'home_page'
                 return redirect(redirect_url) #for now home page is placeholder
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
