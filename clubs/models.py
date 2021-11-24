@@ -34,121 +34,103 @@ class User(AbstractUser):
         """Return a URL to a small version of the user's gravatar."""
         return self.gravatar(size=60)
 
-    def user_level(self):
-        if Member.objects.filter(username=self.username).count() > 0:
-            return "Member"
+    def user_level(self, club):
+        return club.user_level(self)
 
-        if Officer.objects.filter(username=self.username).count() > 0:
-            return "Officer"
+    def promote(self, club):
+        if self.user_level(club) == "Applicant":
+            club.make_member(self)
+        elif self.user_level(club) == "Member":
+            club.make_officer(self)
+        else:
+            raise ValueError
 
-        if Owner.objects.filter(username=self.username).count() > 0:
+    def demote(self, club):
+        if self.user_level(club) == "Officer":
+            club.make_member(self)
+        else:
+            raise ValueError
+
+
+class Club(models.Model):
+    name = models.CharField(unique=True, blank=False, max_length=50)
+    location = models.CharField(blank=False, max_length=100)
+    description = models.CharField(blank=True, max_length=500)
+
+    members = models.ManyToManyField(User, related_name='not_members')
+    officers = models.ManyToManyField(User, related_name='not_officers')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def user_level(self, user):
+        if self.owner == user:
             return "Owner"
+        elif self.officers.filter(username=user.username):
+            return "Officer"
+        elif self.members.filter(username=user.username):
+            return "Member"
+        else:
+            return "Applicant"
 
-        return "Applicant"
-
-    def promote(self):
-        if self.user_level() == "Applicant":
-            make_member(self)
-        elif self.user_level() == "Member":
-            make_officer(self)
+    def make_owner(self, user):
+        if self.user_level(user) == "Officer":
+            self.officers.remove(user)
+            self.officers.add(self.owner)
+            toggle_superuser(self.owner)
+            self.owner = user
+            toggle_superuser(user)
+            self.save()
         else:
             raise ValueError
 
-    def demote(self):
-        if self.user_level() == "Officer":
-            make_member(self)
+    def make_officer(self, user):
+        if self.user_level(user) == "Member":
+            self.members.remove(user)
+            self.officers.add(user)
+            self.save()
         else:
             raise ValueError
 
-    # On user groups:
-    # Django provides the Group and Permission framework, as in you create a group and
-    # create permissions for that group and then add users to be in a group (or many groups).
-    # The problem is that Permissions are always related to a model in the django application,
-    # for instance you might have a permission to create a Post or delete a Post. This doesn't
-    # work in our case, as we want to control the flow of other parts of application, unrelated
-    # to models.
+    def make_member(self, user):
+        if self.user_level(user) == "Applicant":
+            self.members.add(user)
+            self.save()
+        elif self.user_level(user) == "Officer":
+            self.members.add(user)
+            self.officers.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def make_user(self, user):
+        if self.user_level(user) == "Member":
+            self.members.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def get_number_of_members(self):
+        return self.members.count()
+
+    def get_number_of_officers(self):
+        return self.officers.count()
+
+    def get_members(self):
+        return self.members.all()
+
+    def get_officers(self):
+        return self.officers.all()
+
+    def get_owner(self):
+        return self.owner
+
+    def get_all_users(self):
+        return self.get_members().union(self.get_officers()).union(
+            User.objects.filter(username=self.get_owner().username))
+
+    def get_all_applicants(self):
+        return User.objects.difference(self.get_all_users())
 
 
-class Member(User):
-    pass
-
-
-class Officer(User):
-    pass
-
-
-class Owner(User):
-    pass
-
-
-def make_owner(user):
-    if user.user_level() == "Officer":
-        return change_user_level(user, Owner)
-    else:
-        raise ValueError
-
-
-def make_officer(user):
-    if user.user_level() == "Member" or user.user_level() == "Owner":
-        return change_user_level(user, Officer)
-    else:
-        raise ValueError
-
-
-def make_member(user):
-    if user.user_level() == "Applicant" or user.user_level() == "Officer":
-        return change_user_level(user, Member)
-    else:
-        raise ValueError
-
-
-def make_user(user):
-    if user.user_level() == "Member":
-        return change_user_level(user, User)
-    else:
-        raise ValueError
-
-
-def change_user_level(old_user, new_class):
-    data_dict = extract_data(old_user)
-    old_user.delete()
-    new_user = assign_data(data_dict, new_class)
-
-    if old_user.user_level() == "Owner":
-        new_user.is_staff = False
-        new_user.is_superuser = False
-        new_user.is_admin = False
-    if new_class == Owner:
-        new_user.is_staff = True
-        new_user.is_superuser = True
-        new_user.is_admin = True
-
-    new_user.save()
-    return new_user
-
-
-def extract_data(user):
-    data_dict = dict(username=user.username,
-                     first_name=user.first_name,
-                     last_name=user.last_name,
-                     email=user.email,
-                     password=user.password,
-                     bio=user.bio,
-                     chess_exp=user.chess_exp,
-                     personal_statement=user.personal_statement
-                     )
-    return data_dict
-
-
-def assign_data(data_dict, user_class):
-    member = user_class.objects.create(
-        username=data_dict['username'],
-        first_name=data_dict['first_name'],
-        last_name=data_dict['last_name'],
-        email=data_dict['email'],
-        password=data_dict['password'],
-        bio=data_dict['bio'],
-        chess_exp=data_dict['chess_exp'],
-        personal_statement=data_dict['personal_statement']
-    )
-    return member
+def toggle_superuser(user):
+    user.is_staff = not user.is_staff
+    user.is_superuser = not user.is_superuser
