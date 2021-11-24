@@ -87,14 +87,7 @@ def edit_profile(request):
     if request.method == 'POST':
         form = EditForm(request.POST, instance=current_user)
         if form.is_valid():
-<<<<<<< HEAD
-            # print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
-            # messages.add_message(request, messages.SUCCESS, "Profile updated!")
-            # ^^^^^^^^^^^^^^^^^^^^ appears on home page
-
-=======
             messages.add_message(request, messages.SUCCESS, "Profile updated!")
->>>>>>> homepage
             form.save()
             return redirect('profile')
     else:
@@ -111,12 +104,9 @@ def log_in(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-<<<<<<< HEAD
                 return redirect('home_page')  # for now home page is placeholder
-=======
                 redirect_url = request.POST.get('next') or 'home_page'
                 return redirect(redirect_url) #for now home page is placeholder
->>>>>>> homepage
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
     next = request.GET.get('next') or ''

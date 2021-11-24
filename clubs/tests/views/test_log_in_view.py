@@ -56,13 +56,10 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertTemplateUsed(response, 'home_page.html')
 
     def test_unsuccesful_log_in(self):
-<<<<<<< HEAD
         form_input = {'username': '@johndoe', 'password': 'xy' + '#NDGDR98adada123'}
         response = self.client.post(self.url, form_input)
-=======
         form_input = { 'username': '@johndoe22', 'password': 'xy' + 'Password123' }
         response=self.client.post(self.url, form_input)
->>>>>>> homepage
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'log_in.html')
         form = response.context['form']
@@ -74,13 +71,10 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(messages_list[0].level, messages.ERROR)
 
     def test_succesful_log_in(self):
-<<<<<<< HEAD
         form_input = {'username': '@johndoe', 'password': '#NDGDR98adada123'}
         response = self.client.post(self.url, form_input, follow=True)
-=======
         form_input = { 'username': self.user.username, 'password': 'Password123' }
         response=self.client.post(self.url, form_input, follow=True)
->>>>>>> homepage
         self.assertTrue(self._is_logged_in())
         response_url = reverse('home_page')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
@@ -91,7 +85,7 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(len(messages_list), 0)
 
     def test_succesful_log_in_with_redirect(self):
-        redirect_url=reverse('users')
+        redirect_url=reverse('home_page')
         form_input = { 'username': self.user.username , 'password': 'Password123', 'next':redirect_url }
         response=self.client.post(self.url, form_input, follow=True)
         self.assertTrue(self._is_logged_in())
@@ -109,13 +103,10 @@ class LogInViewTestCase(TestCase, LogInTester):
     def test_valid_log_in_by_inactive_user(self):
         self.user.is_active = False
         self.user.save()
-<<<<<<< HEAD
         form_input = {'username': '@johndoe', 'password': '#NDGDR98adada123'}
         response = self.client.post(self.url, form_input, follow=True)
-=======
         form_input = { 'username': self.user.username, 'password': 'Password123' }
         response=self.client.post(self.url, form_input, follow=True)
->>>>>>> homepage
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'log_in.html')
         form = response.context['form']
