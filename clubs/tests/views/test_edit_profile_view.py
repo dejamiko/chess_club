@@ -49,7 +49,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertEqual(self.user.first_name, 'John')
         self.assertEqual(self.user.last_name, 'Doe')
         self.assertEqual(self.user.email,'johndoe@example.com')
-        self.assertEqual(self.user.bio,"Hi, I'm John Doe" )
+        self.assertEqual(self.user.bio,"Hi, I am John Doe" )
         self.assertEqual(self.user.chess_exp, 'Beginner')
         self.assertEqual(self.user.personal_statement, "I've started playing chess after I've watched the Queen's Gambit on Netflix. Such a cool game!")
 
