@@ -7,6 +7,14 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 
 
+def login_prohibited(view_function):
+    def modified_view_function(request):
+        if request.user.is_authenticated:
+            return redirect('home_page')
+        else:
+            return view_function(request)
+    return modified_view_function
+
 # when log-in page is created, this will redirect there if current user not authenticated
 @login_required
 def user_list(request):
@@ -79,17 +87,21 @@ def edit_profile(request):
     if request.method == 'POST':
         form = EditForm(request.POST, instance=current_user)
         if form.is_valid():
+<<<<<<< HEAD
             # print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
             # messages.add_message(request, messages.SUCCESS, "Profile updated!")
             # ^^^^^^^^^^^^^^^^^^^^ appears on home page
 
+=======
+            messages.add_message(request, messages.SUCCESS, "Profile updated!")
+>>>>>>> homepage
             form.save()
             return redirect('profile')
     else:
         form = EditForm(instance=current_user)
     return render(request, 'edit_profile.html', {'form': form})
 
-
+@login_prohibited
 def log_in(request):
     if request.method == 'POST':
         form = LogInForm(request.POST)
@@ -99,17 +111,23 @@ def log_in(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+<<<<<<< HEAD
                 return redirect('home_page')  # for now home page is placeholder
+=======
+                redirect_url = request.POST.get('next') or 'home_page'
+                return redirect(redirect_url) #for now home page is placeholder
+>>>>>>> homepage
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
-    return render(request, 'log_in.html', {'form': form})
+    next = request.GET.get('next') or ''
+    return render(request, 'log_in.html', {'form': form, 'next': next})
 
 
 def log_out(request):
     logout(request)
     return redirect('log_in')
 
-
+@login_prohibited
 def sign_up(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
