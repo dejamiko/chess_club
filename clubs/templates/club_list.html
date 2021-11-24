@@ -1,0 +1,37 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Clubs</h1>
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col" style="width: 14%;">Name</th>
+                            <th scope="col" style="width: 14%;">Location</th>
+                            <th scope="col" style="width: 32%;">Description</th>
+                            <th scope="col" style="width: 8%;">Members</th>
+                            <th scope="col" style="width: 32%;">Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for listed_club in clubs %}
+                            <tr>
+                                <td>{{ listed_club.name }}</td>
+                                <td>{{ listed_club.location }}</td>
+                                <td>{{ listed_club.description }}</td>
+                                <td>{{ listed_club.get_number_of_members }}</td>
+                                <td>
+                                    <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}"
+                                        alt="{{ listed_club.owner.username }}'s profile picture">
+                                    {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
+                                    {{ listed_club.owner.bio }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
