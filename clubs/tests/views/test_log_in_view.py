@@ -99,8 +99,6 @@ class LogInViewTestCase(TestCase, LogInTester):
     def test_valid_log_in_by_inactive_user(self):
         self.user.is_active = False
         self.user.save()
-        form_input = {'username': '@johndoe', 'password': '#NDGDR98adada123'}
-        response = self.client.post(self.url, form_input, follow=True)
         form_input = { 'username': self.user.username, 'password': 'Password123' }
         response=self.client.post(self.url, form_input, follow=True)
         self.assertEqual(response.status_code, 200)
