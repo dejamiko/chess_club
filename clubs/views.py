@@ -15,7 +15,7 @@ def login_prohibited(view_function):
             return view_function(request)
     return modified_view_function
 
-# when log-in page is created, this will redirect there if current user not authenticated
+
 @login_required
 def user_list(request):
     # Temporary fake club with some members, officers and stuff
@@ -27,12 +27,9 @@ def user_list(request):
     if request.GET.get("listed_user"):
         listed_user = User.objects.get(username=request.GET.get("listed_user"))
 
-        # check request.user can actually do what they're trying to do
         listed_user.promote(club) if request.GET.get("promote") else None
         listed_user.demote(club) if request.GET.get("demote") else None
-        if request.GET.get("switch_owner"):
-            club.make_owner(listed_user)
-            return redirect('home_page')
+        club.make_owner(listed_user) if request.GET.get("switch_owner") else None
 
         return redirect("users")
 
@@ -44,9 +41,6 @@ def user_list(request):
     user_dict_with_levels = []
     for user in user_dict:
         user_dict_with_levels.append((user, club.user_level(user)))
-
-    # TODO filter the user_dict if a filter (by role / by chess exp) is in the GET
-    # TODO sort (everything in that column alphabetically) the user_dict if a sort is in the GET
 
     return render(request, "user_list.html",
                   {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
