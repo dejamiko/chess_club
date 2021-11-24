@@ -5,7 +5,7 @@ from clubs.models import User
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 from .helpers import LogInTester
-
+from django.contrib import messages
 
 class EditProfileTestCase(TestCase, LogInTester):
     """Tests of the edit profile view"""
