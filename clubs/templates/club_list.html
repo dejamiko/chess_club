@@ -1,17 +1,20 @@
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <h1>Clubs</h1>
-                <table class="table table-hover">
-                    <thead class="thead-light">
+                <table id="club-table" class="table table-hover">
+                    <thead>
                         <tr>
-                            <th scope="col" style="width: 14%;">Name</th>
-                            <th scope="col" style="width: 14%;">Location</th>
-                            <th scope="col" style="width: 32%;">Description</th>
-                            <th scope="col" style="width: 8%;">Members</th>
-                            <th scope="col" style="width: 32%;">Owner</th>
+                            <th scope="col" style="width: 15%;">Name</th>
+                            <th scope="col" style="width: 15%;">Location</th>
+                            <th scope="col" style="width: 30%;">Description</th>
+                            <th scope="col" style="width: 10%;">Members</th>
+                            <th scope="col" style="width: 30%;">Owner</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,4 +37,11 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#club-table", {
+            perPage: 15,
+            fixedColumns: false
+        })
+    </script>
 {% endblock %}
