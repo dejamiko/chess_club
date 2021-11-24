@@ -82,10 +82,7 @@ def edit_profile(request):
     if request.method == 'POST':
         form = EditForm(request.POST, instance=current_user)
         if form.is_valid():
-            #print("-=-=-=-=-=-=-=-=FORM IS VALID STAGE
-            #messages.add_message(request, messages.SUCCESS, "Profile updated!")
-            #^^^^^^^^^^^^^^^^^^^^ appears on home page
-
+            messages.add_message(request, messages.SUCCESS, "Profile updated!")
             form.save()
             return redirect('profile')
     else:
