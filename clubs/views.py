@@ -45,6 +45,11 @@ def user_list(request):
     return render(request, "user_list.html",
                   {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
 
+
+def club_list(request):
+    return render(request, "club_list.html", {"clubs": Club.objects.all()})
+
+
 @login_required
 def home_page(request):
     return render(request, 'home_page.html')
