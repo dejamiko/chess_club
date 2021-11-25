@@ -126,3 +126,8 @@ def sign_up(request):
     else:
         form = SignUpForm()
     return render(request, 'sign_up.html', {'form': form})
+
+@login_required
+def club_application(request):
+    form = {}
+    return render(request, 'club_application.html', {'form': form})

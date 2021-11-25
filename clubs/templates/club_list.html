@@ -29,9 +29,11 @@
                                         alt="{{ listed_club.owner.username }}'s profile picture">
                                     {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
                                     {{ listed_club.owner.bio }}
+                                    <button><a href='{% url 'club_application' %}'>APPLY</a></button>
                                 </td>
                             </tr>
                         {% endfor %}
+
                     </tbody>
                 </table>
             </div>
