@@ -14,7 +14,7 @@ class SignUpForm(forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
-        widgets = {'bio': forms.Textarea()}
+        widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
 
     new_password = forms.CharField(
         label='Password',
@@ -55,4 +55,4 @@ class EditForm(forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
-        widgets = {'bio': forms.Textarea()}
+        widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
