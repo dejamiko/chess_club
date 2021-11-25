@@ -62,4 +62,15 @@ class CreateClubForm(forms.ModelForm):
         model = Club
         fields = ['name', 'location', 'description']
         widgets = {'description': forms.Textarea()}
-    owner = request.user.id
+    # owner = request.user
+    # make current user owner of club
+
+    def save(self, user):
+        super().save(commit=False)
+        club = Club.objects.create(
+            name = self.cleaned_data.get('name'),
+            location = self.cleaned_data.get('location'),
+            description = self.cleaned_data.get('description'),
+            owner = user,
+        )
+        return club

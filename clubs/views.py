@@ -127,11 +127,13 @@ def sign_up(request):
         form = SignUpForm()
     return render(request, 'sign_up.html', {'form': form})
 
+@login_required
 def create_club(request):
     if request.method == 'POST':
+
         form = CreateClubForm(request.POST)
         if form.is_valid():
-            club = form.save()
+            club = form.save(request.user)
             return redirect('home_page')
     else:
         form = CreateClubForm()
