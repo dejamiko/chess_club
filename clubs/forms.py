@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Club
 from django.core.validators import RegexValidator
 
 
@@ -56,3 +56,10 @@ class EditForm(forms.ModelForm):
         fields = ['username', 'first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
         widgets = {'bio': forms.Textarea()}
+
+class CreateClubForm(forms.ModelForm):
+    class Meta:
+        model = Club
+        fields = ['name', 'location', 'description']
+        widgets = {'description': forms.Textarea()}
+    owner = request.user.id

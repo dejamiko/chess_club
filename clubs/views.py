@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import User, Club
-from .forms import SignUpForm, LogInForm, EditForm
+from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -126,3 +126,13 @@ def sign_up(request):
     else:
         form = SignUpForm()
     return render(request, 'sign_up.html', {'form': form})
+
+def create_club(request):
+    if request.method == 'POST':
+        form = CreateClubForm(request.POST)
+        if form.is_valid():
+            club = form.save()
+            return redirect('home_page')
+    else:
+        form = CreateClubForm()
+    return render(request, 'create_club.html', {'form': form})
