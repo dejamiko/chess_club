@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import User, Club
-from .forms import SignUpForm, LogInForm, EditForm
+from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, ClubApplicationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -17,9 +17,19 @@ def login_prohibited(view_function):
 
 
 @login_required
+def club_application(request):
+    temp = request.POST.get('obj') #the name of the club
+    print("-----------------NAME IS " + temp)
+    curr_club = Club.objects.get(name=temp)
+    print("--------------CURR CLUB NAME" + curr_club.name)
+    form = ClubApplicationForm(request.POST)
+    return render(request, 'club_application.html', {'form': form, 'club': curr_club})
+
+
+@login_required
 def user_list(request):
     # Temporary fake club with some members, officers and stuff
-    club = Club.objects.get(name="Saint Louis Chess Club")
+    club = Club.objects.get(location='london')
 
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')
@@ -29,7 +39,8 @@ def user_list(request):
 
         listed_user.promote(club) if request.GET.get("promote") else None
         listed_user.demote(club) if request.GET.get("demote") else None
-        club.make_owner(listed_user) if request.GET.get("switch_owner") else None
+        club.make_owner(listed_user) if request.GET.get(
+            "switch_owner") else None
 
         return redirect("users")
 
@@ -46,8 +57,10 @@ def user_list(request):
                   {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
 
 
+@login_required
 def club_list(request):
-    return render(request, "club_list.html", {"clubs": Club.objects.all()})
+    form =ClubApplicationForm(request.POST)
+    return render(request, "club_list.html", {"clubs": Club.objects.all(), "club_form": form})
 
 
 @login_required
@@ -104,8 +117,10 @@ def log_in(request):
             if user is not None:
                 login(request, user)
                 redirect_url = request.POST.get('next') or 'home_page'
-                return redirect(redirect_url) #for now home page is placeholder
-        messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
+                # for now home page is placeholder
+                return redirect(redirect_url)
+        messages.add_message(request, messages.ERROR,
+                             "The credentials provided were invalid!")
     form = LogInForm()
     next = request.GET.get('next') or ''
     return render(request, 'log_in.html', {'form': form, 'next': next})
@@ -128,6 +143,13 @@ def sign_up(request):
     return render(request, 'sign_up.html', {'form': form})
 
 @login_required
-def club_application(request):
-    form = {}
-    return render(request, 'club_application.html', {'form': form})
+def create_club(request):
+    if request.method == 'POST':
+
+        form = CreateClubForm(request.POST)
+        if form.is_valid():
+            club = form.save(request.user)
+            return redirect('home_page')
+    else:
+        form = CreateClubForm()
+    return render(request, 'create_club.html', {'form': form})

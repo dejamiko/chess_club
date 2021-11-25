@@ -1,12 +1,12 @@
-<script src="https://kit.fontawesome.com/29f2d97b0d.js" crossorigin="anonymous"></script>
-
 {# Navbar inspired by the one created for clucker #}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
     <div class="container">
 
         <a class="navbar-brand"
                 {% if user.is_authenticated %}
-           href="{% url 'home_page' %}"
+            href="{% url 'home_page' %}"
+                {% else %}
+            href="{% url 'welcome_screen' %}"
                 {% endif %}
         >
             <span class="fas fa-chess"></span>&nbsp;&nbsp;Chess Club
@@ -26,6 +26,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'create_club' %}">Create Club</a>
                     </li>
                 {% endif %}
             </ul>

@@ -57,5 +57,25 @@ class EditForm(forms.ModelForm):
                   'bio', 'chess_exp', 'personal_statement']
         widgets = {'bio': forms.Textarea()}
 
-class ClubApplicationForm(forms.ModelForm):
-    clubs_to_apply = Club.objects.all()
+class CreateClubForm(forms.ModelForm):
+    class Meta:
+        model = Club
+        fields = ['name', 'location', 'description']
+        widgets = {'description': forms.Textarea()}
+    # owner = request.user
+    # make current user owner of club
+
+    def save(self, user):
+        super().save(commit=False)
+        club = Club.objects.create(
+            name = self.cleaned_data.get('name'),
+            location = self.cleaned_data.get('location'),
+            description = self.cleaned_data.get('description'),
+            owner = user,
+        )
+        return club
+
+
+class ClubApplicationForm(forms.Form):
+    club_to_apply = Club
+    accepted_field = forms.BooleanField(initial = False)

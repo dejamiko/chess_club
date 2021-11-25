@@ -29,5 +29,6 @@ urlpatterns = [
     path("home/profile/", views.profile, name='profile'),
     path("home/profile/edit/", views.edit_profile, name='edit_profile'),
     path("home/profile/change_password", views.change_password, name="change_password"),
-    path("home/clubs/apply", views.club_application, name="club_application"),
+    path("home/create_club", views.create_club, name="create_club"),
+    path('home/clubs/apply/', views.club_application, name='club_application'),
 ]
