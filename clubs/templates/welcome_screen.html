@@ -21,25 +21,23 @@
 
 {% extends 'base.html' %}
 {% block body %}
-<div id="background">
-    <div class="container vh-100">
-        <div class="row h-100">
-            <div class="my-auto mx-auto w-50">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <div class="container">
-                            <div class="row justify-content-center align-items-center">
-                                <div class="col">
-                                    <span style="font-size: 7rem;" class="fas fa-chess"></span>
-                                    <h1>Chess Club</h1>
-                                    <!-- <p>Team Hippopotamus</p> -->
-                                </div>
-                                <div class="col">
-                                    <p><a href="{% url 'log_in' %}" class="btn btn-secondary" style="margin-top: 16px;">Log in</a></p>
-                                    <div class="hr-sect">or</div>
-                                    <p><a href="{% url 'sign_up' %}" class="btn btn-secondary"
+<div class="container vh-100">
+    <div class="row h-100">
+        <div class="my-auto mx-auto w-50">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row justify-content-center align-items-center">
+                            <div class="col">
+                                <span style="font-size: 7rem;" class="fas fa-chess"></span>
+                                <h1>Chess Club</h1>
+                                <!-- <p>Team Hippopotamus</p> -->
+                            </div>
+                            <div class="col">
+                                <p><a href="{% url 'log_in' %}" class="btn btn-secondary" style="margin-top: 16px;">Log in</a></p>
+                                <div class="hr-sect">or</div>
+                                <p><a href="{% url 'sign_up' %}" class="btn btn-secondary"
                                             style="margin-top: 8px;">Sign up</a></p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,21 +46,5 @@
         </div>
     </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.21/dist/vanta.net.min.js"></script>
-<script>
-    VANTA.NET({
-        el: "#background",
-        mouseControls: false,
-        touchControls: false,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 1.00,
-        scaleMobile: 1.00,
-        color: 0x212529,
-        backgroundColor: 0xffffff
-    })
-</script>
+{% include 'partials/background.html' with colour="6F4E37" %}
 {% endblock %}
