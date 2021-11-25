@@ -23,7 +23,7 @@
                                 <td>{{ listed_club.name }}</td>
                                 <td>{{ listed_club.location }}</td>
                                 <td>{{ listed_club.description }}</td>
-                                <td>{{ listed_club.get_number_of_members }}</td>
+                                <td>{{ listed_club.get_all_users.count }}</td>
                                 <td>
                                     <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}"
                                         alt="{{ listed_club.owner.username }}'s profile picture">
