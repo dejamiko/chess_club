@@ -25,7 +25,7 @@ def user_list(request):
         redirect('home_page')
 
     if request.GET.get("listed_user"):
-        listed_user = User.objects.get(username=request.GET.get("listed_user"))
+        listed_user = User.objects.get(email=request.GET.get("listed_user"))
 
         listed_user.promote(club) if request.GET.get("promote") else None
         listed_user.demote(club) if request.GET.get("demote") else None
@@ -98,9 +98,9 @@ def log_in(request):
     if request.method == 'POST':
         form = LogInForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(email=email, password=password)
             if user is not None:
                 login(request, user)
                 redirect_url = request.POST.get('next') or 'home_page'

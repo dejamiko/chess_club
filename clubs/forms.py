@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 
 
 class LogInForm(forms.Form):
-    username = forms.CharField(label="Username")
+    email = forms.CharField(label="Email")
     password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
 
@@ -12,7 +12,7 @@ class LogInForm(forms.Form):
 class SignUpForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email',
+        fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
         widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
 
@@ -38,7 +38,6 @@ class SignUpForm(forms.ModelForm):
     def save(self):
         super().save(commit=False)
         user = User.objects.create_user(
-            self.cleaned_data.get('username'),
             first_name=self.cleaned_data.get('first_name'),
             last_name=self.cleaned_data.get('last_name'),
             email=self.cleaned_data.get('email'),
@@ -53,6 +52,6 @@ class SignUpForm(forms.ModelForm):
 class EditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email',
+        fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
         widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
