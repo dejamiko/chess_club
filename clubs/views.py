@@ -18,8 +18,7 @@ def login_prohibited(view_function):
 
 @login_required
 def user_list(request):
-    # Temporary fake club with some members, officers and stuff
-    club = Club.objects.get(name="Saint Louis Chess Club")
+    club = list(Club.objects.all())[0]
 
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')

@@ -76,7 +76,7 @@ class ClubModelTestCase(TestCase):
         self.assertEqual(self.club.get_number_of_members(), 0)
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_officers().get(username=self.user.username), self.user)
-        self.assertEqual(self.club.get_owner(), self.jane)
+        self.assertEqual(self.club.get_user(), self.jane)
 
 
     def _assert_club_is_valid(self):
