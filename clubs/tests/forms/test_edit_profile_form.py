@@ -16,7 +16,6 @@ class EditFormTestCase(TestCase):
         self.user = User.objects.get(email="johndoe@example.com")
 
         self.sign_up_form_input = {
-            'username': '@janedoe',
             'first_name': 'Jane',
             'last_name': 'Doe',
             'email': 'janedoe@example.org',
@@ -36,7 +35,6 @@ class EditFormTestCase(TestCase):
         form = EditForm()
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
-        self.assertIn('username', form.fields)
         self.assertIn('email', form.fields)
         self.assertIn('chess_exp', form.fields)
         self.assertIn('personal_statement', form.fields)
@@ -52,7 +50,7 @@ class EditFormTestCase(TestCase):
         after_count = User.objects.count()
         # edit form shouldn't increase users - edits existing one
         self.assertEqual(after_count, before_count)
-        user = User.objects.get(username='@janedoe')
+        user = User.objects.get(email='janedoe@example.org')
         self.assertEqual(user.first_name, 'Jane')
         self.assertEqual(user.last_name, 'Doe')
         self.assertEqual(user.email, 'janedoe@example.org')

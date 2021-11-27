@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from faker import Faker
@@ -44,7 +44,6 @@ class Command(BaseCommand):
     def create_user(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
-        username = self.create_username(first_name, last_name)
         email = self.create_email(first_name, last_name)
         bio = self.faker.text(max_nb_chars=400)
         chess_exp = self.create_user_experience()
@@ -52,7 +51,6 @@ class Command(BaseCommand):
         password = 'Password123'
 
         User.objects.create_user(
-            username=username,
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -64,7 +62,6 @@ class Command(BaseCommand):
 
     def create_set_users(self):
         User.objects.create_user(
-            username='JebediahKerman',
             first_name='Jebediah',
             last_name='Kerman',
             email='jeb@example.org',
@@ -74,7 +71,6 @@ class Command(BaseCommand):
             password='Password123'
         )
         User.objects.create_user(
-            username='ValentinaKerman',
             first_name='Valentina',
             last_name='Kerman',
             email='val@example.org',
@@ -84,7 +80,6 @@ class Command(BaseCommand):
             password='Password123'
         )
         User.objects.create_user(
-            username='BillieKerman',
             first_name='Billie',
             last_name='Kerman',
             email='billie@example.org',
@@ -179,7 +174,3 @@ class Command(BaseCommand):
     def create_email(self, first_name, last_name):
         email = f'{first_name.lower()}.{last_name.lower()}@fakerseed.org'
         return email
-
-    def create_username(self, first_name, last_name):
-        username = f'{first_name}{last_name}'
-        return username
