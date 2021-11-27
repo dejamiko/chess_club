@@ -95,8 +95,6 @@ def club_list(request):
     except ClubApplicationModel.DoesNotExist:
         applications = None
 
-
-
     return render(request, "club_list.html", {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user})
 
 

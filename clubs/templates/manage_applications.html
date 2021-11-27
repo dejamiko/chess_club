@@ -30,6 +30,7 @@
                <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ app.associated_club.owner.mini_gravatar }}" alt="{{ app.associated_club.owner.username }}'s profile picture">
                {{ app.associated_club.owner.first_name }} {{ app.associated_club.owner.last_name }} </br>
                {{ app.associated_club.owner.bio }}
+               <p><b>Applicant: {{ app.associated_user.username }}</b></p>
 
                <form method="post">
                  {% csrf_token %}

@@ -110,7 +110,7 @@ class Club(models.Model):
             raise ValueError
 
     def make_applicant(self, user):
-        if user not in self.applicants:
+        if user not in self.applicants.all():
             self.applicants.add(user)
         else:
             raise ValueError
@@ -135,7 +135,7 @@ class Club(models.Model):
             User.objects.filter(username=self.get_owner().username))
 
     def get_all_applicants(self):
-        return User.objects.difference(self.get_all_users())
+        return self.applicants.all()
 
     def get_all_non_applicants(self):
         return User.objects.difference(self.get_all_applicants())
