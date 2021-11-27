@@ -3,55 +3,57 @@
 
 {% extends 'base_content.html' %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1>Clubs</h1>
-                <table id="club-table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col" style="width: 15%;">Name</th>
-                            <th scope="col" style="width: 15%;">Location</th>
-                            <th scope="col" style="width: 30%;">Description</th>
-                            <th scope="col" style="width: 10%;">Members</th>
-                            <th scope="col" style="width: 30%;">Owner</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for listed_club in clubs %}
-                            <tr>
-                                <td>{{ listed_club.name }}</td>
-                                <td>{{ listed_club.location }}</td>
-                                <td>{{ listed_club.description }}</td>
-                                <td>{{ listed_club.get_number_of_members }}</td>
-                                <td>
-                                    <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}"
-                                        alt="{{ listed_club.owner.username }}'s profile picture">
-                                    {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
-                                    {{ listed_club.owner.bio }}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Clubs</h1>
+      <table id="club-table" class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 15%;">Name</th>
+            <th scope="col" style="width: 15%;">Location</th>
+            <th scope="col" style="width: 30%;">Description</th>
+            <th scope="col" style="width: 10%;">Members</th>
+            <th scope="col" style="width: 30%;">Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listed_club in clubs %}
+          <tr>
+            <td>{{ listed_club.name }}</td>
+            <td>{{ listed_club.location }}</td>
+            <td>{{ listed_club.description }}</td>
+            <td>{{ listed_club.get_number_of_members }}</td>
+            <td>
+              <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}" alt="{{ listed_club.owner.username }}'s profile picture">
+              {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
+              {{ listed_club.owner.bio }}
 
-                                    <form action="{% url 'club_application' %}" method="post">
-                                      {% csrf_token %}
-                                      <input type="hidden" name="obj" value="{{ listed_club.name }}">
-                                  <input type="submit" value="APPLY" class="btn btn-sm btn-secondary">
-                                </form>
+              <form method="post">
+                {% csrf_token %}
 
-                                </td>
-                            </tr>
+                {% if curr_user not in listed_club.get_all_users %}
+                <input type="hidden" name="obj" value="{{ listed_club.name }}">
+                <input type="submit" value="APPLY" class="btn btn-sm btn-secondary" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}>
+                {% endif %}
+              </form>
+
+            </td>
+          </tr>
 
 
-                        {% endfor %}
+          {% endfor %}
 
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </tbody>
+      </table>
     </div>
+  </div>
+</div>
 
-    <script>
-        const dataTable = new simpleDatatables.DataTable("#club-table", {
-            perPage: 15,
-            fixedColumns: false
-        })
-    </script>
+<script>
+  const dataTable = new simpleDatatables.DataTable("#club-table", {
+    perPage: 15,
+    fixedColumns: false
+  })
+</script>
 {% endblock %}

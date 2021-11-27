@@ -59,6 +59,7 @@ class Club(models.Model):
 
     members = models.ManyToManyField(User, related_name='not_members')
     officers = models.ManyToManyField(User, related_name='not_officers')
+    applicants = models.ManyToManyField(User, related_name='not_applicants')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def user_level(self, user):
@@ -108,6 +109,12 @@ class Club(models.Model):
         else:
             raise ValueError
 
+    def make_applicant(self, user):
+        if user not in self.applicants:
+            self.applicants.add(user)
+        else:
+            raise ValueError
+
     def get_number_of_members(self):
         return self.members.count()
 
@@ -130,7 +137,17 @@ class Club(models.Model):
     def get_all_applicants(self):
         return User.objects.difference(self.get_all_users())
 
+    def get_all_non_applicants(self):
+        return User.objects.difference(self.get_all_applicants())
+
+
 
 def toggle_superuser(user):
     user.is_staff = not user.is_staff
     user.is_superuser = not user.is_superuser
+
+
+class ClubApplicationModel(models.Model):
+    is_approved = models.BooleanField(default=False)
+    associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
+    associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #wouldnt allow without null = true

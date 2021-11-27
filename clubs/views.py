@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
-from .models import User, Club
-from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, ClubApplicationForm
+from .models import User, Club, ClubApplicationModel
+from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -16,14 +16,32 @@ def login_prohibited(view_function):
     return modified_view_function
 
 
+
 @login_required
-def club_application(request):
-    temp = request.POST.get('obj') #the name of the club
-    print("-----------------NAME IS " + temp)
-    curr_club = Club.objects.get(name=temp)
-    print("--------------CURR CLUB NAME" + curr_club.name)
-    form = ClubApplicationForm(request.POST)
-    return render(request, 'club_application.html', {'form': form, 'club': curr_club})
+def manage_applications(request):
+    user = request.user
+    if request.method == 'POST':
+        uname =  request.POST.get('uname') #the user to promote
+        print("----------POST USERNAME" + uname)
+        clubname = request.POST.get('clubname') #the club they wish to become a member of
+        print("----------CLUB NAME" + clubname)
+        temp_club = Club.objects.get(name=clubname)
+        temp_user = User.objects.get(username=uname)
+        temp_club.make_member(temp_user)
+        temp_club.save()
+        delform = ClubApplicationModel.objects.get(associated_club =temp_club, associated_user = temp_user)
+        delform.delete() #bad practice?
+        return redirect('manage_applications')
+    temp = []
+    applications = []
+    try:
+        temp = ClubApplicationModel.objects.all()
+    except ClubApplicationModel.DoesNotExist:
+        temp = None
+    for app in temp:
+        if user in app.associated_club.get_officers() or user == app.associated_club.get_owner():
+            applications.append(app)
+    return render(request, 'manage_applications.html', {'applications': applications})
 
 
 @login_required
@@ -59,8 +77,27 @@ def user_list(request):
 
 @login_required
 def club_list(request):
-    form =ClubApplicationForm(request.POST)
-    return render(request, "club_list.html", {"clubs": Club.objects.all(), "club_form": form})
+    curr_user = request.user
+    if request.method == 'POST':
+        club_name =  request.POST.get('obj')
+        print("CLUB NAME TO APPLY TO -------------------- " + club_name)
+        clubapplication = ClubApplicationModel(
+        associated_club = Club.objects.get(name=club_name),
+        associated_user = curr_user
+        )
+        clubapplication.save()
+        temp_club = Club.objects.get(name=club_name)
+        temp_club.make_applicant(curr_user)
+        temp_club.save()
+
+    try:
+        applications = ClubApplicationModel.objects.all()
+    except ClubApplicationModel.DoesNotExist:
+        applications = None
+
+
+
+    return render(request, "club_list.html", {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user})
 
 
 @login_required

@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Club
+from .models import User, Club, ClubApplicationModel
 from django.core.validators import RegexValidator
 
 
@@ -75,7 +75,8 @@ class CreateClubForm(forms.ModelForm):
         )
         return club
 
-
-class ClubApplicationForm(forms.Form):
-    club_to_apply = Club
-    accepted_field = forms.BooleanField(initial = False)
+#
+# class ClubApplicationForm(forms.ModelForm):
+#     class Meta:
+#         model = ClubApplicationModel
+#         fields = ['status']
