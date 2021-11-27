@@ -36,12 +36,13 @@
 
                 {% if curr_user not in listed_club.get_all_users %}
 
-                <input type="hidden" id="hiddenstuff" name="obj" value="{{ listed_club.name }}">
-                <input type="submit" id="submitbutton" value="APPLY" class="btn btn-sm btn-secondary" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}>
+                <input type="hidden" id="hiddenstuff" name="obj" value="{{ listed_club.name }}"></input>
+                <input type="submit"  id="submitbutton" value="APPLY"
+                 {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}></input>
+                 {% endif %}
 
               </form>
 
-              {% endif %}
 
             </td>
           </tr>
@@ -57,6 +58,7 @@
 
 <script type="text/javascript">
   $(document).on('submit', 'form', function(e) {
+    alert("REACHED HERE");
     var curr_form = $(this);
     e.preventDefault();
     $.ajax({
