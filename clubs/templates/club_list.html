@@ -40,22 +40,7 @@
                 <input type="submit" id="submitbutton" value="APPLY" class="btn btn-sm btn-secondary" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}>
 
               </form>
-              <script type="text/javascript">
-              $(document).on('submit', '#apply_button', function(e){
-                e.preventDefault();
-                $.ajax({
-                  type:'POST',
-                  url:'',
-                  data:{
-                    name:$('#hiddenstuff').val(),
-                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-                  },
-                  success: function(){
-                        $('#submitbutton').attr('disabled',true);
-                  }
-                })
-            })
-              </script>
+
               {% endif %}
 
             </td>
@@ -69,6 +54,25 @@
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  $(document).on('submit', 'form', function(e) {
+    var curr_form = $(this);
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '',
+      data: {
+        name: curr_form.find('#hiddenstuff').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function() {
+        curr_form.find('#submitbutton').attr('disabled', true);
+      }
+    })
+  })
+</script>
+
 
 <script>
   const dataTable = new simpleDatatables.DataTable("#club-table", {
