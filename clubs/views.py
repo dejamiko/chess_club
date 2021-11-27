@@ -79,7 +79,7 @@ def user_list(request):
 def club_list(request):
     curr_user = request.user
     if request.method == 'POST':
-        club_name =  request.POST.get('obj')
+        club_name =  request.POST['name']
         print("CLUB NAME TO APPLY TO -------------------- " + club_name)
         clubapplication = ClubApplicationModel(
         associated_club = Club.objects.get(name=club_name),

@@ -29,14 +29,34 @@
               {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
               {{ listed_club.owner.bio }}
 
-              <form method="post">
+              <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+              <form id="apply_button">
                 {% csrf_token %}
 
                 {% if curr_user not in listed_club.get_all_users %}
-                <input type="hidden" name="obj" value="{{ listed_club.name }}">
-                <input type="submit" value="APPLY" class="btn btn-sm btn-secondary" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}>
-                {% endif %}
+
+                <input type="hidden" id="hiddenstuff" name="obj" value="{{ listed_club.name }}">
+                <input type="submit" id="submitbutton" value="APPLY" class="btn btn-sm btn-secondary" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}>
+
               </form>
+              <script type="text/javascript">
+              $(document).on('submit', '#apply_button', function(e){
+                e.preventDefault();
+                $.ajax({
+                  type:'POST',
+                  url:'',
+                  data:{
+                    name:$('#hiddenstuff').val(),
+                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                  },
+                  success: function(){
+                        $('#submitbutton').attr('disabled',true);
+                  }
+                })
+            })
+              </script>
+              {% endif %}
 
             </td>
           </tr>
