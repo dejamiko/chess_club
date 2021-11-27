@@ -1,7 +1,43 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from libgravatar import Gravatar
+
+# This user manager is following tutorial from
+# https://www.fomfus.com/articles/how-to-use-email-as-username-for-django-authentication-removing-the-username/
+class UserManager(BaseUserManager):
+    """Define a model manager for User model with no username field."""
+
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        """Create and save a User with the given email and password."""
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a regular User with the given email and password."""
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
 
 
 # The user model was inspired by the one written for clucker.
@@ -13,13 +49,18 @@ class User(AbstractUser):
         ADVANCED = 'Advanced'
         EXPERT = 'Expert'
 
-    username = models.CharField(unique=True, max_length=50)
+    username = None
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     bio = models.CharField(blank=True, max_length=400)
     chess_exp = models.CharField(choices=ChessExperience.choices, max_length=12)
     personal_statement = models.CharField(blank=True, max_length=500)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
@@ -64,9 +105,9 @@ class Club(models.Model):
     def user_level(self, user):
         if self.owner == user:
             return "Owner"
-        elif self.officers.filter(username=user.username):
+        elif self.officers.filter(email=user.email):
             return "Officer"
-        elif self.members.filter(username=user.username):
+        elif self.members.filter(email=user.email):
             return "Member"
         else:
             return "Applicant"
@@ -125,7 +166,7 @@ class Club(models.Model):
 
     def get_all_users(self):
         return self.get_members().union(self.get_officers()).union(
-            User.objects.filter(username=self.get_owner().username))
+            User.objects.filter(email=self.get_owner().email))
 
     def get_all_applicants(self):
         return User.objects.difference(self.get_all_users())

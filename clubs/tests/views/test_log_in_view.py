@@ -49,14 +49,14 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(len(messages_list), 0)
 
     def test_get_log_in_redirect_when_logged_in(self):
-        self.client.login(username=self.user.username, password='Password123')
+        self.client.login(email=self.user.email, password='Password123')
         response=self.client.get(self.url, follow=True)
         redirect_url=reverse('home_page')
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code = 200)
         self.assertTemplateUsed(response, 'home_page.html')
 
     def test_unsuccesful_log_in(self):
-        form_input = { 'username': '@johndoe22', 'password': 'xy' + 'Password123' }
+        form_input = { 'email': 'johndoe22@mail.com', 'password': 'xy' + 'Password123' }
         response=self.client.post(self.url, form_input)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'log_in.html')
@@ -69,7 +69,7 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(messages_list[0].level, messages.ERROR)
 
     def test_succesful_log_in(self):
-        form_input = { 'username': self.user.username, 'password': 'Password123' }
+        form_input = { 'email': self.user.email, 'password': 'Password123' }
         response=self.client.post(self.url, form_input, follow=True)
         self.assertTrue(self._is_logged_in())
         response_url = reverse('home_page')
@@ -82,15 +82,15 @@ class LogInViewTestCase(TestCase, LogInTester):
 
     def test_succesful_log_in_with_redirect(self):
         redirect_url=reverse('home_page')
-        form_input = { 'username': self.user.username , 'password': 'Password123', 'next':redirect_url }
+        form_input = { 'email': self.user.email , 'password': 'Password123', 'next':redirect_url }
         response=self.client.post(self.url, form_input, follow=True)
         self.assertTrue(self._is_logged_in())
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code = 200)
         template_dict = {'user_list.html', 'base_content.html', 'base.html', 'partials/navbar.html'}
 
     def test_post_log_in_redirect_when_logged_in(self):
-        self.client.login(username=self.user.username, password='Password123')
-        form_input = { 'username': self.user.username, 'password': 'Password123'}
+        self.client.login(email=self.user.email, password='Password123')
+        form_input = { 'email': self.user.email, 'password': 'Password123'}
         response=self.client.post(self.url, form_input, follow=True)
         redirect_url=reverse('home_page')
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code = 200)
@@ -99,7 +99,7 @@ class LogInViewTestCase(TestCase, LogInTester):
     def test_valid_log_in_by_inactive_user(self):
         self.user.is_active = False
         self.user.save()
-        form_input = { 'username': self.user.username, 'password': 'Password123' }
+        form_input = { 'email': self.user.email, 'password': 'Password123' }
         response=self.client.post(self.url, form_input, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'log_in.html')

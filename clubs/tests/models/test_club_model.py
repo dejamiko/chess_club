@@ -11,7 +11,7 @@ class ClubModelTestCase(TestCase):
         self.user = User.objects.get(email='johndoe@example.com')
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.other_club = Club.objects.get(name="Saint Louis Chess Club 2")
-        self.jane = User.objects.get(username='janedoe')
+        self.jane = User.objects.get(email='janedoe@example.com')
 
     def test_name_must_be_unique(self):
         self.club.name = self.other_club.name
@@ -60,14 +60,14 @@ class ClubModelTestCase(TestCase):
     def test_club_can_have_members(self):
         self.club.make_member(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 1)
-        self.assertEqual(self.club.get_members().get(username='janedoe'), self.jane)
+        self.assertEqual(self.club.get_members().get(email='janedoe@example.com'), self.jane)
 
     def test_club_can_have_officers(self):
         self.club.make_member(self.jane)
         self.club.make_officer(self.jane)
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_number_of_members(), 0)
-        self.assertEqual(self.club.get_officers().get(username=self.jane.username), self.jane)
+        self.assertEqual(self.club.get_officers().get(email=self.jane.email), self.jane)
 
     def test_club_can_change_owners(self):
         self.club.make_member(self.jane)
@@ -75,7 +75,7 @@ class ClubModelTestCase(TestCase):
         self.club.make_owner(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 0)
         self.assertEqual(self.club.get_number_of_officers(), 1)
-        self.assertEqual(self.club.get_officers().get(username=self.user.username), self.user)
+        self.assertEqual(self.club.get_officers().get(email=self.user.email), self.user)
         self.assertEqual(self.club.get_owner(), self.jane)
 
 

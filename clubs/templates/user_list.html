@@ -12,7 +12,6 @@
                     <tr>
                         <th scope="col"></th>
                         <th scope="col">Name</th>
-                        <th scope="col">Username</th>
                         <th scope="col">Chess experience</th>
 
                         {% if user_level == "Officer" or user_level == "Owner" %}
@@ -30,9 +29,8 @@
                             <tr class="table-primary">
                         {% endif %}
                     <td><img style="border-radius: 8px;" src="{{ listed_user.0.mini_gravatar }}"
-                             alt="{{ listed_user.0.username }}'s profile picture"></td>
+                             alt="{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}'s profile picture"></td>
                     <td>{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}</td>
-                    <td>@{{ listed_user.0.username }}</td>
                     <td>{{ listed_user.0.chess_exp }}</td>
 
                     {% if user_level == "Officer" or user_level == "Owner" %}

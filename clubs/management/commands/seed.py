@@ -26,14 +26,12 @@ class Command(BaseCommand):
     def createUser(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
-        username = self.createUsername(first_name, last_name)
         email = self.createEmail(first_name, last_name)
         bio = self.faker.text(max_nb_chars=400)
         chess_exp = self.createUserXP()
         personal_statement = self.faker.text(max_nb_chars=500)
 
         User.objects.create_user(
-            username,
             first_name = first_name,
             last_name = last_name,
             email = email,
@@ -52,7 +50,3 @@ class Command(BaseCommand):
     def createEmail(self, first_name, last_name):
         email = f'{first_name.lower()}.{last_name.lower()}@fakerseed.org'
         return email
-
-    def createUsername(self, first_name, last_name):
-        username = f'{first_name}{last_name}'
-        return username

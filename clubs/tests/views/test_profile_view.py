@@ -27,10 +27,9 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertEqual(self.url, '/home/profile/')
 
     def test_profile_is_correct(self):
-        self.client.login(username=self.user.username, password='Password123')
+        self.client.login(email=self.user.email, password='Password123')
         curr_profile = self.client.get(self.url)
         profile_user = curr_profile.context["user"]
-        self.assertEqual (self.user.username, profile_user.username)
         self.assertEqual (self.user.first_name, profile_user.first_name)
         self.assertEqual (self.user.last_name, profile_user.last_name)
         self.assertEqual (self.user.email, profile_user.email)
