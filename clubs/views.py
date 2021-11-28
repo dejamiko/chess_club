@@ -22,11 +22,9 @@ def manage_applications(request):
     user = request.user
     if request.method == 'POST':
         uname =  request.POST.get('uname') #the user to promote
-        print("----------POST USERNAME" + uname)
         clubname = request.POST.get('clubname') #the club they wish to become a member of
-        print("----------CLUB NAME" + clubname)
         temp_club = Club.objects.get(name=clubname)
-        temp_user = User.objects.get(username=uname)
+        temp_user = User.objects.get(email=uname)
         temp_club.make_member(temp_user)
         temp_club.save()
         delform = ClubApplicationModel.objects.get(associated_club =temp_club, associated_user = temp_user)
