@@ -13,7 +13,9 @@ def login_prohibited(view_function):
             return redirect('home_page')
         else:
             return view_function(request)
+
     return modified_view_function
+
 
 # when log-in page is created, this will redirect there if current user not authenticated
 @login_required
@@ -48,17 +50,35 @@ def user_list(request):
     # TODO filter the user_dict if a filter (by role / by chess exp) is in the GET
     # TODO sort (everything in that column alphabetically) the user_dict if a sort is in the GET
 
+    user_clubs = user_clubs_finder(request)
+
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club), "user_clubs" : user_clubs})
+
+@login_required
+
+# Finds all clubs the logged in user belongs to and returns this information in a list
+def user_clubs_finder(request):
+    user_clubs = []
+
+    clubs = Club.objects.all()
+    for temp_club in clubs:
+        if request.user in temp_club.get_all_users():
+            user_clubs.append(temp_club)
+
+    return user_clubs
 
 @login_required
 def home_page(request):
-    return render(request, 'home_page.html')
+    user_clubs = user_clubs_finder(request)
+
+    return render(request, 'home_page.html', {"user_clubs" : user_clubs})
 
 
 @login_required
 def profile(request):
-    return render(request, 'profile.html', {'curr_user': request.user})
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs" : user_clubs})
 
 
 def welcome_screen(request):
@@ -78,7 +98,10 @@ def change_password(request):
             return redirect('home_page')
     else:
         form = PasswordChangeForm(user=current_user)
-    return render(request, 'change_password.html', {'form': form})
+
+    user_clubs = user_clubs_finder(request)
+
+    return render(request, 'change_password.html', {'form': form, "user_clubs" : user_clubs})
 
 
 @login_required
@@ -92,7 +115,10 @@ def edit_profile(request):
             return redirect('profile')
     else:
         form = EditForm(instance=current_user)
-    return render(request, 'edit_profile.html', {'form': form})
+
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'edit_profile.html', {'form': form, "user_clubs" : user_clubs})
+
 
 @login_prohibited
 def log_in(request):
@@ -105,7 +131,7 @@ def log_in(request):
             if user is not None:
                 login(request, user)
                 redirect_url = request.POST.get('next') or 'home_page'
-                return redirect(redirect_url) #for now home page is placeholder
+                return redirect(redirect_url)  # for now home page is placeholder
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
     form = LogInForm()
     next = request.GET.get('next') or ''
@@ -115,6 +141,7 @@ def log_in(request):
 def log_out(request):
     logout(request)
     return redirect('log_in')
+
 
 @login_prohibited
 def sign_up(request):
