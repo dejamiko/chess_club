@@ -153,18 +153,19 @@ class Command(BaseCommand):
     def generate_club_users(self):
         for club in Club.objects.all():
             while club.get_number_of_members() < 7:
-                user = self.get_applicant(club.get_all_applicants())
+                user = self.get_applicant(club)
                 club.make_member(user)
             while club.get_number_of_officers() < 3:
-                user = self.get_applicant(club.get_all_applicants())
+                user = self.get_applicant(club)
                 club.make_member(user)
                 club.make_officer(user)
 
     def get_user(self):
         return list(User.objects.all())[random.randint(0, User.objects.count() - 1)]
 
-    def get_applicant(self, applicants):
-        return applicants[random.randint(0, len(applicants) - 1)]
+    def get_applicant(self, club):
+        possible = User.objects.all().difference(club.get_all_users())
+        return possible[random.randint(0, len(possible) - 1)]
 
     def create_user_experience(self):
         xp_levels = ['New to chess', 'Beginner', 'Intermediate', 'Advanced', 'Expert']

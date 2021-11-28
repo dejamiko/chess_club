@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from clubs.models import User, Club
+from clubs.models import User, Club, ClubApplicationModel
 
 
 class Command(BaseCommand):
@@ -13,3 +13,4 @@ class Command(BaseCommand):
                             # email__contains=email_substring,
                             is_superuser=False).delete()
         print('All users have been unseeded')
+        ClubApplicationModel.objects.all().delete()
