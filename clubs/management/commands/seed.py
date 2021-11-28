@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from faker import Faker
-from clubs.models import User
+from clubs.models import User, Club
 import random
 
 class Command(BaseCommand):
@@ -12,15 +12,23 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
+        user_arr = []
         user_counter = 0
-        while user_counter < 100:
-            try:
-                self.createUser()
-            except:
-                continue
-            user_counter += 1
-
-
+        # while user_counter < 20:
+        #     try:
+        #         self.createUser()
+        #         #x = self.createUser()
+        #         #user_arr[user_counter] = x
+        #     except:
+        #         continue
+        #     user_counter += 1
+        #     print(user_counter)
+        #createClub(user_arr)
+        for x in range(100):
+            y = self.createUser()
+            user_arr.append(y)
+            print(x)
+        self.createClub(user_arr)
         print('User seeding has successfully been completed...')
 
     def createUser(self):
@@ -34,11 +42,12 @@ class Command(BaseCommand):
         User.objects.create_user(
             first_name = first_name,
             last_name = last_name,
-            email = email,
+            email = self.faker.name() + self.faker.email(),
             bio = bio,
             chess_exp = chess_exp,
             personal_statement = personal_statement
         )
+        return x
 
 
     def createUserXP(self):

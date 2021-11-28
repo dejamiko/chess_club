@@ -1,0 +1,58 @@
+
+ <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+ <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
+ {% extends 'base_content.html' %}
+ {% block content %}
+ <div class="container">
+   <div class="row">
+     <div class="col-12">
+       <h1>Manage applications</h1>
+       <table id="club-table" class="table table-hover">
+         <thead>
+           <tr>
+             <th scope="col" style="width: 15%;">Name</th>
+             <th scope="col" style="width: 15%;">Location</th>
+             <th scope="col" style="width: 30%;">Description</th>
+             <th scope="col" style="width: 10%;">Members</th>
+             <th scope="col" style="width: 30%;">Owner</th>
+           </tr>
+         </thead>
+         <tbody>
+           {% if applications is not None %}
+           {% for app in applications %}
+           <tr>
+             <td>{{ app.associated_club.name }}</td>
+             <td>{{ app.associated_club.location }}</td>
+             <td>{{ app.associated_club.description }}</td>
+             <td>{{ app.associated_club.get_number_of_members }}</td>
+             <td>
+               <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ app.associated_club.owner.mini_gravatar }}" alt="{{ app.associated_club.owner.username }}'s profile picture">
+               {{ app.associated_club.owner.first_name }} {{ app.associated_club.owner.last_name }} </br>
+               {{ app.associated_club.owner.bio }}
+               <p><b>Applicant: {{ app.associated_user.username }}</b></p>
+
+               <form method="post">
+                 {% csrf_token %}
+
+                 {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
+                 <input type="hidden" name="uname" value="{{ app.associated_user.username }}">
+                 <input type="hidden" name="clubname" value="{{ app.associated_club.name }}">
+                 <input type="submit" value="ACCEPT" class="btn btn-sm btn-secondary">
+                 {% endif %}
+               </form>
+
+             </td>
+           </tr>
+           {% endfor %}
+           {% else %}
+           <h1>NO PENDING APPLICATIONS</h1>
+           {% endif %}
+
+
+         </tbody>
+       </table>
+     </div>
+   </div>
+ </div>
+ {% endblock %}

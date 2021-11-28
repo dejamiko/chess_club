@@ -3,45 +3,82 @@
 
 {% extends 'base_content.html' %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1>Clubs</h1>
-                <table id="club-table" class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col" style="width: 15%;">Name</th>
-                            <th scope="col" style="width: 15%;">Location</th>
-                            <th scope="col" style="width: 30%;">Description</th>
-                            <th scope="col" style="width: 10%;">Members</th>
-                            <th scope="col" style="width: 30%;">Owner</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for listed_club in clubs %}
-                            <tr>
-                                <td>{{ listed_club.name }}</td>
-                                <td>{{ listed_club.location }}</td>
-                                <td>{{ listed_club.description }}</td>
-                                <td>{{ listed_club.get_all_users.count }}</td>
-                                <td>
-                                    <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}"
-                                        alt="{{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}'s profile picture">
-                                    {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
-                                    {{ listed_club.owner.bio }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Clubs</h1>
+      <table id="club-table" class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 15%;">Name</th>
+            <th scope="col" style="width: 15%;">Location</th>
+            <th scope="col" style="width: 30%;">Description</th>
+            <th scope="col" style="width: 10%;">Members</th>
+            <th scope="col" style="width: 30%;">Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listed_club in clubs %}
+          <tr>
+            <td>{{ listed_club.name }}</td>
+            <td>{{ listed_club.location }}</td>
+            <td>{{ listed_club.description }}</td>
+            <td>{{ listed_club.get_number_of_members }}</td>
+            <td>
+              <img style="border-radius: 8px; margin: 0px 10px 10px 0px;" src="{{ listed_club.owner.mini_gravatar }}" alt="{{ listed_club.owner.username }}'s profile picture">
+              {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }} </br>
+              {{ listed_club.owner.bio }}
 
-    <script>
-        const dataTable = new simpleDatatables.DataTable("#club-table", {
-            perPage: 15,
-            fixedColumns: false
-        })
-    </script>
+              <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+              <form id="apply_button">
+                {% csrf_token %}
+
+                {% if curr_user not in listed_club.get_all_users %}
+
+                <input type="hidden" id="hiddenstuff" name="obj" value="{{ listed_club.name }}"></input>
+                <input type="submit"  id="submitbutton" value="APPLY"
+                 {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %}></input>
+                 {% endif %}
+
+              </form>
+
+
+            </td>
+          </tr>
+
+
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).on('submit', 'form', function(e) {
+    var curr_form = $(this);
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '',
+      data: {
+        name: curr_form.find('#hiddenstuff').val(),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function() {
+        curr_form.find('#submitbutton').attr('disabled', true);
+      }
+    })
+  })
+</script>
+
+
+<script>
+  const dataTable = new simpleDatatables.DataTable("#club-table", {
+    perPage: 15,
+    fixedColumns: false
+  })
+</script>
 {% endblock %}
