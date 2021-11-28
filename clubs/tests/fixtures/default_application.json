@@ -1,0 +1,10 @@
+[
+  {
+    "model": "clubs.clubapplicationmodel",
+    "pk": 1,
+    "fields": {
+      "associated_club": 1,
+      "associated_user": 1
+    }
+  }
+]
