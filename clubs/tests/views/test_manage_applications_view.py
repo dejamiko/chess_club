@@ -23,15 +23,13 @@ class ManageApplicationTest(TestCase):
         self.second_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
         self.second_club_application = ClubApplicationModel.objects.get(associated_club=self.second_club)
-        self.button_input = {
 
-        }
 
     def test_manage_applications_url(self):
         self.assertEqual(self.url, '/home/clubs/manage_applications/')
 
     def test_manage_applications_list(self):
-        self.client.login(username=self.first_user.username, password="Password123")
+        self.client.login(email=self.first_user.email, password="Password123")
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "manage_applications.html")
