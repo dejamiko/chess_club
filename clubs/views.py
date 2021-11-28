@@ -43,7 +43,7 @@ def manage_applications(request):
 
 
 def user_list_dropdown(request, club_id):
-    club = club = Club.objects.get(id=club_id)
+    club = Club.objects.get(id=club_id)
     response = user_list(request, club)
     return response
 
