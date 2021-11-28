@@ -45,7 +45,7 @@ def manage_applications(request):
 @login_required
 def user_list(request):
     # Temporary fake club with some members, officers and stuff
-    club = Club.objects.get(location='london')
+    club = Club.objects.get(name="Saint Louis Chess Club")
 
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')
@@ -85,10 +85,8 @@ def club_list(request):
         for applicant in club_applicants:
             if applicant == curr_user:
                 already_exists = True
-                print("APPLICANT ALREADY EXISTS")
 
         if already_exists == False:
-            print("CLUB NAME TO APPLY TO -------------------- " + club_name)
             clubapplication = ClubApplicationModel(
             associated_club = Club.objects.get(name=club_name),
             associated_user = curr_user )

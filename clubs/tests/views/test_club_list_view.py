@@ -22,7 +22,7 @@ class ClubListTest(TestCase):
         self.client.login(email=self.user.email, password="Password123")
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "pending_applications.html")
+        self.assertTemplateUsed(response, "club_list.html")
         self.assertEqual(len(response.context["clubs"]), 2)
         for club in Club.objects.all():
             self.assertContains(response, club.name)
