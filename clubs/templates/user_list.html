@@ -1,15 +1,17 @@
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <h1>Users</h1>
-                <table class="table table-hover">
-                    <thead class="thead-light">
+                <table id="user-table" class="table table-hover">
+                    <thead>
                     <tr>
                         <th scope="col"></th>
                         <th scope="col">Name</th>
-                        <th scope="col">Username</th>
                         <th scope="col">Chess experience</th>
 
                         {% if user_level == "Officer" or user_level == "Owner" %}
@@ -27,9 +29,8 @@
                             <tr class="table-primary">
                         {% endif %}
                     <td><img style="border-radius: 8px;" src="{{ listed_user.0.mini_gravatar }}"
-                             alt="{{ listed_user.0.username }}'s profile picture"></td>
+                             alt="{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}'s profile picture"></td>
                     <td>{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}</td>
-                    <td>@{{ listed_user.0.username }}</td>
                     <td>{{ listed_user.0.chess_exp }}</td>
 
                     {% if user_level == "Officer" or user_level == "Owner" %}
@@ -47,7 +48,7 @@
                                 {% if user_level == "Owner" and listed_user.1 == "Officer" %}
                                     <input class="btn btn-outline-danger btn-sm" type="submit" value="Demote"
                                            name="demote">
-                                    <input disabled class="btn btn-outline-secondary btn-sm" type="submit"
+                                    <input class="btn btn-outline-secondary btn-sm" type="submit"
                                            value="Switch ownership" name="switch_owner">
                                     <!-- popup box for switching ownership -->
                                 {% endif %}
@@ -61,4 +62,11 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#user-table", {
+            columns: [{ select: [0,6], sortable: false }],
+            perPage: 15
+        })
+    </script>
 {% endblock %}

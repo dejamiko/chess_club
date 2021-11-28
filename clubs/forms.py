@@ -1,10 +1,10 @@
 from django import forms
-from .models import User
+from .models import User, Club, ClubApplicationModel
 from django.core.validators import RegexValidator
 
 
 class LogInForm(forms.Form):
-    username = forms.CharField(label="Username")
+    email = forms.CharField(label="Email")
     password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
 
@@ -12,9 +12,9 @@ class LogInForm(forms.Form):
 class SignUpForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email',
+        fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
-        widgets = {'bio': forms.Textarea()}
+        widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
 
     new_password = forms.CharField(
         label='Password',
@@ -38,7 +38,6 @@ class SignUpForm(forms.ModelForm):
     def save(self):
         super().save(commit=False)
         user = User.objects.create_user(
-            self.cleaned_data.get('username'),
             first_name=self.cleaned_data.get('first_name'),
             last_name=self.cleaned_data.get('last_name'),
             email=self.cleaned_data.get('email'),
@@ -53,6 +52,30 @@ class SignUpForm(forms.ModelForm):
 class EditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email',
+        fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
         widgets = {'bio': forms.Textarea()}
+
+class CreateClubForm(forms.ModelForm):
+    class Meta:
+        model = Club
+        fields = ['name', 'location', 'description']
+        widgets = {'description': forms.Textarea()}
+    # owner = request.user
+    # make current user owner of club
+
+    def save(self, user):
+        super().save(commit=False)
+        club = Club.objects.create(
+            name = self.cleaned_data.get('name'),
+            location = self.cleaned_data.get('location'),
+            description = self.cleaned_data.get('description'),
+            owner = user,
+        )
+        return club
+
+#
+# class ClubApplicationForm(forms.ModelForm):
+#     class Meta:
+#         model = ClubApplicationModel
+#         fields = ['status']

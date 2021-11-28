@@ -50,6 +50,4 @@ $ python3 manage.py test
 *The above instructions should work in your version of the application.  If there are deviations, declare those here in bold.  Otherwise, remove this line.*
 
 ## Sources
-The packages used by this application are specified in `requirements.txt`
-
-*Declare are other sources here.*
+The packages used by this application are specified in `requirements.txt`. In addition, the animated background used on the Welcome screen is sourced from [VantaJS](https://www.vantajs.com/?effect=net).

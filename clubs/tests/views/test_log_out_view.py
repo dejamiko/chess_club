@@ -21,14 +21,13 @@ class LogOutViewTestCase(TestCase, LogInTester):
         self.assertEqual(self.url, '/home/log_out/')
 
     def test_get_log_out(self):
-        self.client.login(username=self.user.username, password='Password123')
+        self.client.login(email=self.user.email, password='Password123')
         self.assertTrue(self._is_logged_in())
         response = self.client.get(self.url, follow=True)
-        response_url = reverse('log_in')
+        response_url = reverse('welcome_screen')
         self.assertRedirects(response, response_url,
                              status_code=302, target_status_code=200)
-        template_dict = {'log_in.html', 'base_content.html',
-                         'base.html', 'partials/navbar.html'}
+        template_dict = {'welcome_screen.html', 'base.html', 'partials/background.html'}
         for t in template_dict:
             self.assertTemplateUsed(response, t)
         self.assertFalse(self._is_logged_in())

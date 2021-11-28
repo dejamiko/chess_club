@@ -11,15 +11,14 @@ class SignUpFormTestCase(TestCase):
 
     def setUp(self):
         self.form_input = {
-            'username': '@janedoe',
             'first_name': 'Jane',
             'last_name': 'Doe',
             'email': 'janedoe@example.org',
             'bio': 'My bio',
             'chess_exp': 'Beginner',
             'personal_statement': 'jane doe personal statement',
-            'new_password': '#NDGDR98adada123',
-            'password_confirmation': '#NDGDR98adada123'
+            'new_password': 'Password123',
+            'password_confirmation': 'Password123'
         }
 
     # form accepts valid input data
@@ -38,7 +37,6 @@ class SignUpFormTestCase(TestCase):
         form = SignUpForm()
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
-        self.assertIn('username', form.fields)
         self.assertIn('email', form.fields)
         self.assertIn('chess_exp', form.fields)
         self.assertIn('personal_statement', form.fields)
@@ -52,44 +50,43 @@ class SignUpFormTestCase(TestCase):
         password_confirmation_widget = form.fields['password_confirmation'].widget
         self.assertTrue(isinstance(password_confirmation_widget, forms.PasswordInput))
 
-    # test username uniqueness
-    def test_unique_username(self):
+    # test email uniqueness
+    def test_unique_email(self):
         form = SignUpForm(data=self.form_input)
         form_duplicate = {
-            'username': '@janedoe',
             'first_name': 'jane2',
             'last_name': 'Doe2',
             'email': 'janedoe2@example.org',
             'bio': 'My bio2',
             'chess_exp': 'Beginner2',
             'personal_statement': 'jane doe personal statement2',
-            'new_password': '#NDGDR98adada123',
-            'password_confirmation': '#NDGDR98adada123'
+            'new_password': 'Password123',
+            'password_confirmation': 'Password123'
         }
         form2 = SignUpForm(data=form_duplicate)
         self.assertFalse(form2.is_valid())
 
     # new password has correct format
     def test_password_must_contain_uppercase_character(self):
-        self.form_input['new_password'] = 'ndgdr98adada123'
-        self.form_input['password_confirmation'] = 'ndgdr98adada123'
+        self.form_input['new_password'] = 'password123'
+        self.form_input['password_confirmation'] = 'password123'
         form = SignUpForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     def test_password_must_contain_lowercase_character(self):
-        self.form_input['new_password'] = 'NDGDR98ADADA123'
-        self.form_input['password_confirmation'] = 'NDGDR98ADADA123'
+        self.form_input['new_password'] = 'PASSWORD123'
+        self.form_input['password_confirmation'] = 'PASSWORD123'
         form = SignUpForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     def test_password_must_contain_number(self):
-        self.form_input['new_password'] = 'NDGDRadada'
-        self.form_input['password_confirmation'] = 'NDGDRadada'
+        self.form_input['new_password'] = 'Password'
+        self.form_input['password_confirmation'] = 'Password'
         form = SignUpForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     def test_password_and_password_confirmation_are_identical(self):
-        self.form_input['password_confirmation'] = 'NOT_NDGDR98adada123'
+        self.form_input['password_confirmation'] = 'notPassword123'
         form = SignUpForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
@@ -99,12 +96,12 @@ class SignUpFormTestCase(TestCase):
         form.save()
         after_count = User.objects.count()
         self.assertEqual(after_count, before_count + 1)
-        user = User.objects.get(username='@janedoe')
+        user = User.objects.get(email='janedoe@example.org')
         self.assertEqual(user.first_name, 'Jane')
         self.assertEqual(user.last_name, 'Doe')
         self.assertEqual(user.email, 'janedoe@example.org')
         self.assertEqual(user.bio, 'My bio')
         self.assertEqual(user.chess_exp, 'Beginner')
         self.assertEqual(user.personal_statement, 'jane doe personal statement')
-        is_password_correct = check_password('#NDGDR98adada123', user.password)
+        is_password_correct = check_password('Password123', user.password)
         self.assertTrue(is_password_correct)

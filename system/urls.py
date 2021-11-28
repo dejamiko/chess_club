@@ -19,8 +19,9 @@ from clubs import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("home/users/", views.user_list, name="users"),
-    path("home/<club_id>/users/", views.user_list, name="club_users"),
+    path("home/users/", views.user_list_main, name="users"),
+    path("home/<club_id>/users/", views.user_list_dropdown, name="club_users"),
+    path("home/clubs/", views.club_list, name="clubs"),
     path("home/", views.home_page, name="home_page"),
     path("sign_up/", views.sign_up, name="sign_up"),
     path("", views.welcome_screen, name="welcome_screen"),
@@ -29,5 +30,5 @@ urlpatterns = [
     path("home/profile/", views.profile, name='profile'),
     path("home/profile/edit/", views.edit_profile, name='edit_profile'),
     path("home/profile/change_password", views.change_password, name="change_password"),
-
+    path('home/clubs/manage_applications/', views.manage_applications, name='manage_applications'),
 ]
