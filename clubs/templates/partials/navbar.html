@@ -32,7 +32,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
                             {% for club in user_clubs %}
-                            <li><a class="dropdown-item" href='{% url 'users' %}'>{{ club.name }}</a></li>
+                            <li><a class="dropdown-item" href='{% url 'club_users' club.id %}'>{{ club.name }}</a></li>
                             {% endfor %}
                         </ul>
                     </li>

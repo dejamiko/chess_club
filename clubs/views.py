@@ -19,9 +19,9 @@ def login_prohibited(view_function):
 
 # when log-in page is created, this will redirect there if current user not authenticated
 @login_required
-def user_list(request):
+def user_list(request, club_id):
     # Temporary fake club with some members, officers and stuff
-    club = Club.objects.get(name="Saint Louis Chess Club")
+    club = Club.objects.get(id=club_id)
 
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')
