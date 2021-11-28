@@ -6,16 +6,14 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
-
 def login_prohibited(view_function):
     def modified_view_function(request):
         if request.user.is_authenticated:
             return redirect('home_page')
         else:
             return view_function(request)
+
     return modified_view_function
-
-
 
 @login_required
 def manage_applications(request):
@@ -39,12 +37,24 @@ def manage_applications(request):
     for app in temp:
         if user in app.associated_club.get_officers() or user == app.associated_club.get_owner():
             applications.append(app)
-    return render(request, 'manage_applications.html', {'applications': applications})
+
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'manage_applications.html', {'applications': applications, "user_clubs" : user_clubs})
+
+
+def user_list_dropdown(request, club_id):
+    club = Club.objects.get(id=club_id)
+    response = user_list(request, club)
+    return response
+
+def user_list_main(request):
+    club = list(Club.objects.all())[0]
+    response = user_list(request, club)
+    return response
 
 
 @login_required
-def user_list(request):
-    club = list(Club.objects.all())[0]
+def user_list(request, club):
 
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')
@@ -68,8 +78,24 @@ def user_list(request):
     for user in user_dict:
         user_dict_with_levels.append((user, club.user_level(user)))
 
+    user_clubs = user_clubs_finder(request)
+
+
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club)})
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club), "user_clubs" : user_clubs})
+
+@login_required
+
+# Finds all clubs the logged in user belongs to and returns this information in a list
+def user_clubs_finder(request):
+    user_clubs = []
+
+    clubs = Club.objects.all()
+    for temp_club in clubs:
+        if request.user in temp_club.get_all_users():
+            user_clubs.append(temp_club)
+
+    return user_clubs
 
 
 @login_required
@@ -104,12 +130,15 @@ def club_list(request):
 
 @login_required
 def home_page(request):
-    return render(request, 'home_page.html')
+    user_clubs = user_clubs_finder(request)
+
+    return render(request, 'home_page.html', {"user_clubs" : user_clubs})
 
 
 @login_required
 def profile(request):
-    return render(request, 'profile.html', {'curr_user': request.user})
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs" : user_clubs})
 
 
 def welcome_screen(request):
@@ -129,7 +158,10 @@ def change_password(request):
             return redirect('home_page')
     else:
         form = PasswordChangeForm(user=current_user)
-    return render(request, 'change_password.html', {'form': form})
+
+    user_clubs = user_clubs_finder(request)
+
+    return render(request, 'change_password.html', {'form': form, "user_clubs" : user_clubs})
 
 
 @login_required
@@ -143,7 +175,10 @@ def edit_profile(request):
             return redirect('profile')
     else:
         form = EditForm(instance=current_user)
-    return render(request, 'edit_profile.html', {'form': form})
+
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'edit_profile.html', {'form': form, "user_clubs" : user_clubs})
+
 
 @login_prohibited
 def log_in(request):
@@ -156,10 +191,11 @@ def log_in(request):
             if user is not None:
                 login(request, user)
                 redirect_url = request.POST.get('next') or 'home_page'
-                # for now home page is placeholder
-                return redirect(redirect_url)
-        messages.add_message(request, messages.ERROR,
-                             "The credentials provided were invalid!")
+
+                return redirect(redirect_url)  # for now home page is placeholder
+        messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
+
+
     form = LogInForm()
     next = request.GET.get('next') or ''
     return render(request, 'log_in.html', {'form': form, 'next': next})
@@ -168,6 +204,7 @@ def log_in(request):
 def log_out(request):
     logout(request)
     return redirect('welcome_screen')
+
 
 @login_prohibited
 def sign_up(request):
