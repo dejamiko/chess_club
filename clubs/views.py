@@ -43,7 +43,7 @@ def manage_applications(request):
 
 
 def user_list_dropdown(request, club_id):
-    club = club = Club.objects.get(id=club_id)
+    club = Club.objects.get(id=club_id)
     response = user_list(request, club)
     return response
 
@@ -77,10 +77,6 @@ def user_list(request, club):
     user_dict_with_levels = []
     for user in user_dict:
         user_dict_with_levels.append((user, club.user_level(user)))
-
-
-    # TODO filter the user_dict if a filter (by role / by chess exp) is in the GET
-    # TODO sort (everything in that column alphabetically) the user_dict if a sort is in the GET
 
     user_clubs = user_clubs_finder(request)
 
