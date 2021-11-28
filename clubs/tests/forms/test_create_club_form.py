@@ -31,13 +31,13 @@ class CreateClubFormTestCase(TestCase):
 
     # test club name uniqueness
     def test_unique_name(self):
-        form = SignUpForm(data=self.form_input)
+        form = CreateClubForm(data=self.form_input)
         form_duplicate = {
             "name": "some club",
             "location": "London",
             "description": "Duplicate club :)",
         }
-        second_form = SignUpForm(data=form_duplicate)
+        second_form = CreateClubForm(data=form_duplicate)
         self.assertFalse(second_form.is_valid())
 
     def test_form_must_save_correctly(self):
