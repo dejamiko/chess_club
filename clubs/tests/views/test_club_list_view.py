@@ -15,7 +15,7 @@ class ClubListTest(TestCase):
         self.user = User.objects.get(email="johndoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
 
-    def test_club_list_url(self):
+    def test_pending_applications_url(self):
         self.assertEqual(self.url, "/home/clubs/")
 
     def test_get_user_list(self):
