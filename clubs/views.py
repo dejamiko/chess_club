@@ -78,17 +78,26 @@ def user_list(request):
 @login_required
 def club_list(request):
     curr_user = request.user
+    all_clubs = Club.objects.all()
+    already_exists = False
     if request.method == 'POST':
         club_name =  request.POST['name']
-        print("CLUB NAME TO APPLY TO -------------------- " + club_name)
-        clubapplication = ClubApplicationModel(
-        associated_club = Club.objects.get(name=club_name),
-        associated_user = curr_user
-        )
-        clubapplication.save()
         temp_club = Club.objects.get(name=club_name)
-        temp_club.make_applicant(curr_user)
-        temp_club.save()
+        club_applicants = temp_club.get_all_applicants()
+        for applicant in club_applicants:
+            if applicant == curr_user:
+                already_exists = True
+                print("APPLICANT ALREADY EXISTS")
+
+        if already_exists == False:
+            print("CLUB NAME TO APPLY TO -------------------- " + club_name)
+            clubapplication = ClubApplicationModel(
+            associated_club = Club.objects.get(name=club_name),
+            associated_user = curr_user )
+            clubapplication.save()
+            temp_club = Club.objects.get(name=club_name)
+            temp_club.make_applicant(curr_user)
+            temp_club.save()
 
     try:
         applications = ClubApplicationModel.objects.all()

@@ -148,6 +148,5 @@ def toggle_superuser(user):
 
 
 class ClubApplicationModel(models.Model):
-    is_approved = models.BooleanField(default=False)
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #wouldnt allow without null = true
