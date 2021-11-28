@@ -35,22 +35,18 @@ class UserListTest(TestCase):
 
         for user_id in range(5, 10):
             self.assertNotContains(response, f"First {user_id} Last {user_id}")
-            self.assertNotContains(response, f"user{user_id}")
 
         for user_id in range(10, 15):
             self.assertContains(response, f"First {user_id} Last {user_id}")
-            self.assertContains(response, f"user{user_id}")
 
         for user_id in range(15, 21):
             self.assertNotContains(response, f"First {user_id} Last {user_id}")
-            self.assertNotContains(response, f"user{user_id}")
 
     def test_member_sees_limited_variables(self):
         self.club.make_member(self.user)
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
-        self.assertContains(response, "Username")
         self.assertContains(response, "Chess experience")
         self.assertNotContains(response, "Email")
         self.assertNotContains(response, "Role")
@@ -70,7 +66,6 @@ class UserListTest(TestCase):
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
-            self.assertContains(response, f"user{user_id}")
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_officer_sees_all_variables(self):
@@ -79,7 +74,6 @@ class UserListTest(TestCase):
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
-        self.assertContains(response, "Username")
         self.assertContains(response, "Chess experience")
         self.assertContains(response, "Email")
         self.assertContains(response, "Role")
@@ -100,7 +94,6 @@ class UserListTest(TestCase):
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
-            self.assertContains(response, f"user{user_id}")
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_owner_sees_all_variables(self):
@@ -110,7 +103,6 @@ class UserListTest(TestCase):
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
-        self.assertContains(response, "Username")
         self.assertContains(response, "Chess experience")
         self.assertContains(response, "Email")
         self.assertContains(response, "Role")
@@ -183,7 +175,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Switch ownership")
 
     def _access_user_list_page(self):
-        self.client.login(username=self.user.username, password="Password123")
+        self.client.login(email=self.user.email, password="Password123")
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "user_list.html")
@@ -193,7 +185,6 @@ class UserListTest(TestCase):
         for user_id in range(start_id, start_id + count):
             temp_user = User.objects.create_user(
                 id=user_id,
-                username=f"user{user_id}",
                 first_name=f"First {user_id}",
                 last_name=f"Last {user_id}",
                 email=f"{user_id}@test.com",

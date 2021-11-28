@@ -1,16 +1,15 @@
 {% extends 'base_content.html' %}
 {% block content %}
-    <div class="container vh-100">
-        <div class="row h-100">
-            <div class="col-9 my-auto">
-                <h1>My Profile</h1>
-                <form action="{% url 'edit_profile' %}" method="post">
-                    {% csrf_token %}
-                    <p>{{ form.as_p }}</p>
-                    <input type="submit" value="Update" class="btn btn-primary">
-                </form>
-                <br><br>
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-6 offset-md-3">
+            <h1>Edit profile</h1>
+            <form action="{% url 'edit_profile' %}" method="post">
+                {% csrf_token %}
+                {% include 'partials/bootstrap_form.html' with form=form %}
+                <input type="submit" value="Update" class="btn btn-secondary">
+            </form>
         </div>
     </div>
+</div>
 {% endblock %}
