@@ -65,7 +65,11 @@
 
     <script>
         const dataTable = new simpleDatatables.DataTable("#user-table", {
-            columns: [{ select: [0,6], sortable: false }],
+            {% if user_level == "Officer" or user_level == "Owner" %}
+                columns: [{ select: [0,5], sortable: false }],
+            {% else %}
+                columns: [{ select: [0], sortable: false }],
+            {% endif %}
             perPage: 15
         })
     </script>
