@@ -48,8 +48,13 @@ def user_list_dropdown(request, club_id):
     return response
 
 def user_list_main(request):
-    club = list(Club.objects.all())[0]
-    response = user_list(request, club)
+    clubs_list = user_clubs_finder(request)
+    if clubs_list:
+        club = clubs_list[0]
+        response = user_list(request, club)
+    else:
+        user_clubs = user_clubs_finder(request)
+        response = render(request, "no_club_screen.html", {"user_clubs" : user_clubs})
     return response
 
 
@@ -82,7 +87,7 @@ def user_list(request, club):
 
 
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club), "user_clubs" : user_clubs})
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club), "user_clubs" : user_clubs, "selected_club" : club})
 
 @login_required
 
