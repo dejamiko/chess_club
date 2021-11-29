@@ -6,7 +6,7 @@ from clubs.models import User, Club
 
 
 class CreateClubViewTestCase(TestCase):
-    """Tests of the sign up view"""
+    """Tests of the create club view"""
 
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 
@@ -43,15 +43,8 @@ class CreateClubViewTestCase(TestCase):
 
     def test_unsuccesful_create_club(self):
         self.client.login(email=self.user.email, password='Password123')
-        # form = CreateClubForm(data=self.form_input)
-        # self.form_input['name'] = 'some club'
-        # self.form_input['location'] = 'KCL'
-        # self.form_input['description'] = 'short description here'
-
-
         before_count = Club.objects.count()
         self.form_input['name'] = ''
-        # form = CreateClubForm(data=self.form_input)
         response = self.client.post(self.url, self.form_input)
         after_count = Club.objects.count()
         self.assertEqual(after_count, before_count)
