@@ -54,15 +54,13 @@ class EditForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
-        widgets = {'bio': forms.Textarea()}
+        widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
 
 class CreateClubForm(forms.ModelForm):
     class Meta:
         model = Club
         fields = ['name', 'location', 'description']
         widgets = {'description': forms.Textarea()}
-    # owner = request.user
-    # make current user owner of club
 
     def save(self, user):
         super().save(commit=False)
