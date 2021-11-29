@@ -125,7 +125,8 @@ def club_list(request):
     except ClubApplicationModel.DoesNotExist:
         applications = None
 
-    return render(request, "club_list.html", {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user})
+    user_clubs = user_clubs_finder(request)
+    return render(request, "club_list.html", {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user, "user_clubs" : user_clubs})
 
 
 @login_required
