@@ -10,12 +10,12 @@ class UserListTest(TestCase):
                 'clubs/tests/fixtures/default_club.json']
 
     def setUp(self):
-        self.url = reverse("users")
         self.user = User.objects.get(email='janedoe@example.com')
         self.club = Club.objects.get(name='Saint Louis Chess Club')
+        self.url = reverse("users", kwargs={'club_id': self.club.id})
 
     def test_user_list_url(self):
-        self.assertEqual(self.url, "/home/users/")
+        self.assertEqual(self.url, "/home/1/users/")
 
     def test_logged_in_redirect(self):
         redirect_url=reverse_with_next('log_in', self.url)

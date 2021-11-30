@@ -6,6 +6,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
+global club
+club = None
+
 def login_prohibited(view_function):
     def modified_view_function(request):
         if request.user.is_authenticated:
@@ -15,18 +18,19 @@ def login_prohibited(view_function):
 
     return modified_view_function
 
+
 @login_required
 def manage_applications(request):
     user = request.user
     if request.method == 'POST':
-        uname =  request.POST.get('uname') #the user to promote
-        clubname = request.POST.get('clubname') #the club they wish to become a member of
+        uname = request.POST.get('uname')  # the user to promote
+        clubname = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=clubname)
         temp_user = User.objects.get(email=uname)
         temp_club.make_member(temp_user)
         temp_club.save()
-        delform = ClubApplicationModel.objects.get(associated_club =temp_club, associated_user = temp_user)
-        delform.delete() #bad practice?
+        delform = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
+        delform.delete()  # bad practice?
         return redirect('manage_applications')
     temp = []
     applications = []
@@ -39,28 +43,23 @@ def manage_applications(request):
             applications.append(app)
 
     user_clubs = user_clubs_finder(request)
-    return render(request, 'manage_applications.html', {'applications': applications, "user_clubs" : user_clubs})
+    return render(request, 'manage_applications.html', {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
-
-def user_list_dropdown(request, club_id):
-    club = Club.objects.get(id=club_id)
-    response = user_list(request, club)
-    return response
-
-def user_list_main(request):
-    clubs_list = user_clubs_finder(request)
-    if clubs_list:
-        club = clubs_list[0]
+def user_list_main(request, club_id):
+    user_clubs = user_clubs_finder(request)
+    if user_clubs:
+        global club
+        club = Club.objects.get(id=club_id)
         response = user_list(request, club)
-    else:
-        user_clubs = user_clubs_finder(request)
-        response = render(request, "no_club_screen.html", {"user_clubs" : user_clubs})
-    return response
+        return response
 
+def user_list_no_club(request):
+    user_clubs = user_clubs_finder(request)
+    response = render(request, "no_club_screen.html", {"user_clubs": user_clubs})
+    return response
 
 @login_required
 def user_list(request, club):
-
     if club.user_level(request.user) == 'Applicant':
         redirect('home_page')
 
@@ -72,7 +71,7 @@ def user_list(request, club):
         club.make_owner(listed_user) if request.GET.get(
             "switch_owner") else None
 
-        return redirect("users")
+        return redirect("users", club.id)
 
     if request.user.user_level(club) == "Member":
         user_dict = club.get_members()
@@ -85,12 +84,12 @@ def user_list(request, club):
 
     user_clubs = user_clubs_finder(request)
 
-
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club), "user_clubs" : user_clubs, "selected_club" : club})
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club),
+                   "user_clubs": user_clubs, "selected_club": club})
+
 
 @login_required
-
 # Finds all clubs the logged in user belongs to and returns this information in a list
 def user_clubs_finder(request):
     user_clubs = []
@@ -109,7 +108,7 @@ def club_list(request):
     all_clubs = Club.objects.all()
     already_exists = False
     if request.method == 'POST':
-        club_name =  request.POST['name']
+        club_name = request.POST['name']
         temp_club = Club.objects.get(name=club_name)
         club_applicants = temp_club.get_all_applicants()
         for applicant in club_applicants:
@@ -118,8 +117,8 @@ def club_list(request):
 
         if already_exists == False:
             clubapplication = ClubApplicationModel(
-            associated_club = Club.objects.get(name=club_name),
-            associated_user = curr_user )
+                associated_club=Club.objects.get(name=club_name),
+                associated_user=curr_user)
             clubapplication.save()
             temp_club = Club.objects.get(name=club_name)
             temp_club.make_applicant(curr_user)
@@ -131,20 +130,22 @@ def club_list(request):
         applications = None
 
     user_clubs = user_clubs_finder(request)
-    return render(request, "club_list.html", {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user, "user_clubs" : user_clubs})
+    return render(request, "club_list.html",
+                  {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user,
+                   "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
 
-    return render(request, 'home_page.html', {"user_clubs" : user_clubs})
+    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club})
 
 
 @login_required
 def profile(request):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs" : user_clubs})
+    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
 
 
 def welcome_screen(request):
@@ -167,7 +168,7 @@ def change_password(request):
 
     user_clubs = user_clubs_finder(request)
 
-    return render(request, 'change_password.html', {'form': form, "user_clubs" : user_clubs})
+    return render(request, 'change_password.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_required
@@ -183,7 +184,7 @@ def edit_profile(request):
         form = EditForm(instance=current_user)
 
     user_clubs = user_clubs_finder(request)
-    return render(request, 'edit_profile.html', {'form': form, "user_clubs" : user_clubs})
+    return render(request, 'edit_profile.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
@@ -201,7 +202,6 @@ def log_in(request):
                 return redirect(redirect_url)  # for now home page is placeholder
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
 
-
     form = LogInForm()
     next = request.GET.get('next') or ''
     return render(request, 'log_in.html', {'form': form, 'next': next})
@@ -209,6 +209,8 @@ def log_in(request):
 
 def log_out(request):
     logout(request)
+    global club
+    club = None
     return redirect('welcome_screen')
 
 
