@@ -78,7 +78,6 @@ class ClubModelTestCase(TestCase):
         self.assertEqual(self.club.get_officers().get(email=self.user.email), self.user)
         self.assertEqual(self.club.get_owner(), self.jane)
 
-
     def _assert_club_is_valid(self):
         try:
             self.club.full_clean()

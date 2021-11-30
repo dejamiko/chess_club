@@ -10,7 +10,6 @@ class CreateClubViewTestCase(TestCase):
 
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 
-
     def setUp(self):
         self.url = reverse('create_club')
         self.user = User.objects.get(email='johndoe@example.com')
@@ -54,10 +53,10 @@ class CreateClubViewTestCase(TestCase):
         self.assertTrue(isinstance(form, CreateClubForm))
         self.assertTrue(form.is_bound)
 
-    def test_succesful_create_club(self):
+    def test_successful_create_club(self):
         self.client.login(email=self.user.email, password='Password123')
         before_count = Club.objects.count()
-        form = CreateClubForm(data=self.form_input)
+        CreateClubForm(data=self.form_input)
         response = self.client.post(self.url, self.form_input, follow=True)
         after_count = Club.objects.count()
         self.assertEqual(after_count, before_count + 1)

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from libgravatar import Gravatar
 
+
 # This user manager is following tutorial from
 # https://www.fomfus.com/articles/how-to-use-email-as-username-for-django-authentication-removing-the-username/
 class UserManager(BaseUserManager):
@@ -182,7 +183,6 @@ class Club(models.Model):
         return User.objects.difference(self.get_all_applicants())
 
 
-
 def toggle_superuser(user):
     user.is_staff = not user.is_staff
     user.is_superuser = not user.is_superuser
@@ -190,4 +190,4 @@ def toggle_superuser(user):
 
 class ClubApplicationModel(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
-    associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) #wouldnt allow without null = true
+    associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true

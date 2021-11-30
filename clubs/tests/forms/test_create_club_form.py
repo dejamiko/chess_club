@@ -2,7 +2,6 @@
 from django.test import TestCase
 from clubs.forms import CreateClubForm
 from clubs.models import User, Club
-from django import forms
 
 
 class CreateClubFormTestCase(TestCase):
@@ -32,18 +31,19 @@ class CreateClubFormTestCase(TestCase):
     # test club name uniqueness
     def test_unique_name(self):
         form = CreateClubForm(data=self.form_input)
-        form_duplicate = {
+        form_duplicate_input = {
             "name": "some club",
             "location": "London",
-            "description": "Duplicate club :)",
+            "description": "Duplicate club :)"
         }
-        second_form = CreateClubForm(data=form_duplicate)
+        form.save(user=self.user)
+        second_form = CreateClubForm(data=form_duplicate_input)
         self.assertFalse(second_form.is_valid())
 
     def test_form_must_save_correctly(self):
         form = CreateClubForm(data=self.form_input)
         before_count = Club.objects.count()
-        form.save()
+        form.save(user=self.user)
         after_count = Club.objects.count()
         self.assertEqual(after_count, before_count + 1)
         club = Club.objects.get(name='some club')
