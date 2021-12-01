@@ -31,7 +31,6 @@ class ClubApplicationModelTestCase(TestCase):
         self.first_club_application.associated_club = None
         self._assert_club_application_is_invalid()
 
-
     def _assert_club_application_is_valid(self):
         try:
             self.first_club_application.full_clean()

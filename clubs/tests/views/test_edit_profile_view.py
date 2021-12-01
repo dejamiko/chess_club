@@ -1,11 +1,12 @@
 """Tests of the log in view"""
 from django.test import TestCase
-from clubs.forms import LogInForm, EditForm
+from clubs.forms import EditForm
 from clubs.models import User
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 from .helpers import LogInTester
 from django.contrib import messages
+
 
 class EditProfileTestCase(TestCase, LogInTester):
     """Tests of the edit profile view"""
@@ -19,14 +20,13 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.url = reverse('edit_profile')
         self.login_url = reverse('log_in')
         self.user = User.objects.get(email="johndoe@example.com")
-        self.edit_profile_form_input =  {'first_name' : 'NOTJohn',
-        'last_name': 'NOTdoe', 'email' : 'NOTjohndoe@test.com', 'bio' : 'NOT my bio',
-        'chess_exp' : 'Advanced', 'personal_statement' :'NOT john doe personal statement'
-        }
-
+        self.edit_profile_form_input = {'first_name': 'NOTJohn',
+                                        'last_name': 'NOTdoe', 'email': 'NOTjohndoe@test.com', 'bio': 'NOT my bio',
+                                        'chess_exp': 'Advanced', 'personal_statement': 'NOT john doe personal statement'
+                                        }
 
     def test_logged_in_redirect(self):
-        redirect_url=reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
@@ -48,10 +48,11 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'John')
         self.assertEqual(self.user.last_name, 'Doe')
-        self.assertEqual(self.user.email,'johndoe@example.com')
-        self.assertEqual(self.user.bio,"Hi, I am John Doe" )
+        self.assertEqual(self.user.email, 'johndoe@example.com')
+        self.assertEqual(self.user.bio, "Hi, I am John Doe")
         self.assertEqual(self.user.chess_exp, 'Beginner')
-        self.assertEqual(self.user.personal_statement, "I've started playing chess after I've watched the Queen's Gambit on Netflix. Such a cool game!")
+        self.assertEqual(self.user.personal_statement,
+                         "I've started playing chess after I've watched the Queen's Gambit on Netflix. Such a cool game!")
 
     def test_edit_profile_changes_attributes(self):
         self.client.login(email=self.user.email, password='Password123')
@@ -65,8 +66,8 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'NOTJohn')
         self.assertEqual(self.user.last_name, 'NOTdoe')
-        self.assertEqual(self.user.email,'NOTjohndoe@test.com')
-        self.assertEqual(self.user.bio,'NOT my bio' )
+        self.assertEqual(self.user.email, 'NOTjohndoe@test.com')
+        self.assertEqual(self.user.bio, 'NOT my bio')
         self.assertEqual(self.user.chess_exp, 'Advanced')
         self.assertEqual(self.user.personal_statement, 'NOT john doe personal statement')
 

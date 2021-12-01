@@ -24,7 +24,6 @@ class ManageApplicationTest(TestCase):
         self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
         self.second_club_application = ClubApplicationModel.objects.get(associated_club=self.second_club)
 
-
     def test_manage_applications_url(self):
         self.assertEqual(self.url, '/home/clubs/manage_applications/')
 
