@@ -4,7 +4,6 @@ from clubs.tests.views.helpers import reverse_with_next
 from clubs.models import User, Club
 
 
-
 class UserListTest(TestCase):
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/other_users.json',
                 'clubs/tests/fixtures/default_club.json']
@@ -18,7 +17,7 @@ class UserListTest(TestCase):
         self.assertEqual(self.url, "/home/1/users/")
 
     def test_logged_in_redirect(self):
-        redirect_url=reverse_with_next('log_in', self.url)
+        redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
@@ -62,7 +61,7 @@ class UserListTest(TestCase):
         self._create_test_users(start_id=20, count=1, level="Owner")
 
         response = self._access_user_list_page()
-        self.assertEqual(len(response.context["users"]), User.objects.count())
+        self.assertEqual(len(response.context["users"]), self.club.get_all_users().count())
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
@@ -90,7 +89,7 @@ class UserListTest(TestCase):
         self._create_test_users(start_id=20, count=1, level="Owner")
 
         response = self._access_user_list_page()
-        self.assertEqual(len(response.context["users"]), User.objects.count())
+        self.assertEqual(len(response.context["users"]), self.club.get_all_users().count())
 
         for user_id in range(10, 21):
             self.assertContains(response, f"First {user_id} Last {user_id}")
@@ -108,14 +107,15 @@ class UserListTest(TestCase):
         self.assertContains(response, "Role")
         self.assertContains(response, "Options")
 
-    def test_officer_has_promote_button_for_applicant(self):
-        self.club.make_member(self.user)
-        self.club.make_officer(self.user)
-
-        self._create_test_users(start_id=0, count=1)
-
-        response = self._access_user_list_page()
-        self.assertContains(response, "Promote")
+    # This is no longer the required functionality
+    # def test_officer_has_promote_button_for_applicant(self):
+    #     self.club.make_member(self.user)
+    #     self.club.make_officer(self.user)
+    #
+    #     self._create_test_users(start_id=0, count=1)
+    #
+    #     response = self._access_user_list_page()
+    #     self.assertContains(response, "Promote")
 
     def test_officer_has_promote_button_for_member(self):
         self.club.make_member(self.user)

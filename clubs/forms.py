@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Club, ClubApplicationModel
+from .models import User, Club
 from django.core.validators import RegexValidator
 
 
@@ -8,7 +8,7 @@ class LogInForm(forms.Form):
     password = forms.CharField(label="Password", widget=forms.PasswordInput())
 
 
-# This user model is inspried by the one written in clucker
+# This user model is inspired by the one written in clucker
 class SignUpForm(forms.ModelForm):
     class Meta:
         model = User
@@ -54,23 +54,22 @@ class EditForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email',
                   'bio', 'chess_exp', 'personal_statement']
-        widgets = {'bio': forms.Textarea()}
+        widgets = {'bio': forms.Textarea(), 'personal_statement': forms.Textarea()}
+
 
 class CreateClubForm(forms.ModelForm):
     class Meta:
         model = Club
         fields = ['name', 'location', 'description']
         widgets = {'description': forms.Textarea()}
-    # owner = request.user
-    # make current user owner of club
 
     def save(self, user):
         super().save(commit=False)
         club = Club.objects.create(
-            name = self.cleaned_data.get('name'),
-            location = self.cleaned_data.get('location'),
-            description = self.cleaned_data.get('description'),
-            owner = user,
+            name=self.cleaned_data.get('name'),
+            location=self.cleaned_data.get('location'),
+            description=self.cleaned_data.get('description'),
+            owner=user,
         )
         return club
 
