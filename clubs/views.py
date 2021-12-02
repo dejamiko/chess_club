@@ -43,19 +43,41 @@ def manage_applications(request):
             applications.append(app)
 
     user_clubs = user_clubs_finder(request)
+
+    # PLACEHOLDER FOR IMPROVING MANAGE APPLICATIONS!
+    if not temp:
+        return render(request, 'no_club_screen.html',
+                      {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
+
+
     return render(request, 'manage_applications.html', {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
+@login_required
 def user_list_main(request, club_id):
     user_clubs = user_clubs_finder(request)
-    if user_clubs:
+    try:
+        club_verify = Club.objects.get(id=club_id)
+    except Club.DoesNotExist:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
+    if user_clubs and club_verify in user_clubs:
         global club
         club = Club.objects.get(id=club_id)
         response = user_list(request, club)
         return response
+    else:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
 
+@login_required
 def user_list_no_club(request):
     user_clubs = user_clubs_finder(request)
     response = render(request, "no_club_screen.html", {"user_clubs": user_clubs})
+    return response
+
+def user_list_select_club(request):
+    user_clubs = user_clubs_finder(request)
+    response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
 
 @login_required

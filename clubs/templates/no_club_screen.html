@@ -1,24 +1,12 @@
 {% extends 'base_content.html' %}
 {% block content %}
-  {% if user_clubs %}
-  <div class="card w-50 mx-auto">
-    <div class="card-body">
-      <h5 class="card-title">Select a Chess Club!</h5>
-      <p class="card-text">You haven't selected a Chess Club to view!</p>
-    </div>
+
+<div class="card w-50 mx-auto">
+  <div class="card-body">
+    <h5 class="card-title">Join a Chess Club!</h5>
+    <p class="card-text">Currently you are not a member of a chess club. Click below to search for a club!</p>
+    <a href="{% url 'clubs' %}" class="btn btn-secondary">Search Clubs</a>
   </div>
-    {% for club in user_clubs %}
-    <div class="list-group w-50 mx-auto">
-      <a href="{% url 'users' club.id %}" class="list-group-item list-group-item-action list-group-item-secondary" aria-current="true"> {{ club.name }} </a>
-    </div>
-    {% endfor %}
-  {% else %}
-  <div class="card w-50 mx-auto">
-    <div class="card-body">
-      <h5 class="card-title">Join a Chess Club!</h5>
-      <p class="card-text">Currently you are not a member of a chess club. Click below to search for a club!</p>
-      <a href="{% url 'clubs' %}" class="btn btn-secondary">Search Clubs</a>
-    </div>
-  </div>
-  {% endif %}
+</div>
+
 {% endblock %}
