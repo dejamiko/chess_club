@@ -2,18 +2,19 @@
 from django.contrib import messages
 from django.test import TestCase
 from clubs.forms import LogInForm
-from clubs.models import User
+from clubs.models import User, Club
 from django.urls import reverse
 from .helpers import LogInTester, reverse_with_next
 
 
 class LogInViewTestCase(TestCase, LogInTester):
     """Tests of the log in view"""
-    fixtures = ["clubs/tests/fixtures/default_user.json"]
+    fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/default_club.json']
 
     def setUp(self):
         self.url = reverse("log_in")
         self.user = User.objects.get(email="johndoe@example.com")
+        self.club = Club.objects.get(name='Saint Louis Chess Club')
 
     def test_log_in_url(self):
         self.assertEqual(self.url, '/log_in/')
@@ -31,7 +32,7 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(len(messages_list), 0)
 
     def test_get_log_in_with_redirect(self):
-        destination_url = reverse('users')
+        destination_url=reverse('users', kwargs={'club_id': self.club.id})
         self.url = reverse_with_next('log_in', destination_url)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)

@@ -1,0 +1,12 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="card w-50 mx-auto">
+  <div class="card-body">
+    <h5 class="card-title">Join a Chess Club!</h5>
+    <p class="card-text">Currently you are not a member of a chess club. Click below to search for a club!</p>
+    <a href="{% url 'clubs' %}" class="btn btn-secondary">Search Clubs</a>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="card w-50 mx-auto">
+    <div class="card-body">
+      <h5 class="card-title">Oops! You aren't a member of this club or this club does not exist...</h5>
+      <p class="card-text">See which clubs are available!</p>
+        <a href="{% url 'clubs' %}" class="btn btn-secondary">Search Clubs</a>
+    </div>
+  </div>
+{% endblock %}

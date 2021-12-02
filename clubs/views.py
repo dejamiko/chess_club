@@ -6,6 +6,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
+global club
+club = None
+
 
 def login_prohibited(view_function):
     def modified_view_function(request):
@@ -15,7 +18,6 @@ def login_prohibited(view_function):
             return view_function(request)
 
     return modified_view_function
-
 
 @login_required
 def manage_applications(request):
@@ -40,20 +42,39 @@ def manage_applications(request):
             applications.append(app)
 
     user_clubs = user_clubs_finder(request)
-    return render(request, 'manage_applications.html', {'applications': applications, "user_clubs": user_clubs})
+
+    return render(request, 'manage_applications.html',
+                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
 
-def user_list_dropdown(request, club_id):
-    club = Club.objects.get(id=club_id)
-    response = user_list(request, club)
+
+@login_required
+def user_list_main(request, club_id):
+    user_clubs = user_clubs_finder(request)
+    try:
+        club_verify = Club.objects.get(id=club_id)
+    except Club.DoesNotExist:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
+    if user_clubs and club_verify in user_clubs:
+        global club
+        club = Club.objects.get(id=club_id)
+        response = user_list(request, club)
+        return response
+    else:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
+
+@login_required
+def user_list_no_club(request):
+    user_clubs = user_clubs_finder(request)
+    response = render(request, "no_club_screen.html", {"user_clubs": user_clubs})
     return response
 
-
-def user_list_main(request):
-    club = list(Club.objects.all())[0]
-    response = user_list(request, club)
+def user_list_select_club(request):
+    user_clubs = user_clubs_finder(request)
+    response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
-
 
 @login_required
 def user_list(request, club):
@@ -68,7 +89,7 @@ def user_list(request, club):
         club.make_owner(listed_user) if request.GET.get(
             "switch_owner") else None
 
-        return redirect("users")
+        return redirect("users", club.id)
 
     if request.user.user_level(club) == "Member":
         user_dict = club.get_members()
@@ -83,7 +104,8 @@ def user_list(request, club):
 
     return render(request, "user_list.html",
                   {"users": user_dict_with_levels, "user_level": request.user.user_level(club),
-                   "user_clubs": user_clubs})
+                   "user_clubs": user_clubs, "selected_club": club})
+
 
 
 @login_required
@@ -110,7 +132,6 @@ def club_list(request):
         for applicant in club_applicants:
             if applicant == curr_user:
                 already_exists = True
-
         if not already_exists:
             club_application = ClubApplicationModel(
                 associated_club=Club.objects.get(name=club_name),
@@ -128,20 +149,22 @@ def club_list(request):
     user_clubs = user_clubs_finder(request)
     return render(request, "club_list.html",
                   {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user,
-                   "user_clubs": user_clubs})
+                   "user_clubs": user_clubs, "selected_club": club})
+
 
 
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
+    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club})
 
-    return render(request, 'home_page.html', {"user_clubs": user_clubs})
 
 
 @login_required
 def profile(request):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs": user_clubs})
+    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
+
 
 
 @login_prohibited
@@ -165,7 +188,8 @@ def change_password(request):
 
     user_clubs = user_clubs_finder(request)
 
-    return render(request, 'change_password.html', {'form': form, "user_clubs": user_clubs})
+    return render(request, 'change_password.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
+
 
 
 @login_required
@@ -181,7 +205,8 @@ def edit_profile(request):
         form = EditForm(instance=current_user)
 
     user_clubs = user_clubs_finder(request)
-    return render(request, 'edit_profile.html', {'form': form, "user_clubs": user_clubs})
+
+    return render(request, 'edit_profile.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
@@ -207,6 +232,8 @@ def log_in(request):
 @login_required
 def log_out(request):
     logout(request)
+    global club
+    club = None
     return redirect('welcome_screen')
 
 
