@@ -36,7 +36,7 @@
 
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'create_club' %}">Create Club</a>
+                        <a class="nav-link" href="{% url 'create_club' %}">Create club</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
@@ -54,7 +54,7 @@
                                 {% if selected_club %}
                                     Club: {{ selected_club.name }}
                                 {% else %}
-                                    Select Club
+                                    Select club
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
