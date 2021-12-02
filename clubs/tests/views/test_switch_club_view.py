@@ -1,11 +1,12 @@
+"""Unit tests of the switch club view"""
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club
 from clubs.tests.views.helpers import reverse_with_next
 
 
-class SwitchClubTest(TestCase):
-
+class SwitchClubViewTest(TestCase):
+    """Unit tests of the switch club view"""
     fixtures = [
         "clubs/tests/fixtures/default_user.json",
         "clubs/tests/fixtures/default_club.json",
@@ -70,10 +71,3 @@ class SwitchClubTest(TestCase):
         expected_clubs_list = [self.first_club, self.second_club]
         self.assertEqual(number_of_clubs, 2)
         self.assertEqual(test_user_clubs, expected_clubs_list)
-
-
-
-
-
-
-

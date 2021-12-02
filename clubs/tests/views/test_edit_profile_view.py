@@ -1,4 +1,4 @@
-"""Tests of the log in view"""
+"""Unit tests of the edit profile view"""
 from django.test import TestCase
 from clubs.forms import EditForm
 from clubs.models import User
@@ -9,7 +9,7 @@ from django.contrib import messages
 
 
 class EditProfileTestCase(TestCase, LogInTester):
-    """Tests of the edit profile view"""
+    """Unit tests of the edit profile view"""
 
     fixtures = [
         'clubs/tests/fixtures/default_user.json',

@@ -1,4 +1,4 @@
-"""Tests of the sign up view"""
+"""Unit tests of the sign up view"""
 from django.test import TestCase
 from clubs.forms import SignUpForm
 from django.urls import reverse
@@ -8,7 +8,7 @@ from .helpers import LogInTester
 
 
 class SignUpViewTestCase(TestCase, LogInTester):
-    """Tests of the sign up view"""
+    """Unit tests of the sign up view"""
 
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 

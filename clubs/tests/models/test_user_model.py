@@ -1,3 +1,4 @@
+"""Unit tests of the user model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import User
@@ -5,6 +6,7 @@ from clubs.models import User
 
 # The tests were inspired by those written for clucker.
 class UserModelTestCase(TestCase):
+    """Unit tests of the user model."""
     fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json']
 
     def setUp(self):

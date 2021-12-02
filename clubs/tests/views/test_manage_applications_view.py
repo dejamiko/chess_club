@@ -1,11 +1,12 @@
-from django.core.exceptions import ValidationError
+"""Unit tests of the manage application view"""
 from django.test import TestCase
 from clubs.models import User, Club, ClubApplicationModel
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 
 
-class ManageApplicationTest(TestCase):
+class ManageApplicationViewTest(TestCase):
+    """Unit tests of the manage application view"""
     fixtures = [
         "clubs/tests/fixtures/default_user.json",
         "clubs/tests/fixtures/other_users.json",
