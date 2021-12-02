@@ -27,7 +27,7 @@ class SwitchClubTest(TestCase):
         self.url = reverse("users", kwargs={'club_id': self.second_club.id})
         self.assertEqual(self.url, '/home/2/users/')
 
-    def test_no_club_user(self):
+    def test_no_club(self):
         self.url = reverse("no_club")
         self.assertEqual(self.url, '/home/no_club')
 
@@ -39,6 +39,16 @@ class SwitchClubTest(TestCase):
         redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_no_club_user(self):
+        self.client.login(email=self.other_user.email, password="Password123")
+        response = self.client.get("/home/no_club")
+        self.assertTemplateUsed(response, "no_club_screen.html")
+
+    def test_select_club_user(self):
+        self.client.login(email=self.other_user.email, password="Password123")
+        response = self.client.get("/home/select_club")
+        self.assertTemplateUsed(response, "select_club_screen.html")
 
     def test_non_existent_club(self):
         self.client.login(email=self.user.email, password="Password123")

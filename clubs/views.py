@@ -19,7 +19,6 @@ def login_prohibited(view_function):
 
     return modified_view_function
 
-
 @login_required
 def manage_applications(request):
     user = request.user
@@ -44,10 +43,8 @@ def manage_applications(request):
 
     user_clubs = user_clubs_finder(request)
 
-    # PLACEHOLDER FOR IMPROVING MANAGE APPLICATIONS!
-    if not temp:
-        return render(request, 'no_club_screen.html',
-                      {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
+    return render(request, 'manage_applications.html',
+                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
 
 
@@ -72,7 +69,7 @@ def user_list_main(request, club_id):
 def user_list_no_club(request):
     user_clubs = user_clubs_finder(request)
     response = render(request, "no_club_screen.html", {"user_clubs": user_clubs})
-
+    return response
 
 def user_list_select_club(request):
     user_clubs = user_clubs_finder(request)
