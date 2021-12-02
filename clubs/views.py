@@ -260,5 +260,6 @@ def create_club(request):
             return redirect('home_page')
     else:
         form = CreateClubForm()
-    return render(request, 'create_club.html', {'form': form})
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
     # redirect to home page with new club as drop down choice when user story done
