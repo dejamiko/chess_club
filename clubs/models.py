@@ -92,6 +92,21 @@ class User(AbstractUser):
             club.make_member(self)
         else:
             raise ValueError
+    
+    def get_number_of_matches_played(self):
+        return self.plays_in.count()
+    
+    def get_number_of_matches_won(self):
+        return self.match_wins.count()
+    
+    def get_number_of_matches_lost(self):
+        return self.match_losses.count()
+    
+    def get_number_of_tournaments_won(self):
+        return self.tournament_wins.count()
+    
+    def get_number_of_tournaments_participated_in(self):
+        return self.participates_in.count()
 
 
 class Club(models.Model):
@@ -191,3 +206,36 @@ def toggle_superuser(user):
 class ClubApplicationModel(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
+
+
+class Tournament(models.Model):
+    name = models.CharField(unique=True, blank=False, max_length=50)
+    description = models.CharField(blank=True, max_length=500)
+    participants = models.ManyToManyField(User, related_name="participates_in")
+    organiser = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="organises")
+    coorganisers = models.ManyToManyField(User, related_name="coorganises")
+    deadline = models.DateTimeField(blank=False)
+    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="tournament_wins")
+
+    def get_number_of_participants(self):
+        return self.participants.count()
+
+    def get_all_matches(self):
+        return self.matches_within.all()
+
+
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches_within")
+    players = models.ManyToManyField(User, related_name="plays_in")
+    winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
+    losers = models.ManyToManyField(User, blank=True, related_name="match_losses")
+
+    def set_winner(self, winner_user):
+        self.losers.clear()
+        self.winner = winner_user
+        for player in self.players.all():
+            if player != winner_user:
+                self.losers.add(player)
+                
+        self.losers.save()
+        self.winner.save()
