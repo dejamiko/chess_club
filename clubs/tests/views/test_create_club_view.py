@@ -1,4 +1,4 @@
-"""Tests of the create club view"""
+"""Unit tests of the create club view"""
 from django.test import TestCase
 from clubs.forms import CreateClubForm
 from django.urls import reverse
@@ -6,7 +6,7 @@ from clubs.models import User, Club
 
 
 class CreateClubViewTestCase(TestCase):
-    """Tests of the create club view"""
+    """Unit tests of the create club view"""
 
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 

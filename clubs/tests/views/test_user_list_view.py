@@ -1,3 +1,4 @@
+"""Unit tests of the user list view"""
 from django.test import TestCase
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
@@ -5,6 +6,7 @@ from clubs.models import User, Club
 
 
 class UserListTest(TestCase):
+    """Unit tests of the user list view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/other_users.json',
                 'clubs/tests/fixtures/default_club.json']
 
@@ -106,16 +108,6 @@ class UserListTest(TestCase):
         self.assertContains(response, "Email")
         self.assertContains(response, "Role")
         self.assertContains(response, "Options")
-
-    # This is no longer the required functionality
-    # def test_officer_has_promote_button_for_applicant(self):
-    #     self.club.make_member(self.user)
-    #     self.club.make_officer(self.user)
-    #
-    #     self._create_test_users(start_id=0, count=1)
-    #
-    #     response = self._access_user_list_page()
-    #     self.assertContains(response, "Promote")
 
     def test_officer_has_promote_button_for_member(self):
         self.club.make_member(self.user)

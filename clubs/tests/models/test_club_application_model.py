@@ -1,3 +1,4 @@
+"""Unit tests of the club application model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import User, Club, ClubApplicationModel
@@ -5,6 +6,7 @@ from django.urls import reverse
 
 
 class ClubApplicationModelTestCase(TestCase):
+    """Unit tests of the club application model."""
     fixtures = [
         "clubs/tests/fixtures/default_user.json",
         "clubs/tests/fixtures/other_users.json",

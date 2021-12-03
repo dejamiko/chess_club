@@ -1,3 +1,4 @@
+"""Unit tests of the edit profile form."""
 from django.test import TestCase
 from clubs.forms import EditForm
 from clubs.models import User
@@ -6,7 +7,7 @@ from django.urls import reverse
 
 
 class EditFormTestCase(TestCase):
-    """UNit tests of the edit form."""
+    """Unit tests of the edit profile form."""
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 
     def setUp(self):

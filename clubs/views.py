@@ -19,14 +19,15 @@ def login_prohibited(view_function):
 
     return modified_view_function
 
+
 @login_required
 def manage_applications(request):
     user = request.user
     if request.method == 'POST':
-        uname = request.POST.get('uname')  # the user to promote
+        username = request.POST.get('uname')  # the user to promote
         club_name = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=club_name)
-        temp_user = User.objects.get(email=uname)
+        temp_user = User.objects.get(email=username)
         temp_club.make_member(temp_user)
         temp_club.save()
         form_to_be_deleted = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
@@ -47,7 +48,6 @@ def manage_applications(request):
                   {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
 
-
 @login_required
 def user_list_main(request, club_id):
     user_clubs = user_clubs_finder(request)
@@ -65,47 +65,49 @@ def user_list_main(request, club_id):
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
         return response
 
+
 @login_required
 def user_list_no_club(request):
     user_clubs = user_clubs_finder(request)
     response = render(request, "no_club_screen.html", {"user_clubs": user_clubs})
     return response
 
+
 def user_list_select_club(request):
     user_clubs = user_clubs_finder(request)
     response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
 
+
 @login_required
-def user_list(request, club):
-    if club.user_level(request.user) == 'Applicant':
+def user_list(request, user_club):
+    if user_club.user_level(request.user) == 'Applicant':
         redirect('home_page')
 
     if request.GET.get("listed_user"):
         listed_user = User.objects.get(email=request.GET.get("listed_user"))
 
-        listed_user.promote(club) if request.GET.get("promote") else None
-        listed_user.demote(club) if request.GET.get("demote") else None
-        club.make_owner(listed_user) if request.GET.get(
+        listed_user.promote(user_club) if request.GET.get("promote") else None
+        listed_user.demote(user_club) if request.GET.get("demote") else None
+        user_club.make_owner(listed_user) if request.GET.get(
             "switch_owner") else None
 
-        return redirect("users", club.id)
+        return redirect("users", user_club.id)
 
-    if request.user.user_level(club) == "Member":
-        user_dict = club.get_members()
+    if request.user.user_level(user_club) == "Member":
+        user_dict = user_club.get_members()
     else:
-        user_dict = club.get_all_users()
+        user_dict = user_club.get_all_users()
 
     user_dict_with_levels = []
     for user in user_dict:
-        user_dict_with_levels.append((user, club.user_level(user)))
+        user_dict_with_levels.append((user, user_club.user_level(user)))
 
     user_clubs = user_clubs_finder(request)
 
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(club),
-                   "user_clubs": user_clubs, "selected_club": club})
-
+                  {"users": user_dict_with_levels, "user_level": request.user.user_level(user_club),
+                   "user_clubs": user_clubs, "selected_club": user_club})
 
 
 @login_required
@@ -152,19 +154,16 @@ def club_list(request):
                    "user_clubs": user_clubs, "selected_club": club})
 
 
-
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club})
 
 
-
 @login_required
 def profile(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'profile.html', {'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
-
 
 
 @login_prohibited
@@ -189,7 +188,6 @@ def change_password(request):
     user_clubs = user_clubs_finder(request)
 
     return render(request, 'change_password.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
-
 
 
 @login_required
@@ -253,7 +251,6 @@ def sign_up(request):
 @login_required
 def create_club(request):
     if request.method == 'POST':
-
         form = CreateClubForm(request.POST)
         if form.is_valid():
             form.save(request.user)

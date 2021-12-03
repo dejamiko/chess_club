@@ -1,4 +1,4 @@
-"""Tests of the log in view"""
+"""Unit tests of the log in view"""
 from django.contrib import messages
 from django.test import TestCase
 from clubs.forms import LogInForm
@@ -8,7 +8,7 @@ from .helpers import LogInTester, reverse_with_next
 
 
 class LogInViewTestCase(TestCase, LogInTester):
-    """Tests of the log in view"""
+    """Unit tests of the log in view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/default_club.json']
 
     def setUp(self):
@@ -32,7 +32,7 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.assertEqual(len(messages_list), 0)
 
     def test_get_log_in_with_redirect(self):
-        destination_url=reverse('users', kwargs={'club_id': self.club.id})
+        destination_url = reverse('users', kwargs={'club_id': self.club.id})
         self.url = reverse_with_next('log_in', destination_url)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)

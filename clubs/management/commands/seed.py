@@ -21,7 +21,7 @@ class Command(BaseCommand):
             try:
                 self.create_user()
                 user_counter += 1
-                print(user_counter.__str__() + ' user has been created')
+                print(f'{user_counter}/50 user has been created', end='\r')
             except IntegrityError:
                 print("This username or email was already taken")
         print('User seeding has been completed successfully')

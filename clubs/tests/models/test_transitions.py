@@ -1,9 +1,11 @@
+"""Unit tests of the user transitions model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import Club, User
 
 
 class TransitionsBetweenModelsTestCase(TestCase):
+    """Unit tests of the user transitions model."""
     fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json',
                 'clubs/tests/fixtures/default_club.json']
 
