@@ -1,0 +1,12 @@
+[
+  {
+    "model": "clubs.club",
+    "pk": 1,
+    "fields": {
+      "name": "Saint Louis Chess Club",
+      "location": "St. Louis, Missouri",
+      "description": "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.",
+      "owner": 1
+    }
+  }
+]

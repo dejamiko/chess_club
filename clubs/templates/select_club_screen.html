@@ -1,0 +1,16 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Select a chess club!</h1>
+                <p>You haven't selected a chess club to view!</p>
+                {% for club in user_clubs %}
+                    <div class="list-group mx-auto">
+                        <a href="{% url 'users' club.id %}" class="list-group-item list-group-item-action list-group-item-secondary" aria-current="true"> {{ club.name }} </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

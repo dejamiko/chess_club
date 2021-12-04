@@ -1,9 +1,14 @@
-<script src="https://kit.fontawesome.com/29f2d97b0d.js" crossorigin="anonymous"></script>
-
 {# Navbar inspired by the one created for clucker #}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+<nav class="navbar navbar-expand-lg navbar-dark mb-3" style="background-color: #6F4E37;">
     <div class="container">
-        <a class="navbar-brand" href="#">
+
+        <a class="navbar-brand"
+                {% if user.is_authenticated %}
+           href="{% url 'home_page' %}"
+                {% else %}
+           href="{% url 'welcome_screen' %}"
+                {% endif %}
+        >
             <span class="fas fa-chess"></span>&nbsp;&nbsp;Chess Club
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -12,25 +17,76 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'users' %}">Users</a>
-                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        {% if selected_club %}
+                            <a class="nav-link" href="{% url 'users' selected_club.id %}">Users</a>
+                        {%  elif user_clubs%}
+                            <a class="nav-link" href="{% url 'select_club' %}">Users</a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'no_club' %}">Users</a>
+                        {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'clubs' %}">Clubs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'create_club' %}">Create club</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
+                    </li>
+
+                {% endif %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link" href="#" id="user_account_dropdown" role="button" data-bs-toggle="dropdown"
-                       aria-expanded="false">
-                        <span class="bi-person-circle"></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user_account_dropdown">
-                        <li><a class="dropdown-item" href="#">Edit profile</a></li>
-                        <li><a class="dropdown-item" href="#">Change password</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
+                {% if user.is_authenticated %}
+                    {% if user_clubs %}
+
+                    <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="club_selection_dropdown" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                {% if selected_club %}
+                                    Club: {{ selected_club.name }}
+                                {% else %}
+                                    Select club
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
+                                {% for club in user_clubs %}
+                                <li><a class="dropdown-item" href="{% url 'users' club.id %}">{{ club.name }}</a></li>
+                                {% endfor %}
+                            </ul>
                         </li>
-                        <li><a class="dropdown-item" href="#">Log out</a></li>
+
+                    {% else %}
+                    <div class="collapse navbar-collapse" id="navbar_club_selection_alt">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'clubs' %}">Search club</a>
+                            </li>
                     </ul>
-                </li>
+                    </div>
+
+                    {% endif %}
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="user_account_dropdown" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <span class="bi-person-circle"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user_account_dropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">View profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'change_password' %}">Change password</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'log_out' %}">Log out</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

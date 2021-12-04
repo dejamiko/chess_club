@@ -1,62 +1,76 @@
-{% extends 'page_with_navbar.html' %}
-{% block body %}
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1>Users</h1>
-
-            <table class="table table-hover">
-                <thead class="thead-light">
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Users</h1>
+                <table id="user-table" class="table table-hover">
+                    <thead>
                     <tr>
                         <th scope="col"></th>
                         <th scope="col">Name</th>
-                        <th scope="col">Username</th>
                         <th scope="col">Chess experience</th>
 
-                        {% if user.user_level == "Officer" or user.user_level == "Owner" %}
+                        {% if user_level == "Officer" or user_level == "Owner" %}
                             <th scope="col">Email</th>
                             <th scope="col">Role</th>
                             <th scope="col">Options</th>
                         {% endif %}
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for listed_user in users %}
-                        {% if listed_user != user %}
+                        {% if listed_user.0 != user %}
                             <tr>
-                        {% else %}
+                                {% else %}
                             <tr class="table-primary">
                         {% endif %}
-                            <td><img style="border-radius: 8px;" src="{{ listed_user.mini_gravatar }}" alt="{{ listed_user.username }}'s profile picture"></td>
-                            <td>{{ listed_user.first_name }} {{ listed_user.last_name }}</td>
-                            <td>@{{ listed_user.username }}</td>
-                            <td>{{ listed_user.chess_exp }}</td>
+                    <td><img style="border-radius: 8px;" src="{{ listed_user.0.mini_gravatar }}"
+                             alt="{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}'s profile picture"></td>
+                    <td>{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}</td>
+                    <td>{{ listed_user.0.chess_exp }}</td>
 
-                            {% if user.user_level == "Officer" or user.user_level == "Owner" %}
-                                <td>{{ listed_user.email }}</td>
-                                <td>{{ listed_user.user_level }}</td>
-                                <td>
-                                    <form action="#" method="get">
-                                        <input hidden type="text" value="{{ listed_user }}" name="listed_user"/>
+                    {% if user_level == "Officer" or user_level == "Owner" %}
+                        <td>{{ listed_user.0.email }}</td>
+                        <td>{{ listed_user.1 }}</td>
+                        <td>
+                            <form action="#" method="get">
+                                <input hidden type="text" value="{{ listed_user.0 }}" name="listed_user"/>
 
-                                        {% if user.user_level != "Member" and listed_user.user_level == "Applicant" or listed_user.user_level == "Member" %}
-                                            <input class="btn btn-outline-success btn-sm" type="submit" value="Promote" name="promote">
-                                        {% endif %}
+                                {% if user_level != "Member" and listed_user.1 == "Applicant" or listed_user.1 == "Member" %}
+                                    <input class="btn btn-outline-success btn-sm" type="submit" value="Promote"
+                                           name="promote">
+                                {% endif %}
 
-                                        {% if user.user_level == "Owner" and listed_user.user_level == "Officer" %}
-                                            <input class="btn btn-outline-danger btn-sm" type="submit" value="Demote" name="demote">
-                                            <input disabled class="btn btn-outline-secondary btn-sm" type="submit" value="Switch ownership" name="switch_owner">
-                                            <!-- popup box for switching ownership -->
-                                        {% endif %}
-                                    </form>
-                                </td>
-                            {% endif %}
-                        </tr>
+                                {% if user_level == "Owner" and listed_user.1 == "Officer" %}
+                                    <input class="btn btn-outline-danger btn-sm" type="submit" value="Demote"
+                                           name="demote">
+                                    <input class="btn btn-outline-secondary btn-sm" type="submit"
+                                           value="Switch ownership" name="switch_owner">
+                                    <!-- popup box for switching ownership -->
+                                {% endif %}
+                            </form>
+                        </td>
+                    {% endif %}
+                    </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#user-table", {
+            {% if user_level == "Officer" or user_level == "Owner" %}
+                columns: [{select: [0, 5], sortable: false}],
+            {% else %}
+                columns: [{select: [0], sortable: false}],
+            {% endif %}
+            perPage: 15
+        })
+    </script>
 {% endblock %}

@@ -1,3 +1,4 @@
+"""Unit tests of the user model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import User
@@ -5,6 +6,7 @@ from clubs.models import User
 
 # The tests were inspired by those written for clucker.
 class UserModelTestCase(TestCase):
+    """Unit tests of the user model."""
     fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json']
 
     def setUp(self):
@@ -12,23 +14,6 @@ class UserModelTestCase(TestCase):
 
     def test_valid_user(self):
         self._assert_user_is_valid()
-
-    def test_username_cannot_be_blank(self):
-        self.user.username = ''
-        self._assert_user_is_invalid()
-
-    def test_username_must_be_unique(self):
-        other_user = User.objects.get(email='janedoe@example.com')
-        self.user.username = other_user.username
-        self._assert_user_is_invalid()
-
-    def test_username_can_be_50_characters_long(self):
-        self.user.username = 'x' * 50
-        self._assert_user_is_valid()
-
-    def test_username_cannot_be_more_than_50_characters_long(self):
-        self.user.username = 'x' * 51
-        self._assert_user_is_invalid()
 
     def test_email_cannot_be_blank(self):
         self.user.email = ''

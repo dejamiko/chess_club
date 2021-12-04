@@ -3,7 +3,6 @@
     "model": "clubs.user",
     "pk": 2,
     "fields": {
-      "username": "janedoe",
       "first_name": "Jane",
       "last_name": "Doe",
       "email": "janedoe@example.com",

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib.messages import constants as message_constants
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'clubs',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +129,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # User model for the purpose of authentication
 AUTH_USER_MODEL = 'clubs.User'
+
+# Login url for redirecting users from login protected views
+LOGIN_URL = 'log_in'
+
+# Message level tags should use Bootstrap terms
+MESSAGE_TAGS =  {
+    message_constants.DEBUG: 'dark',
+    message_constants.ERROR: 'danger',
+}

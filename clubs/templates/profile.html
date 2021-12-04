@@ -1,0 +1,34 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 style="margin-bottom: 20px;">My profile</h1>
+
+                <div class="container">
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col col-md-auto">
+                            <img style="border-radius: 8px; margin-bottom: 10px; width: 100%;"
+                                 src="{{ curr_user.gravatar }}"
+                                 alt="{{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}'s profile picture">
+                            <br>
+                            <a class="btn btn-secondary" style="width: 100%;" href='{% url 'edit_profile' %}'>Edit
+                                profile</a>
+                        </div>
+
+                        <div class="col col-md-auto">
+                            <h4 style="margin-bottom: 0;">{{ curr_user.first_name }} {{ curr_user.last_name }}</h4>
+                            <ul>
+                                <li><b>Email address:</b> {{ curr_user.email }}</li>
+                                <li><b>Bio:</b> {{ curr_user.bio }}</li>
+                                <li><b>Chess experience:</b> {{ curr_user.chess_exp }}</li>
+                                <li><b>Personal statement:</b> {{ curr_user.personal_statement }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
