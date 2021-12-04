@@ -12,7 +12,7 @@
                                  src="{{ curr_user.gravatar }}"
                                  alt="{{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}'s profile picture">
                             <br>
-                            <a class="btn btn-secondary" style="width: 100%;" href='{% url 'edit_profile' %}'>Edit
+                            <a class="btn btn-secondary" style="width: 100%;" href="{% url 'edit_profile' %}">Edit
                                 profile</a>
                         </div>
 
@@ -23,6 +23,7 @@
                                 <li><b>Bio:</b> {{ curr_user.bio }}</li>
                                 <li><b>Chess experience:</b> {{ curr_user.chess_exp }}</li>
                                 <li><b>Personal statement:</b> {{ curr_user.personal_statement }}</li>
+                                <li><b>Elo Rating:</b> {{ curr_user.elo_rating }}</li>
                             </ul>
                         </div>
                     </div>

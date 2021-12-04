@@ -57,6 +57,7 @@ class User(AbstractUser):
     bio = models.CharField(blank=True, max_length=400)
     chess_exp = models.CharField(choices=ChessExperience.choices, max_length=12)
     personal_statement = models.CharField(blank=True, max_length=500)
+    elo_rating = models.IntegerField(default=1000)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
