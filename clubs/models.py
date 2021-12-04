@@ -99,9 +99,9 @@ class Club(models.Model):
     location = models.CharField(blank=False, max_length=100)
     description = models.CharField(blank=True, max_length=500)
 
-    members = models.ManyToManyField(User, related_name='not_members')
-    officers = models.ManyToManyField(User, related_name='not_officers')
-    applicants = models.ManyToManyField(User, related_name='not_applicants')
+    members = models.ManyToManyField(User, related_name='member_of')
+    officers = models.ManyToManyField(User, related_name='officer_of')
+    applicants = models.ManyToManyField(User, related_name='applicant_of')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def user_level(self, user):
