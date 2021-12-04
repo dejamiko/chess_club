@@ -10,8 +10,7 @@
       "chess_exp": "Advanced",
       "password": "pbkdf2_sha256$260000$VEDi9wsMYG6eNVeL8WSPqj$LHEiR2iUkusHCIeiQdWS+xQGC9/CjhhrjEOESMMp+c0=",
       "personal_statement": "My grandpa introduced me to chess when I was 5. I used to always lose, but I practiced and practiced and started winning sometimes.",
-      "is_active": true,
-      "user_level": "Applicant"
+      "is_active": true
     }
   }
 ]
