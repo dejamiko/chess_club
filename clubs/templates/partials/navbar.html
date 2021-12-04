@@ -31,9 +31,6 @@
                         <a class="nav-link" href="{% url 'clubs' %}">Clubs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'create_club' %}">Create club</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
                     </li>
 
@@ -53,11 +50,16 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
+                            <li><a class="dropdown-item" href="{% url 'create_club' %}">Create a club</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 {% for club in user_clubs %}
                                 <li><a class="dropdown-item" href="{% url 'users' club.id %}">{{ club.name }}</a></li>
                                 {% endfor %}
+
+
                             </ul>
                         </li>
+
 
                     {% else %}
                     <div class="collapse navbar-collapse" id="navbar_club_selection_alt">
