@@ -1,0 +1,13 @@
+[
+    {
+        "model": "clubs.match",
+        "pk": 1,
+        "fields": {
+            "tournament": 1,
+            "white_player": 4,
+            "black_player": 5,
+            "winner": 5,
+            "loser": 4
+        }
+    }
+]
