@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import Tournament, User, Club
+from clubs.models import Tournament, User, Club, Match
 
 class TournamentModelTestCase(TestCase):
     """Unit tests of the tournament model."""
@@ -9,7 +9,8 @@ class TournamentModelTestCase(TestCase):
         "clubs/tests/fixtures/other_users.json",
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/default_tournament.json",
-        "clubs/tests/fixtures/other_tournament.json"
+        "clubs/tests/fixtures/other_tournament.json",
+        "clubs/tests/fixtures/default_match.json"
     ]
 
     def setUp(self):
@@ -17,6 +18,7 @@ class TournamentModelTestCase(TestCase):
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
+        self.match = Match.objects.get(pk=1)
 
     def tournament_has_a_club(self):
         self.assertEquals(self.tournament.club, self.club)
@@ -74,7 +76,8 @@ class TournamentModelTestCase(TestCase):
         self._assert_tournament_is_valid()
 
     def test_tournament_has_matches_in_it(self):
-        pass
+        self.assertEquals(len(self.tournament.get_all_matches()), 1)
+        self.assertTrue(self.match in self.tournament.get_all_matches())
     
     def _assert_tournament_is_valid(self):
         try:
