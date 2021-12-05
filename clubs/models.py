@@ -222,7 +222,7 @@ class Tournament(models.Model):
     organiser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organises")
     coorganisers = models.ManyToManyField(User, related_name="coorganises")
     deadline = models.DateTimeField(blank=False)
-    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="tournament_wins")
+    winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
 
     def get_number_of_participants(self):
         return self.participants.count()

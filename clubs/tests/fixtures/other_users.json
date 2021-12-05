@@ -12,5 +12,47 @@
       "personal_statement": "My grandpa introduced me to chess when I was 5. I used to always lose, but I practiced and practiced and started winning sometimes.",
       "is_active": true
     }
+  },
+  {
+    "model": "clubs.user",
+    "pk": 3,
+    "fields": {
+      "first_name": "Bob",
+      "last_name": "Doe",
+      "email": "bobdoe@example.com",
+      "bio": "Hi, I'm Bob Doe",
+      "chess_exp": "Advanced",
+      "password": "pbkdf2_sha256$260000$VEDi9wsMYG6eNVeL8WSPqj$LHEiR2iUkusHCIeiQdWS+xQGC9/CjhhrjEOESMMp+c0=",
+      "personal_statement": "Bob to the top!",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clubs.user",
+    "pk": 4,
+    "fields": {
+      "first_name": "Michael",
+      "last_name": "Doe",
+      "email": "michaeldoe@example.com",
+      "bio": "Hi, I'm Michael Doe",
+      "chess_exp": "Advanced",
+      "password": "pbkdf2_sha256$260000$VEDi9wsMYG6eNVeL8WSPqj$LHEiR2iUkusHCIeiQdWS+xQGC9/CjhhrjEOESMMp+c0=",
+      "personal_statement": "I play it like Michael Jackson, any match I can Beat It.",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clubs.user",
+    "pk": 5,
+    "fields": {
+      "first_name": "Alice",
+      "last_name": "Doe",
+      "email": "alicedoe@example.com",
+      "bio": "Hi, I'm Alice Doe",
+      "chess_exp": "Advanced",
+      "password": "pbkdf2_sha256$260000$VEDi9wsMYG6eNVeL8WSPqj$LHEiR2iUkusHCIeiQdWS+xQGC9/CjhhrjEOESMMp+c0=",
+      "personal_statement": "My name isn't Alice, but I'll keep looking for wonderland.",
+      "is_active": true
+    }
   }
 ]
