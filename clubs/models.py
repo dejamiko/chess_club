@@ -93,6 +93,21 @@ class User(AbstractUser):
             club.make_member(self)
         else:
             raise ValueError
+    
+    def get_number_of_matches_played(self):
+        return self.plays_white_in.count() + self.plays_black_in.count()
+    
+    def get_number_of_matches_won(self):
+        return self.match_wins.count()
+    
+    def get_number_of_matches_lost(self):
+        return self.match_losses.count()
+    
+    def get_number_of_tournaments_won(self):
+        return self.tournament_wins.count()
+    
+    def get_number_of_tournaments_participated_in(self):
+        return self.participates_in.count()
 
 
 class Club(models.Model):
@@ -183,6 +198,12 @@ class Club(models.Model):
     def get_all_non_applicants(self):
         return User.objects.difference(self.get_all_applicants())
 
+    def get_all_tournaments(self):
+        return self.has_tournaments.all()
+    
+    def get_number_of_tournaments(self):
+        return self.has_tournaments.count()
+
 
 def toggle_superuser(user):
     user.is_staff = not user.is_staff
@@ -192,3 +213,37 @@ def toggle_superuser(user):
 class ClubApplicationModel(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
+
+
+class Tournament(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="has_tournaments")
+    name = models.CharField(unique=True, blank=False, max_length=50)
+    description = models.CharField(blank=True, max_length=500)
+    participants = models.ManyToManyField(User, related_name="participates_in")
+    organiser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organises")
+    coorganisers = models.ManyToManyField(User, related_name="coorganises")
+    deadline = models.DateTimeField(blank=False)
+    winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
+
+    def get_number_of_participants(self):
+        return self.participants.count()
+
+    def get_all_matches(self):
+        return self.matches_within.all()
+
+
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches_within")
+    white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
+    black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
+    winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
+    loser = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_losses")
+
+    def set_winner(self, winner_user):
+        self.winner = winner_user
+        if self.white_player == winner_user:
+            self.loser = self.black_player
+        else:
+            self.loser = self.white_player
+        self.winner.save()
+        self.loser.save()

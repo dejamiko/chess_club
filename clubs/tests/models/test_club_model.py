@@ -1,19 +1,21 @@
 """Unit tests of the club model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import User, Club
+from clubs.models import User, Club, Tournament
 
 
 class ClubModelTestCase(TestCase):
     """Unit tests of the club model."""
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/other_users.json',
-                'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/other_clubs.json']
+                'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/other_clubs.json',
+                'clubs/tests/fixtures/default_tournament.json']
 
     def setUp(self):
         self.user = User.objects.get(email='johndoe@example.com')
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.other_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.jane = User.objects.get(email='janedoe@example.com')
+        self.tournament = Tournament.objects.get(name='Saint Louis Chess Tournament')
 
     def test_name_must_be_unique(self):
         self.club.name = self.other_club.name
@@ -79,6 +81,10 @@ class ClubModelTestCase(TestCase):
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_officers().get(email=self.user.email), self.user)
         self.assertEqual(self.club.get_owner(), self.jane)
+    
+    def test_club_has_tournaments(self):
+        self.assertTrue(self.tournament in self.club.get_all_tournaments())
+        self.assertEquals(self.club.get_number_of_tournaments(), 1)
 
     def _assert_club_is_valid(self):
         try:

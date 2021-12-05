@@ -7,10 +7,13 @@ from clubs.models import User
 # The tests were inspired by those written for clucker.
 class UserModelTestCase(TestCase):
     """Unit tests of the user model."""
-    fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json']
+    fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json',
+                'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/default_tournament.json',
+                'clubs/tests/fixtures/default_match.json']
 
     def setUp(self):
         self.user = User.objects.get(email='johndoe@example.com')
+        self.michael = User.objects.get(email='michaeldoe@example.com')
 
     def test_valid_user(self):
         self._assert_user_is_valid()
@@ -102,6 +105,21 @@ class UserModelTestCase(TestCase):
     def test_chess_exp_can_only_be_one_of_the_choices(self):
         self.user.chess_exp = 'Novice'
         self._assert_user_is_invalid()
+
+    def test_user_has_played_in_matches(self):
+        self.assertEqual(self.michael.get_number_of_matches_played(), 1)
+
+    def test_user_has_won_matches(self):
+        self.assertEqual(self.michael.get_number_of_matches_won(), 0)
+
+    def test_user_has_lost_matches(self):
+        self.assertEqual(self.michael.get_number_of_matches_lost(), 1)
+
+    def test_user_has_won_tournaments(self):
+        self.assertEqual(self.michael.get_number_of_tournaments_won(), 0)
+
+    def test_user_has_participated_in_tournaments(self):
+        self.assertEqual(self.michael.get_number_of_tournaments_participated_in(), 1)
 
     def _assert_user_is_valid(self):
         try:
