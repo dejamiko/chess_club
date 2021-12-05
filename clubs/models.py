@@ -225,25 +225,71 @@ class Tournament(models.Model):
     deadline = models.DateTimeField(blank=False)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
 
+    SIZE_OF_BRACKET = 16
+    NUMBER_OF_GROUPS = int(SIZE_OF_BRACKET / 2)
+
     def get_number_of_participants(self):
         return self.participants.count()
 
-    def get_all_matches(self):
-        return self.matches_within.all()
+    def get_all_pairings(self):
+        return self.pairings_within.all()
+
+    def get_all_groups(self):
+        return self.groups_within.all()
+
+    def create_pairings(self):
+        if self.participants.count() > self.SIZE_OF_BRACKET:
+            self.create_groups()
+        else:
+            self.create_bracket(list(self.participants.all()))
+
+    def create_groups(self):
+        participant_list = list(self.participants.all())
+        for i in range(1, self.NUMBER_OF_GROUPS + 1):
+            group = Group.objects.create(
+                tournament=self,
+                group_number=i,
+                participants=participant_list[(i - 1) * self.NUMBER_OF_GROUPS: i * self.NUMBER_OF_GROUPS]
+            )
+            group.save()
+
+    def create_bracket(self, participants, ordering=None):
+        if ordering is None:
+            ordering = []
+            for i in range(1, int((len(participants) + 1) / 2)):
+                ordering[i] = (participants[i], participants[len(participants) / 2 + i])
+
+        for pair in ordering:
+            pairing = Pairing.objects.create(
+                tournament=self,
+                white_player=pair.first,
+                black_player=pair.second
+            )
+            pairing.save()
+
+
+class Pairing(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
+    white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
+    black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
+
+
+class Group(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
+    participants = models.ManyToManyField(User, related_name="participant_in_group")
+    group_number = models.IntegerField(blank=False)
 
 
 class Match(models.Model):
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches_within")
-    white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
-    black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
+    pairing = models.ForeignKey(Pairing, blank=False, on_delete=models.CASCADE, related_name="match")
     winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
     loser = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_losses")
 
     def set_winner(self, winner_user):
         self.winner = winner_user
-        if self.white_player == winner_user:
-            self.loser = self.black_player
+        if self.pairing.white_player == winner_user:
+            self.loser = self.pairing.black_player
         else:
-            self.loser = self.white_player
+            self.loser = self.pairing.white_player
         self.winner.save()
         self.loser.save()
