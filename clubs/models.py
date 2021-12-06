@@ -224,6 +224,7 @@ class Tournament(models.Model):
     coorganisers = models.ManyToManyField(User, related_name="coorganises")
     deadline = models.DateTimeField(blank=False)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
+    round = 1
 
     SIZE_OF_BRACKET = 16
     NUMBER_OF_GROUPS = int(SIZE_OF_BRACKET / 2)
@@ -237,20 +238,33 @@ class Tournament(models.Model):
     def get_all_groups(self):
         return self.groups_within.all()
 
-    def create_pairings(self):
+    def create_initial_pairings(self):
         if self.participants.count() > self.SIZE_OF_BRACKET:
             self.create_groups()
         else:
             self.create_bracket(list(self.participants.all()))
+
+    def next_pairings(self):
+        self.round += 1
+        if self.groups_within.count() > 0:
+            for group in self.groups_within.all():
+                if group.participants.count() > self.round:
+                    group.create_new_pairings()
 
     def create_groups(self):
         participant_list = list(self.participants.all())
         for i in range(1, self.NUMBER_OF_GROUPS + 1):
             group = Group.objects.create(
                 tournament=self,
-                group_number=i,
-                participants=participant_list[(i - 1) * self.NUMBER_OF_GROUPS: i * self.NUMBER_OF_GROUPS]
+                group_number=i
             )
+            group.save()
+
+        # This method is more evenly spread than just taking the first however many users
+        # because the last group could be way smaller. Here the difference is at most 1
+        for j in range(0, len(participant_list)):
+            group = self.groups_within.get(group_number=j % self.NUMBER_OF_GROUPS)
+            group.participants.add(participant_list[j])
             group.save()
 
     def create_bracket(self, participants, ordering=None):
@@ -263,7 +277,8 @@ class Tournament(models.Model):
             pairing = Pairing.objects.create(
                 tournament=self,
                 white_player=pair.first,
-                black_player=pair.second
+                black_player=pair.second,
+                round=self.round
             )
             pairing.save()
 
@@ -272,12 +287,19 @@ class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
     white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
     black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
+    round = models.IntegerField(blank=False)
 
 
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
     participants = models.ManyToManyField(User, related_name="participant_in_group")
     group_number = models.IntegerField(blank=False)
+
+    def create_all_matches(self):
+        pass
+
+    def create_new_pairings(self):
+        pass
 
 
 class Match(models.Model):
