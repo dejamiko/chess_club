@@ -265,23 +265,20 @@ def create_club(request):
 
 
 @login_required
-def create_tournament(request, club_id):
-    # check if user is officer
+def create_tournament(request):
     user_clubs = user_clubs_finder(request)
-    try:
-        club_verify = Club.objects.get(id=club_id)
-    except Club.DoesNotExist:
-        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
-        return response
-    if user_clubs and club_verify in user_clubs:
-        if request.method == "POST":
-            form = CreateTournamentForm(post=request.POST, club=club_verify, current_user=request.user)
-            if form.is_valid():
-                new_tournament = form.save(request.user, club_id)
-                return redirect("view_tournament", tournament_id=new_tournament.id)
+    if user_clubs and club in user_clubs:
+        if club in request.user.officer_of.all():
+            if request.method == "POST":
+                form = CreateTournamentForm(post=request.POST, club=club, current_user=request.user)
+                if form.is_valid():
+                    new_tournament = form.save(request.user, club.id)
+                    return redirect("view_tournament", tournament_id=new_tournament.id)
+            else:
+                form = CreateTournamentForm(club=club, current_user=request.user)
+            return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
         else:
-            form = CreateTournamentForm(club=club_verify, current_user=request.user)
-        return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club_id})
+            return redirect("home_page")
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
         return response
