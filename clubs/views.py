@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import User, Club, ClubApplicationModel
-from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm
+from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -260,3 +260,26 @@ def create_club(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
     # redirect to home page with new club as drop down choice when user story done
+
+
+@login_required
+def create_tournament(request, club_id):
+    # check if user is officer
+    user_clubs = user_clubs_finder(request)
+    try:
+        club_verify = Club.objects.get(id=club_id)
+    except Club.DoesNotExist:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
+    if user_clubs and club_verify in user_clubs:
+        if request.method == "POST":
+            form = CreateTournamentForm(post=request.POST, club=club_verify, current_user=request.user)
+            if form.is_valid():
+                form.save(request.user, club_id)
+                return redirect("home_page") # TODO redirect to tournament page
+        else:
+            form = CreateTournamentForm(club=club_verify, current_user=request.user)
+        return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club_id})
+    else:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response

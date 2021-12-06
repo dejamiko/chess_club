@@ -36,6 +36,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
                     </li>
+                    <li class="nav-item">
+                        {% if selected_club %}
+                            <a class="nav-link" href="{% url 'create_tournament' selected_club.id %}">Create tournament</a>
+                        {%  elif user_clubs%}
+                            <a class="nav-link" href="{% url 'select_club' %}">Create tournament</a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'no_club' %}">Create tournament</a>
+                        {% endif %}
+                    </li>
 
                 {% endif %}
             </ul>
