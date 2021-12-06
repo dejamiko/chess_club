@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from libgravatar import Gravatar
+import math
 
 
 # This user manager is following tutorial from
@@ -236,14 +237,80 @@ class Match(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="matches_within")
     white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
     black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
-    winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
-    loser = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_losses")
+    winner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="match_wins")
+    loser = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="match_losses")
 
     def set_winner(self, winner_user):
         self.winner = winner_user
+
         if self.white_player == winner_user:
             self.loser = self.black_player
+            loser_user = self.loser
+
+            winner_new_rating = self.set_elo_winner(winner_user, loser_user)
+            loser_new_rating = self.set_elo_loser(winner_user, loser_user)
         else:
             self.loser = self.white_player
-        self.winner.save()
+            loser_user = self.loser
+
+            winner_new_rating = self.set_elo_winner(winner_user, loser_user)
+            loser_new_rating = self.set_elo_loser(winner_user, loser_user)
+
+        winner_user.elo_rating = winner_new_rating
+        loser_user.elo_rating = loser_new_rating
+
         self.loser.save()
+        self.winner.save()
+
+    def set_draw(self):
+        user_draw_black = self.black_player
+        user_draw_white = self.white_player
+
+        black_new_rating = self.set_elo_draw_black(user_draw_white,user_draw_black)
+        white_new_rating = self.set_elo_draw_white(user_draw_white, user_draw_black)
+
+        user_draw_black.elo_rating = black_new_rating
+        user_draw_white.elo_rating = white_new_rating
+
+        self.black_player.save()
+        self.white_player.save()
+
+
+    def get_elo_player(self, player):
+        return player.elo_rating
+
+    def expected_outcome(self, winner_user, loser_user):
+        current_elo_winner = self.get_elo_player(winner_user)
+        current_elo_loser = self.get_elo_player(loser_user)
+        exponent_calc = (current_elo_loser - current_elo_winner) / 400
+        expected_outcome = 1 / (1 + pow(10, exponent_calc))
+        return expected_outcome
+
+    def expected_outcome_alt(self, winner_user, loser_user):
+        expected_outcome = 1 - self.expected_outcome(winner_user, loser_user)
+        return expected_outcome
+
+    def set_elo_winner(self, winner_user, loser_user):
+        winner_current_elo = self.get_elo_player(winner_user)
+        expected_outcome_winner = self.expected_outcome(winner_user, loser_user)
+        winner_new_elo = winner_current_elo + 32 * (1 - expected_outcome_winner)
+        return winner_new_elo
+
+    def set_elo_loser(self, winner_user, loser_user):
+        loser_current_elo = self.get_elo_player(loser_user)
+        expected_outcome_loser = self.expected_outcome_alt(winner_user, loser_user)
+        loser_new_elo = loser_current_elo + 32 * (0 - expected_outcome_loser)
+        return loser_new_elo
+
+
+    def set_elo_draw_white(self, white_player, black_player):
+        white_current_elo = self.get_elo_player(white_player)
+        white_expected_outcome = self.expected_outcome(white_player, black_player)
+        white_new_elo = white_current_elo + 32 * (0.5 - white_expected_outcome)
+        return white_new_elo
+
+    def set_elo_draw_black(self, white_player, black_player):
+        black_current_elo = self.get_elo_player(black_player)
+        black_expected_outcome = self.expected_outcome_alt(white_player, black_player)
+        black_new_elo = black_current_elo + 32 * (0.5 - black_expected_outcome)
+        return black_new_elo
