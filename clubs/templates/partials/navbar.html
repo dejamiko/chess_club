@@ -33,20 +33,20 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'create_club' %}">Create club</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
-                    </li>
-                    <li class="nav-item">
-                        {% if selected_club and selected_club in user.officer_of.all %}
-                            <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
-                        {% endif %}
-                    </li>
-
                 {% endif %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 {% if user.is_authenticated %}
                     {% if user_clubs %}
+
+                    {% if selected_club and selected_club in user.officer_of.all %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
+                        </li>
+                    {% endif %}
 
                     <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="club_selection_dropdown" role="button" data-bs-toggle="dropdown"
