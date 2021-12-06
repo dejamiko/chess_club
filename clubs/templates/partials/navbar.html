@@ -39,7 +39,7 @@
                 {% if user.is_authenticated %}
                     {% if user_clubs %}
 
-                    {% if selected_club and selected_club in user.officer_of.all %}
+                    {% if selected_club and selected_club in user.officer_of.all or selected_club in user.owner_of.all %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
                         </li>

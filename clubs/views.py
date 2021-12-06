@@ -268,7 +268,7 @@ def create_club(request):
 def create_tournament(request):
     user_clubs = user_clubs_finder(request)
     if user_clubs and club in user_clubs:
-        if club in request.user.officer_of.all():
+        if request.user.user_level(club) == "Officer" or request.user.user_level(club) == "Owner":
             if request.method == "POST":
                 form = CreateTournamentForm(post=request.POST, club=club, current_user=request.user)
                 if form.is_valid():
