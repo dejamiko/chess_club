@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 global club
 club = None
 
-
 def login_prohibited(view_function):
     def modified_view_function(request):
         if request.user.is_authenticated:
