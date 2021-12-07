@@ -119,7 +119,7 @@ class Club(models.Model):
     members = models.ManyToManyField(User, related_name='member_of')
     officers = models.ManyToManyField(User, related_name='officer_of')
     applicants = models.ManyToManyField(User, related_name='applicant_of')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner_of')
 
     def user_level(self, user):
         if self.owner == user:
