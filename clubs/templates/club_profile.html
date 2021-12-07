@@ -1,0 +1,26 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 style="margin-bottom: 20px;">Club profile</h1>
+
+                <div class="container">
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col col-md-auto">
+                            <h4 style="margin-bottom: 0;">{{ club_to_view.name }}</h4>
+                            <ul>
+                                <li><b>Name:</b> {{ club_to_view.name }}</li>
+                                <li><b>Location:</b> {{ club_to_view.location }}</li>
+                                <li><b>Description:</b> {{ club_to_view.description }}</li>
+                                <li><b>Users:</b> {{ club_to_view.get_all_users.count }}</li>
+                                <li><b>Owner:</b> {{ club_to_view.owner.first_name }} {{ club_to_view.owner.last_name }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

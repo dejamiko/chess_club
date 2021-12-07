@@ -50,6 +50,14 @@ def manage_applications(request):
 
 
 @login_required
+def view_club(request, club_id):
+    current_user = request.user
+    user_clubs = user_clubs_finder(request)
+    club_to_view = Club.objects.get(id=club_id)
+    return render(request, "club_profile.html", {"user_clubs": user_clubs, "selected_club": club,
+                                          "club_to_view": club_to_view, 'curr_user': current_user})
+
+@login_required
 def user_list_main(request, club_id):
     user_clubs = user_clubs_finder(request)
     try:
