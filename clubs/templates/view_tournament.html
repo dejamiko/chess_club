@@ -11,7 +11,7 @@
                     <div class="alert alert-success" role="alert"><b><a href="#">{{ tournament.winner.full_name }}</a></b> won this tournament, congratulations!</div> <!-- TODO add user profile url -->
                 {% endif %}
 
-                {% if not deadline_passed and user in tournament.club.get_all_users %}
+                {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
                     {% if user not in tournament.participants.all %}
                         <input style="float:right;" type="submit" value="Join" class="btn btn-secondary">
                     {% else %}

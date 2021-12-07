@@ -73,9 +73,19 @@ class ViewTournamentTest(TestCase):
         self.assertNotContains(response, "Join")
         self.assertNotContains(response, "Joined!")
         self.assertNotContains(response, "Leave?")
-
-    def test_join_buttons_if_not_participant(self):
+    
+    def test_no_join_buttons_if_organiser(self):
         self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Join")
+        self.assertNotContains(response, "Joined!")
+        self.assertNotContains(response, "Leave?")
+
+    def test_join_buttons_if_not_participant_but_in_club(self):
+        self.client.login(email=self.jane.email, password="Password123")
+        self.club.make_applicant(self.jane)
+        self.club.make_member(self.jane)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Join")
