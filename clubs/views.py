@@ -1,10 +1,12 @@
 from django.shortcuts import redirect, render
-from .models import User, Club, ClubApplicationModel
-from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm
+from .models import Tournament, User, Club, ClubApplicationModel
+from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 global club
 club = None
@@ -260,3 +262,35 @@ def create_club(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
     # redirect to home page with new club as drop down choice when user story done
+
+
+@login_required
+def create_tournament(request):
+    user_clubs = user_clubs_finder(request)
+    if user_clubs and club in user_clubs:
+        if request.user.user_level(club) == "Officer" or request.user.user_level(club) == "Owner":
+            if request.method == "POST":
+                form = CreateTournamentForm(post=request.POST, club=club, current_user=request.user)
+                if form.is_valid():
+                    new_tournament = form.save(request.user, club.id)
+                    return redirect("view_tournament", tournament_id=new_tournament.id)
+            else:
+                form = CreateTournamentForm(club=club, current_user=request.user)
+            return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
+        else:
+            return redirect("home_page")
+    else:
+        response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
+        return response
+
+
+@login_required
+def view_tournament(request, tournament_id):
+    user_clubs = user_clubs_finder(request)
+    try:
+        tournament = Tournament.objects.get(id=tournament_id)
+    except:
+        return redirect("home_page")
+    else:
+        return render(request, "view_tournament.html",
+                      {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})

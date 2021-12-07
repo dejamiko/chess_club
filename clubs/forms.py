@@ -1,6 +1,9 @@
 from django import forms
-from .models import User, Club
+from django.forms.fields import DateField, TimeField, CharField
+from .models import User, Club, Tournament
 from django.core.validators import RegexValidator
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 
 class LogInForm(forms.Form):
@@ -72,6 +75,52 @@ class CreateClubForm(forms.ModelForm):
             owner=user,
         )
         return club
+
+
+class CreateTournamentForm(forms.ModelForm):    
+    def __init__(self, post=None, club=None, current_user=None, *args, **kwargs):
+        if post:
+            post = post.copy()
+            temp_coorganisers = []
+            for coorganiser in post.getlist("coorganisers"):
+                temp_coorganisers.append(User.objects.get(email=coorganiser))
+            post.setlist("coorganisers", temp_coorganisers)
+            super(CreateTournamentForm, self).__init__(post, *args, **kwargs)
+        else:
+            super(CreateTournamentForm, self).__init__(*args, **kwargs)
+        if club and current_user:
+            self.fields["coorganisers"].choices = self._generate_officer_tuples(club, current_user)
+
+    deadline_date = DateField()
+    deadline_date.widget = forms.TextInput(attrs={"type": "date"})
+    deadline_time = TimeField()
+    deadline_time.widget = forms.TextInput(attrs={"type": "time"})
+
+    class Meta:
+        model = Tournament
+        fields = ["name", "description", "coorganisers"]
+        widgets = {"description": forms.Textarea(), "coorganisers": forms.SelectMultiple()}
+        help_texts = {"coorganisers": "Hold Ctrl/⌘ to select multiple"}
+
+    def _generate_officer_tuples(self, club, current_user):
+        tuple_list = []
+        for officer in club.get_officers():
+            if officer != current_user:
+                tuple_list.append((officer, officer.full_name))
+        return tuple_list
+    
+    def save(self, user, club):
+        super().save(commit=False)
+        tournament = Tournament.objects.create(
+            club=Club.objects.get(id=club),
+            name=self.cleaned_data.get("name"),
+            description=self.cleaned_data.get("description"),
+            organiser=user,
+            deadline=make_aware(datetime.combine(self.cleaned_data.get("deadline_date"), self.cleaned_data.get("deadline_time")))
+        )
+        tournament.coorganisers.set(self.cleaned_data.get("coorganisers"))
+        tournament.save()
+        return tournament
 
 #
 # class ClubApplicationForm(forms.ModelForm):
