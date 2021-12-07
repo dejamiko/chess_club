@@ -25,7 +25,7 @@ def login_prohibited(view_function):
 @login_required
 def manage_applications(request):
     user = request.user
-    if request.method == 'POST':
+    if request.method == 'POST' and 'accepted' in request.POST:
         username = request.POST.get('uname')  # the user to promote
         club_name = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=club_name)
@@ -33,8 +33,19 @@ def manage_applications(request):
         temp_club.make_member(temp_user)
         temp_club.save()
         form_to_be_deleted = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
-        form_to_be_deleted.delete()  # bad practice?
+        form_to_be_deleted.delete()
         return redirect('manage_applications')
+
+    if request.method == 'POST' and 'rejected' in request.POST:
+        username = request.POST.get('uname')  # the user to promote
+        club_name = request.POST.get('clubname')  # the club they wish to become a member of
+        temp_club = Club.objects.get(name=club_name)
+        temp_user = User.objects.get(email=username)
+        form_to_be_rejected = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
+        form_to_be_rejected.is_rejected = True
+        form_to_be_deleted.save()
+        return redirect('manage_applications')
+
     applications = []
     try:
         temp = ClubApplicationModel.objects.all()
@@ -126,6 +137,18 @@ def user_clubs_finder(request):
 
 
 @login_required
+# Finds all clubs the logged in user belongs to and returns this information in a list
+def user_applied_clubs_finder(request):
+    user_clubs = []
+
+    clubs = Club.objects.all()
+    for temp_club in clubs:
+        if request.user in temp_club.get_all_applicants():
+            user_clubs.append(temp_club)
+
+    return user_clubs
+
+@login_required
 def club_list(request):
     curr_user = request.user
     already_exists = False
@@ -159,7 +182,8 @@ def club_list(request):
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club})
+    applied_clubs = user_applied_clubs_finder(request)
+    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club, "applied_clubs": applied_clubs})
 
 
 @login_required

@@ -4,6 +4,9 @@
         <div class="row col-12" style="height: 92vh;">
             <div class="my-auto mx-auto">
                 <h2>A homepage will go here...</h2>
+                {% for c in applied_clubs %}
+                <h2>{{c.name}}<h2>
+                {% endfor %}
             </div>
         </div>
     </div>
