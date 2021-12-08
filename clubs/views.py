@@ -167,13 +167,14 @@ def profile(request, user_id):
     user_clubs = user_clubs_finder(request)
     try:
         requested_user = User.objects.get(id=user_id)
+        all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(requested_user.owner_of.all())
     except:
         if club:
             return redirect("users", club.id)
         else:
             return redirect("select_club")
     else:
-        return render(request, "profile.html", {"curr_user": requested_user, "user_clubs": user_clubs, "selected_club": club})
+        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": all_user_clubs, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
