@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import Tournament, User, Club, Match
 
+
 class TournamentModelTestCase(TestCase):
     """Unit tests of the tournament model."""
     fixtures = [

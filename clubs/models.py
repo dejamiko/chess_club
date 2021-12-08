@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -224,7 +226,10 @@ class Tournament(models.Model):
     coorganisers = models.ManyToManyField(User, related_name="coorganises")
     deadline = models.DateTimeField(blank=False)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
-    round = 1
+    bye = models.ManyToManyField(User)
+    round = models.IntegerField(default=1)
+    group_phase = models.BooleanField(default=True)
+    elimination_phase = models.BooleanField(default=False)
 
     SIZE_OF_BRACKET = 16
     NUMBER_OF_GROUPS = int(SIZE_OF_BRACKET / 2)
@@ -232,28 +237,59 @@ class Tournament(models.Model):
     def get_number_of_participants(self):
         return self.participants.count()
 
-    def get_all_pairings(self):
-        return self.pairings_within.all()
-
-    def get_all_groups(self):
-        return self.groups_within.all()
-
     def create_initial_pairings(self):
+        self.round = 0
         if self.participants.count() > self.SIZE_OF_BRACKET:
             self.create_groups()
+            self.group_phase = True
+            self.elimination_phase = False
+            return self.next_pairings()
         else:
-            self.create_bracket(list(self.participants.all()))
+            participants = list(self.participants.all())
+            return self.create_bracket_pairings(participants)
 
     def next_pairings(self):
         self.round += 1
-        if self.groups_within.count() > 0:
+        if self.elimination_phase:
+            previous_pairings = self.pairings_within.all().filter(round=self.round - 1)
+            players = []
+            for pairing in previous_pairings:
+                match = Match.objects.get(pairing=pairing)
+                if match.is_draw:
+                    # A simplified view of a tournament: in case of a draw, the arbiter tosses a coin
+                    if random.randint(0, 1) > 0:
+                        players.append(match.pairing.white_player)
+                    else:
+                        players.append(match.pairing.black_player)
+                else:
+                    players.append(match.winner)
+                players += self.bye
+                self.bye = []
+
+            return self.create_bracket_pairings(players)
+
+        pairings = []
+        if self.group_phase:
             for group in self.groups_within.all():
-                if group.participants.count() > self.round:
-                    group.create_new_pairings()
+                self.group_phase = False
+                new_pairings = group.get_next_pairings()
+                if new_pairings is not None:
+                    pairings += new_pairings
+                    self.group_phase = True
+        else:
+            self.elimination_phase = True
+            players = []
+            for group in self.groups_within.all():
+                players += group.get_top_seeds()
+            ordering = []
+            for i in range(0, self.NUMBER_OF_GROUPS):
+                ordering = (players[2 * i], players[self.SIZE_OF_BRACKET - 1 - 2 * i])
+            pairings = self.create_bracket_pairings(players, ordering=ordering)
+        return pairings
 
     def create_groups(self):
         participant_list = list(self.participants.all())
-        for i in range(1, self.NUMBER_OF_GROUPS + 1):
+        for i in range(0, self.NUMBER_OF_GROUPS):
             group = Group.objects.create(
                 tournament=self,
                 group_number=i
@@ -262,17 +298,23 @@ class Tournament(models.Model):
 
         # This method is more evenly spread than just taking the first however many users
         # because the last group could be way smaller. Here the difference is at most 1
-        for j in range(0, len(participant_list)):
-            group = self.groups_within.get(group_number=j % self.NUMBER_OF_GROUPS)
-            group.participants.add(participant_list[j])
+        for i in range(0, len(participant_list)):
+            group = self.groups_within.get(group_number=i % self.NUMBER_OF_GROUPS)
+            group.participants.add(participant_list[i])
             group.save()
 
-    def create_bracket(self, participants, ordering=None):
+    def create_bracket_pairings(self, participants, ordering=None):
+        self.round += 1
+        if len(participants) % 2 == 1:
+            self.bye.append(participants[-1])
+            participants = participants[0, len(participants) - 1]
+
         if ordering is None:
             ordering = []
-            for i in range(1, int((len(participants) + 1) / 2)):
-                ordering[i] = (participants[i], participants[len(participants) / 2 + i])
+            for i in range(0, len(participants), 2):
+                ordering[i] = (participants[i], participants[i + 1])
 
+        pairings = []
         for pair in ordering:
             pairing = Pairing.objects.create(
                 tournament=self,
@@ -281,6 +323,9 @@ class Tournament(models.Model):
                 round=self.round
             )
             pairing.save()
+            pairings.append(pairing)
+
+        return pairings
 
 
 class Pairing(models.Model):
@@ -293,19 +338,110 @@ class Pairing(models.Model):
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
     participants = models.ManyToManyField(User, related_name="participant_in_group")
-    group_number = models.IntegerField(blank=False)
+    group_number = models.IntegerField(unique=True, blank=False)
+    pairings = models.ManyToManyField(Pairing, related_name="group_in_which_the_paring_takes_place")
 
-    def create_all_matches(self):
-        pass
+    def create_all_pairs(self):
+        # Create the whole table of pairings for the group.
+        # I'm using the Berger algorithm as described here
+        # https://en.wikipedia.org/wiki/Round-robin_tournament#Scheduling_algorithm
+        # I allocate each participant a number, corresponding to the index in the
+        # participants field + 1
+        self.player_list = list(self.participants.all())
+        participant_numbers = list(range(1, len(self.player_list) + 1))
+        if len(participant_numbers) % 2 == 1:
+            # we need to add a dummy participant
+            participant_numbers.append(len(participant_numbers) + 1)
 
-    def create_new_pairings(self):
-        pass
+        n = len(participant_numbers)
+
+        pairs = [[]]
+        for i in range(0, int(n / 2)):
+            pairs[0].append((participant_numbers[i], participant_numbers[n - 1 - i]))
+
+        for i in range(1, n - 1):
+            new_row = []
+            for j in range(0, len(pairs[i - 1])):
+                first_num = pairs[i - 1][j][0]
+                second_num = pairs[i - 1][j][1]
+
+                if first_num == n:
+                    new_first_num = (second_num + n / 2)
+                    new_second_num = n
+                    if new_first_num > n - 1:
+                        new_first_num -= n - 1
+                elif second_num == n:
+                    new_first_num = n
+                    new_second_num = (first_num + n / 2)
+                    if new_second_num > n - 1:
+                        new_second_num -= n - 1
+                else:
+                    new_first_num = (first_num + n / 2)
+                    new_second_num = (second_num + n / 2)
+                    if new_first_num > n - 1:
+                        new_first_num -= n - 1
+                    if new_second_num > n - 1:
+                        new_second_num -= n - 1
+
+                new_row.append((int(new_first_num), int(new_second_num)))
+            pairs.append(new_row)
+
+        for i in range(0, len(pairs)):
+            for pair in pairs[i]:
+                if len(self.player_list) % 2 == 0 or (pair[0] != n and pair[1] != n):
+                    pairing = Pairing.objects.create(
+                        tournament=self.tournament,
+                        white_player=self.player_list[pair[0] - 1],
+                        black_player=self.player_list[pair[1] - 1],
+                        round=i + 1
+                    )
+                    self.pairings.add(pairing)
+                    pairing.save()
+
+        return list(pairs)
+
+    def get_next_pairings(self):
+        if self.pairings.count() == 0:
+            self.create_all_pairs()
+        if self.tournament.round > self.participants.count():
+            return None
+        return self.pairings.filter(round=self.tournament.round)
+
+    def get_ranking(self):
+        players_and_points = {}
+        for pairing in self.pairings.all():
+            match = Match.objects.get(pairing=pairing)
+            if match.is_draw:
+                players_and_points[pairing.white_player] += 0.5
+                players_and_points[pairing.black_player] += 0.5
+            else:
+                players_and_points[match.winner] += 1
+
+        return players_and_points
+
+    def get_top_seeds(self):
+        ranking = self.get_ranking()
+        max_score = 0
+        first_seed = self.player_list[0]
+        second_seed = self.player_list[1]
+        for (player, score) in ranking:
+            if score > max_score:
+                max_score = score
+                first_seed = player
+        max_score = 0
+        for (player, score) in ranking:
+            if score > max_score and player != first_seed:
+                max_score = score
+                second_seed = player
+
+        return [first_seed, second_seed]
 
 
 class Match(models.Model):
     pairing = models.ForeignKey(Pairing, blank=False, on_delete=models.CASCADE, related_name="match")
     winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
     loser = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_losses")
+    is_draw = models.BooleanField(blank=True)
 
     def set_winner(self, winner_user):
         self.winner = winner_user
