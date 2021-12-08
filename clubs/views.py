@@ -153,7 +153,12 @@ def club_list(request):
     curr_user = request.user
     already_exists = False
     if request.method == 'POST':
-        club_name = request.POST['name']
+        #club_name = request.POST['name']
+        #################################
+        club_name = request.POST.get('name')
+        print("CLUB NAME IS --------- " + str(club_name))
+        #################################
+
         temp_club = Club.objects.get(name=club_name)
         club_applicants = temp_club.get_all_applicants()
         for applicant in club_applicants:

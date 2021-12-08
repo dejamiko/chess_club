@@ -4,7 +4,7 @@
     "pk": 2,
     "fields": {
       "associated_club": 2,
-      "associated_user": 2
+      "associated_user": 2,
       "is_rejected": false
     }
   }
