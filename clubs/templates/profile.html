@@ -11,9 +11,11 @@
                             <img style="border-radius: 8px; margin-bottom: 10px; width: 100%;"
                                  src="{{ curr_user.gravatar }}"
                                  alt="{{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}'s profile picture">
-                            <br>
-                            <a class="btn btn-secondary" style="width: 100%;" href="{% url 'edit_profile' %}">Edit
-                                profile</a>
+                            {% if curr_user == user %}
+                                <br>
+                                <a class="btn btn-secondary" style="width: 100%;" href="{% url 'edit_profile' %}">Edit
+                                    profile</a>
+                            {% endif %}
                         </div>
 
                         <div class="col col-md-auto">
