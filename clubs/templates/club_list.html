@@ -21,7 +21,7 @@
                     <tbody>
                     {% for listed_club in clubs %}
                         <tr>
-                            <td>{{ listed_club.name }}</td>
+                            <td><a href="{% url 'club_page' listed_club.id %}">{{ listed_club.name }}</a></td>
                             <td>{{ listed_club.location }}</td>
                             <td>{{ listed_club.description }}</td>
                             <td>{{ listed_club.get_number_of_members }}</td>

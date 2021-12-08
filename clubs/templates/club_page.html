@@ -1,0 +1,31 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1 style="margin-bottom: 20px;">{{ club.name }}</h1>
+
+      <div class="container">
+        <div class="col col-md-auto">
+
+          <ul>
+            <li><b>Owner:</b><br />
+              <img style="border-radius: 8px;" src="{{ club.owner.mini_gravatar }}"
+                       alt="{{ club.owner.first_name }} {{ club.owner.last_name }}'s profile picture">
+              {{ club.owner.first_name }} {{ club.owner.last_name }}</li>
+            <li><b>Description:</b> {{ club.description }}</li>
+            <li><b>Location:</b> {{ club.name }}</li>
+          </ul>
+
+          <button onclick=''>Apply</button>
+          <!-- Apply button:  -->
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
