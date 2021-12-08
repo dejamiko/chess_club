@@ -43,12 +43,12 @@ def manage_applications(request):
         temp_user = User.objects.get(email=username)
         form_to_be_rejected = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
         form_to_be_rejected.is_rejected = True
-        form_to_be_deleted.save()
+        form_to_be_rejected.save()
         return redirect('manage_applications')
 
     applications = []
     try:
-        temp = ClubApplicationModel.objects.all()
+        temp = ClubApplicationModel.objects.filter(is_rejected = False)
     except ClubApplicationModel.DoesNotExist:
         temp = None
     for app in temp:
@@ -168,15 +168,26 @@ def club_list(request):
             temp_club.make_applicant(curr_user)
             temp_club.save()
 
+    applications = []
     try:
-        applications = ClubApplicationModel.objects.all()
+        apps = ClubApplicationModel.objects.filter(is_rejected = False)
     except ClubApplicationModel.DoesNotExist:
-        applications = None
+        apps = None
+    for a in apps:
+        applications.append(a)
+
+    rejected_applications = []
+    try:
+        rejected = ClubApplicationModel.objects.filter(is_rejected = True)
+    except ClubApplicationModel.DoesNotExist:
+        rejected = None
+    for r in rejected:
+        rejected_applications.append(r)
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_list.html",
                   {"clubs": Club.objects.all(), 'applications': applications, 'curr_user': curr_user,
-                   "user_clubs": user_clubs, "selected_club": club})
+                   "user_clubs": user_clubs, "selected_club": club, "rejected_applications": rejected_applications})
 
 
 @login_required
@@ -280,7 +291,7 @@ def create_club(request):
         form = CreateClubForm(request.POST)
         if form.is_valid():
             form.save(request.user)
-            return redirect('home_page')
+            return redirect('clubs')
     else:
         form = CreateClubForm()
     user_clubs = user_clubs_finder(request)

@@ -215,7 +215,6 @@ class ClubApplicationModel(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
     is_rejected = models.BooleanField(default = False)
-    # add REJECTED field here!
 
 
 class Tournament(models.Model):
