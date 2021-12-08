@@ -36,7 +36,7 @@
                         {% endif %}
                     <td><img style="border-radius: 8px;" src="{{ listed_user.0.mini_gravatar }}"
                              alt="{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}'s profile picture"></td>
-                    <td>{{ listed_user.0.first_name }} {{ listed_user.0.last_name }}</td>
+                    <td><a href="{% url 'profile' listed_user.0.id %}">{{ listed_user.0.full_name }}</a></td>
                     <td>{{ listed_user.0.chess_exp }}</td>
 
                     {% if user_level == "Officer" or user_level == "Owner" %}
