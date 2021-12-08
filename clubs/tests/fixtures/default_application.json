@@ -5,6 +5,7 @@
     "fields": {
       "associated_club": 1,
       "associated_user": 1
+      "is_rejected": false
     }
   }
 ]
