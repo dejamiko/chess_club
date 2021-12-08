@@ -11,9 +11,9 @@ class EditProfileTestCase(TestCase, LogInTester):
     fixtures = ["clubs/tests/fixtures/default_user.json"]
 
     def setUp(self):
-        self.url = reverse('profile')
         self.login_url = reverse('log_in')
         self.user = User.objects.get(email="johndoe@example.com")
+        self.url = reverse('profile', kwargs={'user_id': self.user.id})
 
     def test_logged_in_redirect(self):
         redirect_url = reverse_with_next('log_in', self.url)
@@ -21,7 +21,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_profile_url(self):
-        self.assertEqual(self.url, '/home/profile/')
+        self.assertEqual(self.url, f'/home/profile/{self.user.id}')
 
     def test_profile_is_correct(self):
         self.client.login(email=self.user.email, password='Password123')

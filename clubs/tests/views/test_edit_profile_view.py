@@ -31,7 +31,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_edit_profile_url(self):
-        self.assertEqual(self.url, '/home/profile/edit/')
+        self.assertEqual(self.url, '/home/edit_profile')
 
     def test_unsuccessful_profile_update_due_to_duplicate_email(self):
         self.client.login(email=self.user.email, password='Password123')
@@ -58,7 +58,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.client.login(email=self.user.email, password='Password123')
 
         response = self.client.post(self.url, self.edit_profile_form_input, follow=True)
-        response_url = reverse('profile')
+        response_url = reverse('profile', kwargs={'user_id': self.user.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         messages_list = list(response.context['messages'])
         self.assertEqual(len(messages_list), 1)
