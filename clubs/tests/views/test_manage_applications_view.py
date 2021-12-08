@@ -59,27 +59,44 @@ class ManageApplicationViewTest(TestCase):
     #     self.client.login(email=self.first_user.email, password='Password123')
     #     response = self.client.post(self.apply_url, {'name' : self.second_club.name})
     #     temp = response.get('obj', '')
-    #     print("aaaaaaaaaaaaaaaaaaaaa" + str(temp) + "bbbbbbbbbbbbbbb")
 
     def test_accept_application_deletes_application(self):
-        self.client.login(email=self.first_user.email, password='Password123')
+        self.client.login(email=self.second_user.email, password='Password123')
         temp = self.client.post(self.apply_url, {'name' : self.second_club.name})
-        # temp = Club.objects.count()
-        # before_count = ClubApplicationModel.objects.count()
-        response = self.client.post(self.url, {'uname' : self.first_user.email,
-        'clubname': self.second_club.name,
-        'accepted': True
-        })
-        #
-        # after_count = ClubApplicationModel.objects.count()
-        # self.assertEqual(after_count, before_count-1)
-        # self.assertEqual(response.status_code, 200)
+        before_count = ClubApplicationModel.objects.count()
+        response = self.client.post(self.url, {'uname' : self.second_user.email,
+        'clubname': self.second_club.name, 'accepted': True})
 
-    def test_reject_application_sets_rejected(self):
-        pass
+        after_count = ClubApplicationModel.objects.count()
+        self.assertEqual(after_count, before_count-1)
+
+    def test_reject_application_does_not_delete_application(self):
+        self.client.login(email=self.second_user.email, password='Password123')
+        temp = self.client.post(self.apply_url, {'name' : self.second_club.name})
+        before_count = ClubApplicationModel.objects.count()
+        response = self.client.post(self.url, {'uname' : self.second_user.email,
+        'clubname': self.second_club.name, 'rejected': True })
+
+        after_count = ClubApplicationModel.objects.count()
+        self.assertEqual(after_count, before_count)
+
+    def test_reject_application_sets_rejected_field_to_true(self):
+        self.client.login(email=self.second_user.email, password='Password123')
+        temp = self.client.post(self.apply_url, {'name' : self.second_club.name})
+        c_initial = ClubApplicationModel.objects.get(associated_club = self.second_club, associated_user = self.second_user)
+        self.assertFalse(c_initial.is_rejected)
+        response = self.client.post(self.url, {'uname' : self.second_user.email,
+        'clubname': self.second_club.name, 'rejected': True })
+
+        c = ClubApplicationModel.objects.get(associated_club = self.second_club, associated_user = self.second_user)
+        self.assertTrue(c.is_rejected)
+
 
     def test_reject_pass_correct_data(self):
         pass
 
-    def test_user_can_submit_multiple_applications(self):
+    def test_single_user_can_submit_multiple_applications(self):
+        pass
+
+    def test_only_admins_or_owners_can_accept_applications(self):
         pass

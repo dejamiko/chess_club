@@ -41,8 +41,8 @@
                                         {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
                                             <input type="hidden" name="uname" value="{{ app.associated_user.email }}">
                                             <input type="hidden" name="clubname" value="{{ app.associated_club.name }}">
-                                            <input style="background-color:green;" type="submit" value="ACCEPT" name="accepted" class="btn btn-sm btn-secondary" >
-                                            <input style="background-color:#B22222;" type="submit" value="REJECT" name="rejected" class="btn btn-sm btn-secondary" >
+                                            <input style="background-color:green;" type="submit"  name="accepted" value="ACCEPT" class="btn btn-sm btn-secondary" >
+                                            <input style="background-color:#B22222;" type="submit"  name="rejected" value="REJECT" class="btn btn-sm btn-secondary" >
 
                                         {% endif %}
                                     </form>

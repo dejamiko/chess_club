@@ -161,6 +161,7 @@ class Club(models.Model):
         else:
             raise ValueError
 
+
     def make_user(self, user):
         if self.user_level(user) == "Member":
             self.members.remove(user)
