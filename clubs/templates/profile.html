@@ -48,7 +48,7 @@
                         </thead>
                         {% for tournament in requested_user.participates_in.all %}
                             <tr>
-                                <td><a href="#">{{ tournament.name }}</a></td> <!-- TODO add tournament profile url -->
+                                <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                 <td>
                                     {% if tournament in requested_user.participates_in.all %}
                                         Lost <!-- later, try add round in the tournament they lost in -->
