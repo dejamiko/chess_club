@@ -39,16 +39,17 @@
                 {% csrf_token %}
 
 
-
-                {% for r in rejected_applications %}
+                 {% for r in rejected_applications %}
                 {% if curr_user == r.associated_user and listed_club == r.associated_club %}
                 <p>Status: rejected</p>
+                {% endif %}
+                {% endfor %} 
 
-                {% elif curr_user not in listed_club.get_all_users and curr_user != r.associated_user and listed_club != r.associated_club %}
+                {% if curr_user not in listed_club.get_all_users  %}
                 <input type="hidden" id="hidden_club_name" name="obj" value="{{ listed_club.name }}" />
                 <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %} />
                 {% endif %}
-                {% endfor %}
+
 
               </form>
             </td>
