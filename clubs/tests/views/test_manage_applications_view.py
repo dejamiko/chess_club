@@ -58,7 +58,7 @@ class ManageApplicationViewTest(TestCase):
     # def test_submit_passes_correct_data(self):
     #     self.client.login(email=self.first_user.email, password='Password123')
     #     response = self.client.post(self.apply_url, {'name' : self.second_club.name})
-    #     temp = response.get('obj', '')
+    #     print("RESPONSE CONTEXT --------------- " + str(response.context))
 
     def test_accept_application_deletes_application(self):
         self.client.login(email=self.second_user.email, password='Password123')
