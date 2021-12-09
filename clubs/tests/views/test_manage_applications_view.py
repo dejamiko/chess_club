@@ -13,7 +13,6 @@ class ManageApplicationViewTest(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/other_clubs.json",
         "clubs/tests/fixtures/default_application.json",
-        #"clubs/tests/fixtures/other_application.json",
     ]
 
     def setUp(self):
@@ -24,7 +23,7 @@ class ManageApplicationViewTest(TestCase):
         self.first_club = Club.objects.get(name="Saint Louis Chess Club")
         self.second_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
-        #self.second_club_application = ClubApplicationModel.objects.get(associated_club=self.second_club)
+
 
     def test_manage_applications_url(self):
         self.assertEqual(self.url, '/home/clubs/manage_applications/')
@@ -36,8 +35,7 @@ class ManageApplicationViewTest(TestCase):
         self.assertTemplateUsed(response, "manage_applications.html")
         self.assertEqual(self.first_club_application.associated_user, self.first_user)
         self.assertEqual(self.first_club_application.associated_club, self.first_club)
-        #self.assertEqual(self.second_club_application.associated_user, self.second_user)
-        #self.assertEqual(self.second_club_application.associated_club, self.second_club)
+
 
     def test_manage_application_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)
@@ -159,3 +157,25 @@ class ManageApplicationViewTest(TestCase):
         with self.assertRaises(ValueError):
             response = self.client.post(self.url, {'uname' : self.second_user.email,
             'clubname': self.second_club.name, 'accepted': True })
+
+    def test_only_officers_and_owners_can_see_manage_applications_navbar_icon(self):
+        self.client.login(email=self.first_user.email, password='Password123')
+        # NOTE: this may need to change as the URLs change
+        select_club = self.client.get('/home/1/users/')
+        html_content = str(select_club.content)
+        str_to_test = """href="/home/clubs/manage_applications/">"""
+        res = str_to_test in html_content
+        self.assertTrue(res)
+
+
+    def test_users_can_not_see_manage_applications_navbar_icon(self):
+        self.client.login(email=self.second_user.email, password='Password123')
+        first_application = self.client.post(self.apply_url, {'name' : self.second_club.name})
+        response = self.client.post(self.url, {'uname' : self.second_user.email,
+        'clubname': self.second_club.name, 'accepted': True })
+        # NOTE: this may need to change as the URLs change
+        select_club = self.client.get('/home/2/users/')
+        html_content = str(select_club.content)
+        str_to_test = """href="/home/clubs/manage_applications/">"""
+        res = str_to_test in html_content
+        self.assertFalse(res)
