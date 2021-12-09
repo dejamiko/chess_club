@@ -59,6 +59,28 @@
         <div class="col col-md-auto">
           <h2 style="margin-bottom: 20px;">Tournaments</h2>
             <!-- Add a table of tournaments -->
+            <table id='tournament_table' class='table table-hover'>
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Participants</th>
+                <tr>
+              </thead>
+
+              <tbody>
+                {% for tournament in club.get_all_tournaments %}
+                  <tr>
+                    <td>{{ tournament.name }}</td>
+                    <td>{{ tournament.description }}</td>
+                    <td>{{ tournament.get_number_of_participants }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+
+
         </div>
 
       </div>
