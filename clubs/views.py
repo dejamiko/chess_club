@@ -37,7 +37,6 @@ def manage_applications(request):
         return redirect('manage_applications')
 
     if request.method == 'POST' and 'rejected' in request.POST:
-        #print("------------- REQUEST REJECTED -----------------------")
         username = request.POST.get('uname')  # the user to promote
         club_name = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=club_name)
@@ -170,9 +169,6 @@ def club_list(request):
             temp_club = Club.objects.get(name=club_name)
             temp_club.make_applicant(curr_user)
             new_club_applicants = temp_club.get_all_applicants()
-            # for n in new_club_applicants:
-            #     if n == curr_user:
-            #             print("USER " + str(curr_user.email) + "IS NOW A APPLICANT FOR " + str(temp_club.name) + "---------")
             temp_club.save()
 
     applications = []
