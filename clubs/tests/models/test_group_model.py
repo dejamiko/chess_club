@@ -44,6 +44,7 @@ class GroupModelTestCase(TestCase):
         self.group.participants.set(participants)
         for i in range(0, int((len(participants) + 1) / 2) * 2 - 1):
             pairings = self.group.get_next_pairings()
+            self.tournament.round = self.tournament.round + 1
             for j in range(0, len(pairings)):
                 self.assertEqual(pairings[j].white_player, participants[self.correct_pairs[i][j][0] - 1])
                 self.assertEqual(pairings[j].black_player, participants[self.correct_pairs[i][j][1] - 1])
@@ -59,6 +60,7 @@ class GroupModelTestCase(TestCase):
         self.group.participants.set(participants)
         for i in range(0, int((len(participants) + 1) / 2) * 2 - 1):
             pairings = self.group.get_next_pairings()
+            self.tournament.round = self.tournament.round + 1
             for j in range(0, len(pairings)):
                 self.assertEqual(pairings[j].white_player, participants[self.correct_pairs[i][j + 1][0] - 1])
                 self.assertEqual(pairings[j].black_player, participants[self.correct_pairs[i][j + 1][1] - 1])

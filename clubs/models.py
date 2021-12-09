@@ -329,6 +329,9 @@ class Tournament(models.Model):
 
         return pairings
 
+    def get_all_matches(self):
+        return list(Match.objects.filter(pairing__in=self.pairings_within))
+
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")

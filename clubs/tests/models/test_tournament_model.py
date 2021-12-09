@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import Tournament, User, Club, Match
+from clubs.models import Tournament, User, Club, Match, Pairing
 
 
 class TournamentModelTestCase(TestCase):
@@ -11,6 +11,7 @@ class TournamentModelTestCase(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/default_tournament.json",
         "clubs/tests/fixtures/other_tournament.json",
+        "clubs/tests/fixtures/default_pairing.json",
         "clubs/tests/fixtures/default_match.json"
     ]
 
@@ -20,6 +21,7 @@ class TournamentModelTestCase(TestCase):
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
         self.match = Match.objects.get(pk=1)
+        self.pairing = Pairing.objects.get(pk=1)
 
     def tournament_has_a_club(self):
         self.assertEquals(self.tournament.club, self.club)
@@ -76,9 +78,9 @@ class TournamentModelTestCase(TestCase):
         self.tournament.winner = None
         self._assert_tournament_is_valid()
 
-    def test_tournament_has_matches_in_it(self):
-        self.assertEquals(len(self.tournament.get_all_matches()), 1)
-        self.assertTrue(self.match in self.tournament.get_all_matches())
+    def test_tournament_has_pairings_in_it(self):
+        self.assertEquals(self.tournament.pairings_within.count(), 1)
+        self.assertTrue(self.pairing in self.tournament.pairings_within.all())
     
     def _assert_tournament_is_valid(self):
         try:

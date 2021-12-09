@@ -9,7 +9,7 @@ class UserModelTestCase(TestCase):
     """Unit tests of the user model."""
     fixtures = ['clubs/tests/fixtures/default_user.json', 'clubs/tests/fixtures/other_users.json',
                 'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/default_tournament.json',
-                'clubs/tests/fixtures/default_match.json']
+                'clubs/tests/fixtures/default_pairing.json', 'clubs/tests/fixtures/default_match.json']
 
     def setUp(self):
         self.user = User.objects.get(email='johndoe@example.com')
