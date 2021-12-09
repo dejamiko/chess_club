@@ -228,8 +228,8 @@ class Tournament(models.Model):
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
     bye = models.ManyToManyField(User)
     round = models.IntegerField(default=1)
-    group_phase = models.BooleanField(default=True)
-    elimination_phase = models.BooleanField(default=False)
+    group_phase = models.BooleanField(default=False)
+    elimination_phase = models.BooleanField(default=True)
 
     SIZE_OF_BRACKET = 16
     NUMBER_OF_GROUPS = int(SIZE_OF_BRACKET / 2)
@@ -263,8 +263,8 @@ class Tournament(models.Model):
                         players.append(match.pairing.black_player)
                 else:
                     players.append(match.winner)
-                players += self.bye
-                self.bye = []
+            players = players + list(self.bye.all())
+            self.bye.set([])
 
             return self.create_bracket_pairings(players)
 
@@ -276,15 +276,17 @@ class Tournament(models.Model):
                 if new_pairings is not None:
                     pairings += new_pairings
                     self.group_phase = True
-        else:
-            self.elimination_phase = True
-            players = []
-            for group in self.groups_within.all():
-                players += group.get_top_seeds()
-            ordering = []
-            for i in range(0, self.NUMBER_OF_GROUPS):
-                ordering = (players[2 * i], players[self.SIZE_OF_BRACKET - 1 - 2 * i])
-            pairings = self.create_bracket_pairings(players, ordering=ordering)
+            if len(pairings) > 0:
+                return pairings
+
+        self.elimination_phase = True
+        players = []
+        for group in self.groups_within.all():
+            players += group.get_top_seeds()
+        ordering = []
+        for i in range(0, self.NUMBER_OF_GROUPS):
+            ordering.append((players[2 * i], players[self.SIZE_OF_BRACKET - 1 - 2 * i]))
+        pairings = self.create_bracket_pairings(players, ordering=ordering)
         return pairings
 
     def create_groups(self):
@@ -306,20 +308,20 @@ class Tournament(models.Model):
     def create_bracket_pairings(self, participants, ordering=None):
         self.round += 1
         if len(participants) % 2 == 1:
-            self.bye.append(participants[-1])
-            participants = participants[0, len(participants) - 1]
+            self.bye.add(participants[-1])
+            participants = participants[0: len(participants) - 1]
 
         if ordering is None:
             ordering = []
             for i in range(0, len(participants), 2):
-                ordering[i] = (participants[i], participants[i + 1])
+                ordering.append((participants[i], participants[i + 1]))
 
         pairings = []
         for pair in ordering:
             pairing = Pairing.objects.create(
                 tournament=self,
-                white_player=pair.first,
-                black_player=pair.second,
+                white_player=pair[0],
+                black_player=pair[1],
                 round=self.round
             )
             pairing.save()
@@ -409,6 +411,8 @@ class Group(models.Model):
 
     def get_ranking(self):
         players_and_points = {}
+        for player in self.participants.all():
+            players_and_points[player] = 0
         for pairing in self.pairings.all():
             match = Match.objects.get(pairing=pairing)
             if match.is_draw:
@@ -422,14 +426,14 @@ class Group(models.Model):
     def get_top_seeds(self):
         ranking = self.get_ranking()
         max_score = 0
-        first_seed = self.player_list[0]
-        second_seed = self.player_list[1]
-        for (player, score) in ranking:
+        first_seed = list(self.participants.all())[0]
+        second_seed = list(self.participants.all())[1]
+        for (player, score) in ranking.items():
             if score > max_score:
                 max_score = score
                 first_seed = player
         max_score = 0
-        for (player, score) in ranking:
+        for (player, score) in ranking.items():
             if score > max_score and player != first_seed:
                 max_score = score
                 second_seed = player
