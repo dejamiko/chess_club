@@ -295,7 +295,7 @@ def view_tournament(request, tournament_id):
         return render(request, "view_tournament.html",
                       {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
 
-# 
+#
 # @login_required
 # def club_page(request):
 #     user_clubs = user_clubs_finder(request)
@@ -305,6 +305,8 @@ def view_tournament(request, tournament_id):
 def club_page(request, club_id):
     try:
         club = Club.objects.get(id=club_id)
+        if request.method == "POST":
+            club.make_applicant(request.user)
     except ObjectDoesNotExist:
         return redirect('clubs')
     else:

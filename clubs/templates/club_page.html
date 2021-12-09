@@ -18,12 +18,33 @@
             <li><b>Location:</b> {{ club.name }}</li>
           </ul>
 
-          <button onclick=''>Apply</button>
-          <!-- Apply button:  -->
+          <form action="club_page" method="POST">
+            <input id="submit" type="button" value="Apply" />
+          </form>
+
+          <br /><br />
+          {% if curr_user in club.get_all_applicants %}
+            <p>You have applied to this club</p>
+          {% endif %}
+
+          {% if curr_user in club.get_members %}
+            <p>You are a member of this club</p>
+          {% endif %}
+
+          {% if curr_user in club.get_officers %}
+            <p>You are an officer of this club</p>
+          {% endif %}
+
+          {% if curr_user in club.get %}
+            <p>You are a member of this club</p>
+          {% endif %}
+
+          {% if curr_user == club.get_owner %}
+            <p>You are the owner of this club</p>
+          {% endif %}
 
         </div>
       </div>
-
     </div>
   </div>
 </div>
