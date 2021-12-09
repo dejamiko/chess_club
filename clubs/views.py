@@ -163,9 +163,18 @@ def home_page(request):
 
 
 @login_required
-def profile(request):
+def profile(request, user_id):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'profile.html', {'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
+    try:
+        requested_user = User.objects.get(id=user_id)
+        all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(requested_user.owner_of.all())
+    except:
+        if club:
+            return redirect("users", club.id)
+        else:
+            return redirect("select_club")
+    else:
+        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": all_user_clubs, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
@@ -200,7 +209,7 @@ def edit_profile(request):
         if form.is_valid():
             messages.add_message(request, messages.SUCCESS, "Profile updated!")
             form.save()
-            return redirect('profile')
+            return redirect('profile', current_user.id)
     else:
         form = EditForm(instance=current_user)
 
