@@ -15,7 +15,7 @@
             <th scope="col">Description</th>
             <th scope="col">Members</th>
             <th scope="col">Owner</th>
-            <th scope="col">Application status</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
@@ -41,13 +41,13 @@
 
                  {% for r in rejected_applications %}
                 {% if curr_user == r.associated_user and listed_club == r.associated_club %}
-                <p style="color:red;" >Rejected</p>
+                <p style="color:red;" >Status: Rejected</p>
                 {% endif %}
                 {% endfor %}
 
                 {% for a in applications %}
                {% if curr_user == a.associated_user and listed_club == a.associated_club %}
-               <p style="color:green;" >Submitted</p>
+               <p style="color:green;" >Status: Submitted</p>
                {% endif %}
                {% endfor %}
 
