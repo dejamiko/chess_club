@@ -14,12 +14,13 @@
                         <th scope="col" style="width: 15%;">Location</th>
                         <th scope="col" style="width: 30%;">Description</th>
                         <th scope="col" style="width: 10%;">Members</th>
-                        <th scope="col" style="width: 30%;">Owner</th>
+                        <th scope="col" style="width: 30%;">Applicant</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% if applications is not None %}
                         {% for app in applications %}
+                        {% if app.associated_club == selected_club %}
                             <tr>
                                 <td>{{ app.associated_club.name }}</td>
                                 <td>{{ app.associated_club.location }}</td>
@@ -27,11 +28,11 @@
                                 <td>{{ app.associated_club.get_number_of_members }}</td>
                                 <td>
                                     <img style="border-radius: 8px; margin: 0 10px 10px 0;"
-                                         src="{{ app.associated_club.owner.mini_gravatar }}"
-                                         alt="{{ app.associated_club.owner.email }}'s profile picture">
-                                    {{ app.associated_club.owner.first_name }} {{ app.associated_club.owner.last_name }}
+                                         src="{{ app.associated_user.mini_gravatar }}"
+                                         alt="{{ app.associated_user.email }}'s profile picture">
+                                    {{ app.associated_user.first_name }} {{ app.associated_user.last_name }}
                                     <br>
-                                    {{ app.associated_club.owner.bio }}
+                                    {{ app.associated_user.bio }}
                                     <p><b>Applicant: {{ app.associated_user.email }}</b></p>
 
                                     <form method="post">
@@ -40,17 +41,17 @@
                                         {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
                                             <input type="hidden" name="uname" value="{{ app.associated_user.email }}">
                                             <input type="hidden" name="clubname" value="{{ app.associated_club.name }}">
-                                            <input type="submit" value="ACCEPT" class="btn btn-sm btn-secondary">
+                                            <input style="background-color:green;" type="submit"  name="accepted" value="ACCEPT" class="btn btn-sm btn-secondary" >
+                                            <input style="background-color:#B22222;" type="submit"  name="rejected" value="REJECT" class="btn btn-sm btn-secondary" >
+
                                         {% endif %}
                                     </form>
 
                                 </td>
                             </tr>
+                            {% endif %}
                         {% endfor %}
-                    {% else %}
-                        <h1>NO PENDING APPLICATIONS</h1>
                     {% endif %}
-
 
                     </tbody>
                 </table>

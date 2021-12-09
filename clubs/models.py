@@ -152,6 +152,7 @@ class Club(models.Model):
     def make_member(self, user):
         if self.user_level(user) == "Applicant":
             self.members.add(user)
+            self.applicants.remove(user)
             self.save()
         elif self.user_level(user) == "Officer":
             self.members.add(user)
@@ -159,6 +160,7 @@ class Club(models.Model):
             self.save()
         else:
             raise ValueError
+
 
     def make_user(self, user):
         if self.user_level(user) == "Member":
@@ -213,6 +215,7 @@ def toggle_superuser(user):
 class ClubApplicationModel(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
+    is_rejected = models.BooleanField(default = False)
 
 
 class Tournament(models.Model):
