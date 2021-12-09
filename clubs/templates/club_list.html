@@ -15,7 +15,7 @@
             <th scope="col">Description</th>
             <th scope="col">Members</th>
             <th scope="col">Owner</th>
-            <th scope="col"></th>
+            <th scope="col">Application status</th>
           </tr>
         </thead>
         <tbody>
@@ -41,15 +41,22 @@
 
                  {% for r in rejected_applications %}
                 {% if curr_user == r.associated_user and listed_club == r.associated_club %}
-                <p style="color:red;" >Status: rejected</p>
+                <p style="color:red;" >Rejected</p>
                 {% endif %}
                 {% endfor %}
 
+                {% for a in applications %}
+               {% if curr_user == a.associated_user and listed_club == a.associated_club %}
+               <p style="color:green;" >Submitted</p>
+               {% endif %}
+               {% endfor %}
+
+                 {% if curr_user not in listed_club.get_all_applicants %}
                 {% if curr_user not in listed_club.get_all_users  %}
                 <input type="hidden" id="hidden_club_name" name="obj" value="{{ listed_club.name }}" />
-                <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply" {% if curr_user in listed_club.get_all_applicants %} disabled {% endif %} />
+                <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply"/>
                 {% endif %}
-
+                {% endif %}
 
               </form>
             </td>
@@ -85,7 +92,7 @@
 <script>
   const dataTable = new simpleDatatables.DataTable("#club-table", {
     columns: [{
-      select: [5],
+      select: [Status: 5],
       sortable: false
     }],
     perPage: 15,
