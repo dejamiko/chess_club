@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+from requests.models import to_native_string
 from .models import Tournament, User, Club, ClubApplicationModel
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -7,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, date
 from django.utils.timezone import make_aware
+from requests import get
 
 global club
 club = None
@@ -159,7 +161,24 @@ def club_list(request):
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"), "user_clubs": user_clubs, "selected_club": club})
+    return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
+                                              "user_tournaments": [],
+                                              "lichess_data": _get_lichess_data(),
+                                              "user_clubs": user_clubs, "selected_club": club})
+
+
+def _get_lichess_data():
+    temp_list = []
+    for tournament in get("https://lichess.org/api/tournament").json()["started"]:
+        temp_list.append({
+            "id": tournament["id"],
+            "name": tournament["fullName"],
+            "players": tournament["nbPlayers"],
+            "starts": make_aware(datetime.fromtimestamp(tournament["startsAt"]/1000)),
+            "ends": make_aware(datetime.fromtimestamp(tournament["finishesAt"]/1000)),
+            "speed": tournament["schedule"]["speed"][0].upper() + tournament["schedule"]["speed"][1:]
+        })
+    return temp_list
 
 
 @login_required

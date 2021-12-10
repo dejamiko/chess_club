@@ -1,9 +1,46 @@
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
                 <h1>Hello, {{ user.first_name }}!</h1>
+                <p>Today's a great day for some chess :)</p>
+
+                <h5>Internal tournaments</h5>
+                <p>This website's tournaments (of clubs you belong to)...</p>
+
+                <h5>External tournaments</h5>
+                {% if lichess_data %}
+                    <table id="lichess-table" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Players</th>
+                            <th scope="col">Starts</th>
+                            <th scope="col">Ends</th>
+                            <th scope="col">Speed</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for tournament in lichess_data %}
+                                <tr>
+                                    <td><a href="https://lichess.org/tournament/{{ tournament.id }}" target="_blank">{{ tournament.name }}</a></td>
+                                    <td>{{ tournament.players }}</td>
+                                    <td>{{ tournament.starts }}</td>
+                                    <td>{{ tournament.ends }}</td>
+                                    <td>{{ tournament.speed }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <p>Data from <a href="https://lichess.org/tournament" target="_blank">Lichess</a></p>
+                {% else %}
+                    <p>There are no online tournaments currently taking place...</p>
+                {% endif %}
             </div>
             <div class="col-sm-4">
                 <div class="card">
@@ -28,6 +65,10 @@
                 document.getElementById("puzzle-link").href = daily_puzzle.Link;
                 document.getElementById("puzzle-solution").href = daily_puzzle.Link.replace("Puzzle", "Solution");
             })
+
+        const dataTable = new simpleDatatables.DataTable("#lichess-table", {
+            perPage: 10
+        })
     </script>
     <!-- {% include 'partials/background.html' with colour="C6A38B" %} -->
 {% endblock %}
