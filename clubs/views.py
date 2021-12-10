@@ -342,11 +342,6 @@ def view_tournament(request, tournament_id):
         return render(request, "view_tournament.html",
                       {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
 
-#
-# @login_required
-# def club_page(request):
-#     user_clubs = user_clubs_finder(request)
-#     return render(request, 'club_page.html', {'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
 
 @login_required
 def club_page(request, club_id):
