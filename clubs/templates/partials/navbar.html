@@ -17,10 +17,12 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         {% if selected_club %}
-                            <a class="nav-link" href="{% url 'users' selected_club.id %}">Users</a>
+                            <a class="nav-link" href="{% url 'users' selected_club.id %}" name="change_club">Users</a>
                         {%  elif user_clubs%}
                             <a class="nav-link" href="{% url 'select_club' %}">Users</a>
                         {% else %}

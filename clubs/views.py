@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.utils.timezone import make_aware
+from django.http import HttpResponseRedirect
 
 global club
 club = None
@@ -48,7 +49,6 @@ def manage_applications(request):
     return render(request, 'manage_applications.html',
                   {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
 
-
 @login_required
 def view_club(request, club_id):
     current_user = request.user
@@ -73,7 +73,6 @@ def user_list_main(request, club_id):
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
         return response
-
 
 @login_required
 def user_list_no_club(request):
@@ -269,7 +268,6 @@ def create_club(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
     # redirect to home page with new club as drop down choice when user story done
-
 
 @login_required
 def create_tournament(request):
