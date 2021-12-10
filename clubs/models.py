@@ -345,6 +345,12 @@ class Pairing(models.Model):
     round = models.IntegerField(blank=False)
 
 
+class EloRating(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="has_elo_club")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_elo')
+    elo_rating = models.IntegerField(default=1000)
+
+
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
     participants = models.ManyToManyField(User, related_name="participant_in_group")
