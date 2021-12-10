@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, date
 from django.utils.timezone import make_aware
 
 global club
@@ -159,7 +159,7 @@ def club_list(request):
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
-    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club})
+    return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"), "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_required
