@@ -226,7 +226,7 @@ class Tournament(models.Model):
     description = models.CharField(blank=True, max_length=500)
     participants = models.ManyToManyField(User, related_name="participates_in")
     organiser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organises")
-    coorganisers = models.ManyToManyField(User, related_name="coorganises")
+    coorganisers = models.ManyToManyField(User, related_name="coorganises", blank=True)
     deadline = models.DateTimeField(blank=False)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
     bye = models.ManyToManyField(User)
