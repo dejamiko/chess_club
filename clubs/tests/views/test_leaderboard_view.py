@@ -4,6 +4,7 @@ from django.urls import reverse
 from clubs.models import Tournament, User, Club
 from clubs.tests.views.helpers import reverse_with_next
 
+
 class LeaderboardTest(TestCase):
     """Unit tests of the view leaderboard view"""
     fixtures = [
@@ -106,5 +107,27 @@ class LeaderboardTest(TestCase):
 
         temp_url = reverse("leaderboard", kwargs={"tournament_id": new_tournament.id})
         self.client.login(email="gabrieldoe@gmail.com", password='Password123')
-        r = self.client.get(temp_url)
-        print(r.content)
+        response_t = self.client.get(temp_url)
+        h = str(response_t.content)
+        start = r"<tr>\n\n"
+
+        #gabriel - 1100 elo, rank 2
+        gabriel_row = h[h.find(start)+len(start):h.rfind(gabriel.email)]
+        test1 = """<td> 2 </td>"""
+        test2 = """<td class = "elo_rating">1100</td>"""
+        self.assertTrue(test1 in gabriel_row)
+        self.assertTrue(test2 in gabriel_row)
+
+        #anna - 1200 elo, rank 1
+        anna_row = h[h.find(start)+len(start):h.rfind(anna.email)]
+        test3 = """<td> 1 </td>"""
+        test4 = """<td class = "elo_rating">1200</td>"""
+        self.assertTrue(test3 in anna_row)
+        self.assertTrue(test4 in anna_row)
+
+        # aaron- 900 elo, rank 3
+        aaron_row = h[h.find(start)+len(start):h.rfind(aaron.email)]
+        test5 = """<td> 3 </td>"""
+        test6 = """<td class = "elo_rating">900</td>"""
+        self.assertTrue(test5 in aaron_row)
+        self.assertTrue(test6 in aaron_row)
