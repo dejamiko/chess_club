@@ -91,13 +91,15 @@
                 </br>
 
                 <ul class="list-group">
-                    <li class="list-group-item"><b>Coorganisers:</b>
-                        <ul>
-                            {% for coorganiser in tournament.coorganisers.all %}
-                                <li><a href="{% url 'profile' coorganiser.id %}">{{ coorganiser.full_name }}</a></li> <!-- TODO add user profile url -->
-                            {% endfor %}
-                        </ul>
-                    </li>
+                    {% if tournament.coorganisers %}
+                        <li class="list-group-item"><b>Coorganisers:</b>
+                            <ul>
+                                {% for coorganiser in tournament.coorganisers.all %}
+                                    <li><a href="{% url 'profile' coorganiser.id %}">{{ coorganiser.full_name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
                     <li class="list-group-item"><b>Application deadline:</b> {{ tournament.deadline }}</li>
                 </ul>
 
