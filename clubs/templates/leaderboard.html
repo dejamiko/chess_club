@@ -52,7 +52,7 @@
     return true;
   }
 
-  window.onload = function(){
+  $(document).ready(function(){
     let totals = $(".elo_rating")
     let sort_array = []
     let counter = 0
@@ -69,7 +69,7 @@
           row.cells[0].innerHTML = sort_array[p]['ranking']
       }
     }
-  }
+  });
   </script>
 
 <script>
