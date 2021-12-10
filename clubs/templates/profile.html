@@ -51,10 +51,10 @@
                             <tr>
                                 <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                 <td>
-                                    {% if tournament in requested_user.participates_in.all %}
-                                        Lost <!-- later, try add round in the tournament they lost in -->
-                                    {% elif tournament in requested_user.tournament_wins.all %}
-                                        Winner!
+                                    {% if tournament in requested_user.tournament_wins.all %}
+                                        Winner! 
+                                    {% elif tournament in requested_user.participates_in.all %}
+                                        Participated <!-- later, try add round in the tournament they lost in -->
                                     {% endif %}
                                 </td>
                             </tr>
