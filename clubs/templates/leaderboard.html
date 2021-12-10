@@ -7,7 +7,8 @@
 <div class="container">
   <div class="row">
     <div class="col-12">
-      <h1>Clubs</h1>
+        <a href= "{% url 'view_tournament' curr_tournament.id  %}" class="btn btn-primary">&laquo; Back </a>
+      <h1>{{ curr_tournament.name }} Leaderboard</h1>
       <table id="leaderboard" class="table table-hover">
         <thead>
           <tr>
@@ -21,7 +22,7 @@
           {% for p in participants %}
           <tr>
             <td> 1 </td>
-            <td>{{ p.elo_rating }}</td>
+            <td class = "elo_rating">{{ p.elo_rating }}</td>
             <td>
               <img style="border-radius: 8px; margin: 0 10px 10px 0;" src="{{ p.mini_gravatar }}" alt="{{ p.email }}'s profile picture">
               {{ p.first_name }} {{ p.last_name }}
@@ -40,18 +41,25 @@
     </div>
   </div>
 </div>
+<!-- 
+<script>
+  $(function(){
+    let totals = $(".elo_rating")
+    let sort_array = []
+    for (let i = 0; i<totals.length; i++){
+      sort_array.push(totals[i].textContent)
+    }
+    for(let j = 0; j<sort_array.length; j++){
+      console.log(sort_array[j])
+    }
 
+  });
+  </script> -->
 
 <script>
-  const dataTable = new simpleDatatables.DataTable("#leaderboard", {
-    columns: [
-    { select: 2, sort: "asc"},
-     { select: [1,3,4], sortable: false }],
-    perPage: 15,
-    fixedColumns: false
-
-  })
-
-
+    const dataTable = new simpleDatatables.DataTable("#leaderboard", {
+        columns: [{select: [0,1,2,3], sortable: false}],
+        perPage: 30
+    })
 </script>
 {% endblock %}

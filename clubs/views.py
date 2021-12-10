@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.utils.timezone import make_aware
 
+
 global club
 club = None
 
@@ -356,4 +357,4 @@ def view_tournament(request, tournament_id):
 def leaderboard(request, tournament_id):
     t = Tournament.objects.get(id = tournament_id)
     tournament_participants = t.get_all_participants()
-    return render(request, 'leaderboard.html', {'participants': tournament_participants})
+    return render(request, 'leaderboard.html', {'participants': tournament_participants, 'curr_tournament': t})
