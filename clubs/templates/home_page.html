@@ -3,7 +3,10 @@
     <div class="container">
         <div class="row col-12" style="height: 92vh;">
             <div class="my-auto mx-auto">
-                <h2>A homepage will go here...</h2>
+                <h2>Upcoming Tournaments</h2>
+                {% for t in upcoming_tournaments %}
+                <h1> {{ t.name }} : starts at {{ t.deadline }}</h1>
+                {% endfor %}
 
             </div>
         </div>

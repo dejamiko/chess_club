@@ -198,7 +198,21 @@ def club_list(request):
 def home_page(request):
     user_clubs = user_clubs_finder(request)
     applied_clubs = user_applied_clubs_finder(request)
-    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club, "applied_clubs": applied_clubs})
+    upcoming_tournaments = []
+    temp_tourn = []
+
+    try:
+        for c in user_clubs:
+            temp_tourn.append(Tournament.objects.get(club = c))
+    except:
+        pass
+
+    if temp_tourn:
+        for t in temp_tourn:
+            if make_aware(datetime.now())<t.deadline:
+                upcoming_tournaments.append(t)
+                
+    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club, "applied_clubs": applied_clubs, "upcoming_tournaments": upcoming_tournaments})
 
 
 @login_required
