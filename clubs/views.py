@@ -353,3 +353,35 @@ def view_tournament(request, tournament_id):
     else:
         return render(request, "view_tournament.html",
                       {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
+
+
+@login_required
+def club_page(request, club_id):
+    club = Club.objects.get(id=club_id)
+    curr_user = request.user
+    already_exists = False
+    if request.method == 'POST':
+        club_name = request.POST['name']
+        temp_club = Club.objects.get(name=club_name)
+        club_applicants = temp_club.get_all_applicants()
+        for applicant in club_applicants:
+            if applicant == curr_user:
+                already_exists = True
+        if not already_exists:
+            club_application = ClubApplicationModel(
+                associated_club=Club.objects.get(name=club_name),
+                associated_user=curr_user)
+            club_application.save()
+            temp_club = Club.objects.get(name=club_name)
+            temp_club.make_applicant(curr_user)
+            temp_club.save()
+
+    try:
+        applications = ClubApplicationModel.objects.all()
+    except ClubApplicationModel.DoesNotExist:
+        applications = None
+        return redirect('clubs')
+
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'club_page.html',
+        {'club': club, 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
