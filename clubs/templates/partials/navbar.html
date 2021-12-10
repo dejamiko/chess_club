@@ -38,17 +38,20 @@
                 {% endif %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                {% if user.is_authenticated %}
-                    {% if user_clubs %}
+              {% if user.is_authenticated %}
+                 {% if user_clubs %}
 
-                    {% if selected_club and selected_club in user.officer_of.all or selected_club in user.owner_of.all %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications</a>
-                        </li>
-                    {% endif %}
+                 {% if selected_club and selected_club in user.officer_of.all or selected_club in user.owner_of.all %}
+                     <li class="nav-item">
+                         <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
+                     </li>
+                     {% endif %}
+                     {% if user == selected_club.get_owner or user in selected_club.get_officers %}
+                     <li class="nav-item">
+                         <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications </a>
+                     </li>
+                     {% endif %}
+
 
                     <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="club_selection_dropdown" role="button" data-bs-toggle="dropdown"
@@ -84,7 +87,7 @@
                             <span class="bi-person-circle"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user_account_dropdown">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">View profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'profile' user.id %}">View profile</a></li>
                             <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit profile</a></li>
                             <li><a class="dropdown-item" href="{% url 'change_password' %}">Change password</a></li>
                             <li>

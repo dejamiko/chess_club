@@ -1,0 +1,12 @@
+[
+    {
+        "model": "clubs.pairing",
+        "pk": 1,
+        "fields": {
+            "tournament": 1,
+            "white_player": 4,
+            "black_player": 5,
+            "round": 1
+        }
+    }
+]

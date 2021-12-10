@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-sm-8">
                 {% if winner %}
-                    <div class="alert alert-success" role="alert"><b><a href="#">{{ tournament.winner.full_name }}</a></b> won this tournament, congratulations!</div> <!-- TODO add user profile url -->
+                    <div class="alert alert-success" role="alert"><b><a href="{% url 'profile' tournament.winner.id %}">{{ tournament.winner.full_name }}</a></b> won this tournament, congratulations!</div>
                 {% endif %}
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
@@ -62,7 +62,7 @@
                     <div class="card-body">
                         <img style="border-radius: 8px; float:right;" src="{{ tournament.organiser.mini_gravatar }}" alt="{{ tournament.organiser.full_name }}'s profile picture">
                         <h6 class="card-subtitle mb-2 text-muted">Organised by</h6>
-                        <h5 class="card-title"><a href="#">{{ tournament.organiser.full_name }}</a></h5> <!-- TODO add user profile url -->
+                        <h5 class="card-title"><a href="{% url 'profile' tournament.organiser.id %}">{{ tournament.organiser.full_name }}</a></h5>
                         <p class="card-text">{{ tournament.organiser.bio }}</p>
                         <ul class="list-group">
                             <li class="list-group-item"><b>Tournaments organised:</b> {{ tournament.organiser.organises.count }}</li>
@@ -94,7 +94,7 @@
                     <li class="list-group-item"><b>Coorganisers:</b>
                         <ul>
                             {% for coorganiser in tournament.coorganisers.all %}
-                                <li><a href="#">{{ coorganiser.full_name }}</a></li> <!-- TODO add user profile url -->
+                                <li><a href="{% url 'profile' coorganiser.id %}">{{ coorganiser.full_name }}</a></li> <!-- TODO add user profile url -->
                             {% endfor %}
                         </ul>
                     </li>

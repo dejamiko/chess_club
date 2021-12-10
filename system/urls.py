@@ -31,9 +31,9 @@ urlpatterns = [
     path("", views.welcome_screen, name="welcome_screen"),
     path("log_in/", views.log_in, name="log_in"),
     path("home/log_out/", views.log_out, name='log_out'),
-    path("home/profile/", views.profile, name='profile'),
-    path("home/profile/edit/", views.edit_profile, name='edit_profile'),
+    path("home/profile/<user_id>", views.profile, name='profile'),
+    path("home/edit_profile", views.edit_profile, name='edit_profile'),
     path("home/profile/change_password", views.change_password, name="change_password"),
-    path("create_club", views.create_club, name="create_club"),
+    path("home/create_club", views.create_club, name="create_club"),
     path('home/clubs/manage_applications/', views.manage_applications, name='manage_applications'),
 ]

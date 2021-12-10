@@ -21,7 +21,7 @@ class CreateClubViewTestCase(TestCase):
         }
 
     def test_create_club_url(self):
-        self.assertEqual(self.url, '/create_club')
+        self.assertEqual(self.url, '/home/create_club')
 
     def test_get_create_club(self):
         self.client.login(email=self.user.email, password='Password123')
@@ -61,7 +61,7 @@ class CreateClubViewTestCase(TestCase):
         after_count = Club.objects.count()
         self.assertEqual(after_count, before_count + 1)
         # change once drop down done
-        response_url = reverse('home_page')
+        response_url = reverse('clubs')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         club = Club.objects.get(name='some club')
         self.assertEqual(club.name, 'some club')
