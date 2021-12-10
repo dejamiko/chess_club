@@ -41,24 +41,43 @@
     </div>
   </div>
 </div>
-<!-- 
+
 <script>
-  $(function(){
+  function is_unique(arr, val){
+    for(let i = 0; i<arr.length; i++){
+      if (arr[i]['elo'] == val){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  window.onload = function(){
     let totals = $(".elo_rating")
     let sort_array = []
-    for (let i = 0; i<totals.length; i++){
-      sort_array.push(totals[i].textContent)
+    let counter = 0
+    for (let x = 0; x<totals.length; x++){
+      if(is_unique(sort_array, totals[x].textContent)){
+        counter++;
+      sort_array.push({ elo: totals[x].textContent, ranking: counter })
     }
-    for(let j = 0; j<sort_array.length; j++){
-      console.log(sort_array[j])
     }
-
-  });
-  </script> -->
+    var table = document.getElementById("leaderboard");
+    for( var i = 0, row; row = table.rows[i]; i++){
+        for( let p = 0; p < sort_array.length; p++){
+          if(row.innerHTML.includes(">" + sort_array[p]['elo'] + "<"))
+          row.cells[0].innerHTML = sort_array[p]['ranking']
+      }
+    }
+  }
+  </script>
 
 <script>
     const dataTable = new simpleDatatables.DataTable("#leaderboard", {
-        columns: [{select: [0,1,2,3], sortable: false}],
+        columns: [
+        {select: 1, sort: "desc" },
+        {select: [0,1,2,3], sortable: false}
+        ],
         perPage: 30
     })
 </script>
