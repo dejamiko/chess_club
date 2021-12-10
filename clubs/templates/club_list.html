@@ -3,90 +3,101 @@
 
 {% extends 'base_content.html' %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1>Clubs</h1>
-                <table id="club-table" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Location</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Members</th>
-                        <th scope="col">Owner</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for listed_club in clubs %}
-                        <tr>
-                            <td>{{ listed_club.name }}</td>
-                            <td>{{ listed_club.location }}</td>
-                            <td>{{ listed_club.description }}</td>
-                            <td>{{ listed_club.get_number_of_members }}</td>
-                            <td>
-                                <img style="border-radius: 8px; margin: 0 10px 10px 0;"
-                                     src="{{ listed_club.owner.mini_gravatar }}"
-                                     alt="{{ listed_club.owner.email }}'s profile picture">
-                                {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}
-                                <br>
-                                {{ listed_club.owner.bio }}
-                            </td>
-                            <td>
-                                <script src="https://code.jquery.com/jquery-3.6.0.js"
-                                        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-                                        crossorigin="anonymous"></script>
-
-                                <form id="apply_button">
-                                    {% csrf_token %}
-
-                                    {% if curr_user not in listed_club.get_all_users %}
-
-                                        <input type="hidden" id="hiddenstuff" name="obj"
-                                               value="{{ listed_club.name }}"/>
-                                        <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply"
-                                                {% if curr_user in listed_club.get_all_applicants %}
-                                               disabled {% endif %}/>
-                                    {% endif %}
-
-                                </form>
-                            </td>
-                        </tr>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Clubs</h1>
+      <table id="club-table" class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Location</th>
+            <th scope="col">Description</th>
+            <th scope="col">Members</th>
+            <th scope="col">Owner</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listed_club in clubs %}
+          <tr>
+            <td>{{ listed_club.name }}</td>
+            <td>{{ listed_club.location }}</td>
+            <td>{{ listed_club.description }}</td>
+            <td>{{ listed_club.get_number_of_members }}</td>
+            <td>
+              <img style="border-radius: 8px; margin: 0 10px 10px 0;" src="{{ listed_club.owner.mini_gravatar }}" alt="{{ listed_club.owner.email }}'s profile picture">
+              {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}
+              <br>
+              {{ listed_club.owner.bio }}
+            </td>
+            <td>
+              <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 
 
-                    {% endfor %}
+              <form id="apply_button">
+                {% csrf_token %}
 
-                    </tbody>
-                </table>
-            </div>
-        </div>
+
+                 {% for r in rejected_applications %}
+                {% if curr_user == r.associated_user and listed_club == r.associated_club %}
+                <p style="color:red;" >Status: Rejected</p>
+                {% endif %}
+                {% endfor %}
+
+                {% for a in applications %}
+               {% if curr_user == a.associated_user and listed_club == a.associated_club %}
+               <p style="color:green;" >Status: Submitted</p>
+               {% endif %}
+               {% endfor %}
+
+                 {% if curr_user not in listed_club.get_all_applicants %}
+                {% if curr_user not in listed_club.get_all_users  %}
+                <input type="hidden" id="hidden_club_name" name="obj" value="{{ listed_club.name }}" />
+                <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply"/>
+                {% endif %}
+                {% endif %}
+
+              </form>
+            </td>
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+      </table>
     </div>
+  </div>
+</div>
 
-    <script type="text/javascript">
-        $(document).on('submit', 'form', function (e) {
-            var curr_form = $(this);
-            e.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: '',
-                data: {
-                    name: curr_form.find('#hiddenstuff').val(),
-                    csrfmiddlewaretoken: $(`input[name=csrfmiddlewaretoken]`).val(),
-                },
-                success: function () {
-                    curr_form.find('#submitbutton').attr('disabled', true);
-                }
-            })
-        })
-    </script>
+<script type="text/javascript">
+  $(document).on('submit', 'form', function(e) {
+    var curr_form = $(this);
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '',
+      data: {
+        name: curr_form.find('#hidden_club_name').val(),
+        csrfmiddlewaretoken: $(`input[name=csrfmiddlewaretoken]`).val(),
+      },
+      success: function() {
+        curr_form.find('#submitbutton').attr('disabled', true);
+
+      }
+    })
+  })
+</script>
 
 
-    <script>
-        const dataTable = new simpleDatatables.DataTable("#club-table", {
-            columns: [{select: [5], sortable: false}],
-            perPage: 15,
-            fixedColumns: false
-        })
-    </script>
+<script>
+  const dataTable = new simpleDatatables.DataTable("#club-table", {
+    columns: [{
+      select: [Status: 5],
+      sortable: false
+    }],
+    perPage: 15,
+    fixedColumns: false
+  })
+</script>
 {% endblock %}
