@@ -21,8 +21,13 @@
         <tbody>
           {% for p in participants %}
           <tr>
-            <td> 1 </td>
+
+            {% for k,v in filtered_dict.items %}
+            {% if p.elo_rating == v %}
+            <td> {{ k }} </td>
             <td class = "elo_rating">{{ p.elo_rating }}</td>
+            {% endif %}
+            {% endfor %}
             <td>
               <img style="border-radius: 8px; margin: 0 10px 10px 0;" src="{{ p.mini_gravatar }}" alt="{{ p.email }}'s profile picture">
               {{ p.first_name }} {{ p.last_name }}
@@ -42,35 +47,7 @@
   </div>
 </div>
 
-<script>
-  function is_unique(arr, val){
-    for(let i = 0; i<arr.length; i++){
-      if (arr[i]['elo'] == val){
-        return false;
-      }
-    }
-    return true;
-  }
 
-  $(document).ready(function(){
-    let totals = $(".elo_rating")
-    let sort_array = []
-    let counter = 0
-    for (let x = 0; x<totals.length; x++){
-      if(is_unique(sort_array, totals[x].textContent)){
-        counter++;
-      sort_array.push({ elo: totals[x].textContent, ranking: counter })
-    }
-    }
-    var table = document.getElementById("leaderboard");
-    for( var i = 0, row; row = table.rows[i]; i++){
-        for( let p = 0; p < sort_array.length; p++){
-          if(row.innerHTML.includes(">" + sort_array[p]['elo'] + "<"))
-          row.cells[0].innerHTML = sort_array[p]['ranking']
-      }
-    }
-  });
-  </script>
 
   <script>
       const dataTable = new simpleDatatables.DataTable("#leaderboard", {
