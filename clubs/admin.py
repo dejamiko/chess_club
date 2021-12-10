@@ -18,3 +18,15 @@ class TournamentAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'club', 'name'
     ]
+
+@admin.register(Match)
+class MatchAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'inner', 'loser'
+    ]
+
+@admin.register(Pairing)
+class PairingAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'tournament'
+    ]
