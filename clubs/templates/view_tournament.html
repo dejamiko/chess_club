@@ -13,12 +13,26 @@
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
                     {% if user not in tournament.participants.all %}
-                        <input style="float:right;" type="submit" value="Join" class="btn btn-secondary">
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input style="float:right;" type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
+                    </form>
+
                     {% else %}
-                        <input style="float:right; margin-left:8px;" type="submit" value="Leave?" class="btn btn-outline-danger">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input style="float:right; margin-left:8px;" type="submit" name="Leave_tournament" value="Leave?" class="btn btn-outline-danger">
+                    </form>
+
                         <input disabled style="float:right;" type="submit" value="Joined!" class="btn btn-secondary">
                     {% endif %}
                 {% endif %}
+
+
+                  <form action="{% url 'leaderboard' tournament.id %}">
+                    <input type="submit" value="VIEW LEADERBOARD" />
+                  </form>
 
                 <h1>{{ tournament.name }}</h1>
                 <p>{{ tournament.description }}</p>

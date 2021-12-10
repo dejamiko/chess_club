@@ -333,11 +333,27 @@ def create_tournament(request):
 
 @login_required
 def view_tournament(request, tournament_id):
+
+    temp_user = request.user
     user_clubs = user_clubs_finder(request)
     try:
         tournament = Tournament.objects.get(id=tournament_id)
     except:
         return redirect("home_page")
-    else:
-        return render(request, "view_tournament.html",
-                      {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
+
+    if request.method == 'POST' and 'Join_tournament' in request.POST:
+        if temp_user not in tournament.get_all_participants() and make_aware(datetime.now()) < tournament.deadline:
+            tournament.make_participant(temp_user)
+
+    if request.method == 'POST' and 'Leave_tournament' in request.POST:
+        if temp_user in tournament.get_all_participants() and make_aware(datetime.now()) < tournament.deadline :
+            tournament.remove_participant(temp_user)
+
+    return render(request, "view_tournament.html",
+                     {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
+
+@login_required
+def leaderboard(request, tournament_id):
+    t = Tournament.objects.get(id = tournament_id)
+    tournament_participants = t.get_all_participants()
+    return render(request, 'leaderboard.html', {'participants': tournament_participants})
