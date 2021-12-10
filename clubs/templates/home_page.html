@@ -10,7 +10,28 @@
                 <p>Today's a great day for some chess :)</p>
 
                 <h5>Internal tournaments</h5>
-                <p>This website's tournaments (of clubs you belong to)...</p>
+                {% if user_tournaments %}
+                    <table id="user-tournament-table" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Hosting club</th>
+                            <th scope="col">Round</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for tournament in user_tournaments %}
+                                <tr>
+                                    <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
+                                    <td>{{ tournament.club.name }}</td>
+                                    <td>{{ tournament.round }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>There are no unfinished tournaments currently taking place (in any clubs that you belong to)...</p>
+                {% endif %}
 
                 <h5>External tournaments</h5>
                 {% if lichess_data %}
@@ -66,9 +87,17 @@
                 document.getElementById("puzzle-solution").href = daily_puzzle.Link.replace("Puzzle", "Solution");
             })
 
-        const dataTable = new simpleDatatables.DataTable("#lichess-table", {
-            perPage: 10
-        })
+        {% if user_tournaments %}
+            const userTournamentTable = new simpleDatatables.DataTable("#user-tournament-table", {
+                perPage: 5
+            })
+        {% endif %}
+
+        {% if lichess_data %}
+            const lichessTable = new simpleDatatables.DataTable("#lichess-table", {
+                perPage: 5
+            })
+        {% endif %}
     </script>
     <!-- {% include 'partials/background.html' with colour="C6A38B" %} -->
 {% endblock %}

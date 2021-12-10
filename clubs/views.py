@@ -162,9 +162,18 @@ def club_list(request):
 def home_page(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
-                                              "user_tournaments": [],
+                                              "user_tournaments": _get_current_user_tournaments(user_clubs),
                                               "lichess_data": _get_lichess_data(),
                                               "user_clubs": user_clubs, "selected_club": club})
+
+
+def _get_current_user_tournaments(user_clubs):
+    temp_list = []
+    for club in user_clubs:
+        for tournament in club.get_all_tournaments():
+            if not tournament.winner or tournament.deadline < make_aware(datetime.now()):
+                temp_list.append(tournament)
+    return temp_list
 
 
 def _get_lichess_data():
