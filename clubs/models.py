@@ -341,8 +341,6 @@ class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
     white_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_white_in")
     black_player = models.ForeignKey(User, on_delete=models.CASCADE, related_name="plays_black_in")
-    winner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="match_wins")
-    loser = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="match_losses")
 
     round = models.IntegerField(blank=False)
 
