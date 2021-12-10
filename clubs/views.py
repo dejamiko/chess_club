@@ -1,12 +1,14 @@
 from django.shortcuts import redirect, render
+from requests.models import to_native_string
 from .models import Tournament, User, Club, ClubApplicationModel
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, date
 from django.utils.timezone import make_aware
+from requests import get
 
 global club
 club = None
@@ -196,8 +198,18 @@ def club_list(request):
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
-    applied_clubs = user_applied_clubs_finder(request)
-    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club, "applied_clubs": applied_clubs})
+    return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
+                                              "user_tournaments": _get_current_user_tournaments(user_clubs),
+                                              "user_clubs": user_clubs, "selected_club": club})
+
+
+def _get_current_user_tournaments(user_clubs):
+    temp_list = []
+    for club in user_clubs:
+        for tournament in club.get_all_tournaments():
+            if not tournament.winner or tournament.deadline < make_aware(datetime.now()):
+                temp_list.append(tournament)
+    return temp_list
 
 
 @login_required
