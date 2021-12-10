@@ -72,13 +72,13 @@
   });
   </script>
 
-<script>
-    const dataTable = new simpleDatatables.DataTable("#leaderboard", {
-        columns: [
-        {select: 1, sort: "desc" },
-        {select: [0,1,2,3], sortable: false}
-        ],
-        perPage: 30
-    })
-</script>
-{% endblock %}
+  <script>
+      const dataTable = new simpleDatatables.DataTable("#leaderboard", {
+          columns: [
+          {select: 1, sort: "desc" },
+          {select: [0,1,2,3], sortable: false}
+          ],
+          perPage: 30
+      })
+  </script>
+  {% endblock %}

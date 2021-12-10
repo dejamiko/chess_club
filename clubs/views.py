@@ -355,6 +355,9 @@ def view_tournament(request, tournament_id):
 
 @login_required
 def leaderboard(request, tournament_id):
-    t = Tournament.objects.get(id = tournament_id)
+    try:
+        t = Tournament.objects.get(id = tournament_id)
+    except:
+        return redirect('home_page')
     tournament_participants = t.get_all_participants()
     return render(request, 'leaderboard.html', {'participants': tournament_participants, 'curr_tournament': t})
