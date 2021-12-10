@@ -68,6 +68,10 @@ class TournamentModelTestCase(TestCase):
         self.assertEquals(self.tournament.coorganisers.count(), 2)
         self.assertTrue(User.objects.get(email="janedoe@example.com") in self.tournament.coorganisers.all())
         self.assertTrue(User.objects.get(email="bobdoe@example.com") in self.tournament.coorganisers.all())
+    
+    def test_tournament_with_no_coorganisers(self):
+        self.tournament.coorganisers.set([])
+        self._assert_tournament_is_valid()
 
     def test_tournament_must_have_deadline(self):
         self.tournament.deadline = None
