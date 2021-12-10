@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Tournament, Club
+from .models import User, Tournament, Club, Match, Pairing
 
 
 @admin.register(User)
@@ -22,7 +22,7 @@ class TournamentAdmin(admin.ModelAdmin):
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'inner', 'loser'
+        'id', 'winner', 'loser'
     ]
 
 @admin.register(Pairing)
