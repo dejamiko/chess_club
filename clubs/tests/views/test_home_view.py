@@ -28,6 +28,6 @@ class HomeTest(TestCase):
         self.url = reverse("home_page")
 
     def test_home_displays_correct_upcoming_tournaments(self):
-        self.client.login(email = self.michael.email, password = 'Password123')
+        self.client.login(email = self.user.email, password = 'Password123')
         response = self.client.get(self.url)
-        #print(response.content)
+        print(response.content)

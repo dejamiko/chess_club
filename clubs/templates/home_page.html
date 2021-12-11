@@ -4,12 +4,10 @@
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container">
-        <div class="row col-12" style="height: 92vh;">
-            <div class="my-auto mx-auto">
-                <h2>Upcoming Tournaments</h2>
-                {% for t in user_tournaments %}
-                <h1> {{ t.name }} : starts at {{ t.deadline }}</h1>
-                {% endfor %}
+        <div class="row">
+            <div class="col-sm-8">
+                <h1>Hello, {{ user.first_name }}!</h1>
+                <p><span class="fas fa-quote-left"></span>&nbsp;&nbsp;{{ pun }}</p>
 
                 <h5>Internal tournaments</h5>
                 {% if user_tournaments %}
@@ -19,6 +17,7 @@
                             <th scope="col">Name</th>
                             <th scope="col">Hosting club</th>
                             <th scope="col">Round</th>
+                            <th scope="col">Start date</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -27,6 +26,7 @@
                                     <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                     <td>{{ tournament.club.name }}</td>
                                     <td>{{ tournament.round }}</td>
+                                    <td>{{ tournament.deadline }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

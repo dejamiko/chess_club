@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import Tournament, User, Club, ClubApplicationModel
+from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -7,7 +7,8 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, date
 from django.utils.timezone import make_aware
-
+from random import choice
+from pathlib import Path
 
 global club
 club = None
@@ -198,6 +199,9 @@ def club_list(request):
 def home_page(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
+                                              "pun": choice(open(Path(__file__).with_name("puns.txt")).readlines()),
+                                              # i was going to make puns.txt a static file, but apparently django
+                                              # won't 'serve' them when debug mode will be turned off
                                               "user_tournaments": _get_current_user_tournaments(user_clubs),
                                               "user_clubs": user_clubs, "selected_club": club})
 
@@ -349,7 +353,23 @@ def view_tournament(request, tournament_id):
     user_clubs = user_clubs_finder(request)
     try:
         tournament = Tournament.objects.get(id=tournament_id)
-    except:
+        if request.GET.get("create_pairings"):
+            tournament.create_initial_pairings()
+            return redirect("view_tournament", tournament_id)
+        if request.GET.get("results_entered"):
+            pairing = Pairing.objects.get(id=request.GET.get("pairing"))
+            if request.GET.get("player"):
+                match = pairing_to_match_elimination_phase(pairing, User.objects.get(id=request.GET.get("player")))
+            else:
+                match = pairing_to_match_elimination_phase(pairing)
+            match.save()
+            if tournament.all_pairings_completed() and not tournament.is_final:
+                tournament.next_pairings()
+            elif tournament.all_pairings_completed():
+                tournament.set_winner(match.winner)
+                tournament.save()
+            return redirect("view_tournament", tournament_id)
+    except Exception as e:
         return redirect("home_page")
 
     if request.method == 'POST' and 'Join_tournament' in request.POST:

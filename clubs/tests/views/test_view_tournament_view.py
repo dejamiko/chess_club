@@ -41,7 +41,10 @@ class ViewTournamentTest(TestCase):
         self.assertContains(response, "Saint Louis Chess Tournament")
         self.assertContains(response,
                             "The region&#x27;s most prestigious tournament, held in our purpose-built tournament hall, with afterparty at the basement broadcast studio.")
-        self.assertContains(response, "MATCHES WILL BE SHOWN HERE")
+
+        self.assertNotContains(response, "Pairings")
+        self.assertNotContains(response, "Create pairings")
+        self.assertContains(response, "Completed matches")
 
         for participant in response.context["tournament"].participants.all():
             self.assertContains(response, participant.full_name())
