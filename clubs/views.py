@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, date
 from django.utils.timezone import make_aware
 
 
@@ -197,22 +197,18 @@ def club_list(request):
 @login_required
 def home_page(request):
     user_clubs = user_clubs_finder(request)
-    applied_clubs = user_applied_clubs_finder(request)
-    upcoming_tournaments = []
-    temp_tourn = []
+    return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
+                                              "user_tournaments": _get_current_user_tournaments(user_clubs),
+                                              "user_clubs": user_clubs, "selected_club": club})
 
-    try:
-        for c in user_clubs:
-            temp_tourn.append(Tournament.objects.get(club = c))
-    except:
-        pass
 
-    if temp_tourn:
-        for t in temp_tourn:
-            if make_aware(datetime.now())<t.deadline:
-                upcoming_tournaments.append(t)
-
-    return render(request, 'home_page.html', {"user_clubs": user_clubs, "selected_club": club, "applied_clubs": applied_clubs, "upcoming_tournaments": upcoming_tournaments})
+def _get_current_user_tournaments(user_clubs):
+    temp_list = []
+    for club in user_clubs:
+        for tournament in club.get_all_tournaments():
+            if not tournament.winner or tournament.deadline < make_aware(datetime.now()):
+                temp_list.append(tournament)
+    return temp_list
 
 
 @login_required
@@ -389,3 +385,34 @@ def leaderboard(request, tournament_id):
         filtered_dict[i+1] = filtered_list[i]
 
     return render(request, 'leaderboard.html', {'participants': tournament_participants, 'curr_tournament': t, 'filtered_dict': filtered_dict})
+
+@login_required
+def club_page(request, club_id):
+    club = Club.objects.get(id=club_id)
+    curr_user = request.user
+    already_exists = False
+    if request.method == 'POST':
+        club_name = request.POST['name']
+        temp_club = Club.objects.get(name=club_name)
+        club_applicants = temp_club.get_all_applicants()
+        for applicant in club_applicants:
+            if applicant == curr_user:
+                already_exists = True
+        if not already_exists:
+            club_application = ClubApplicationModel(
+                associated_club=Club.objects.get(name=club_name),
+                associated_user=curr_user)
+            club_application.save()
+            temp_club = Club.objects.get(name=club_name)
+            temp_club.make_applicant(curr_user)
+            temp_club.save()
+
+    try:
+        applications = ClubApplicationModel.objects.all()
+    except ClubApplicationModel.DoesNotExist:
+        applications = None
+        return redirect('clubs')
+
+    user_clubs = user_clubs_finder(request)
+    return render(request, 'club_page.html',
+        {'club': club, 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})

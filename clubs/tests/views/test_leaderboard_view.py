@@ -13,6 +13,7 @@ class LeaderboardTest(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/default_tournament.json",
         "clubs/tests/fixtures/default_match.json",
+        "clubs/tests/fixtures/default_pairing.json",
         "clubs/tests/fixtures/other_clubs.json",
     ]
 

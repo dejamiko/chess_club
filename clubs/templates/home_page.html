@@ -1,15 +1,69 @@
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="container">
         <div class="row col-12" style="height: 92vh;">
             <div class="my-auto mx-auto">
                 <h2>Upcoming Tournaments</h2>
-                {% for t in upcoming_tournaments %}
+                {% for t in user_tournaments %}
                 <h1> {{ t.name }} : starts at {{ t.deadline }}</h1>
                 {% endfor %}
 
+                <h5>Internal tournaments</h5>
+                {% if user_tournaments %}
+                    <table id="user-tournament-table" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Hosting club</th>
+                            <th scope="col">Round</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for tournament in user_tournaments %}
+                                <tr>
+                                    <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
+                                    <td>{{ tournament.club.name }}</td>
+                                    <td>{{ tournament.round }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>There are no unfinished tournaments currently taking place (in any clubs that you belong to)...</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-subtitle mb-2 text-muted">Daily chess puzzle ({{ date }})</h4>
+                        <img style="margin-bottom: 12px;" class="card-img" id="puzzle-image" alt="Daily chess puzzle" />
+                        <p style="float:right; margin-bottom: 0px;" class="card-text" id="puzzle-text"></p>
+                        <a class="btn btn-outline-secondary btn-sm" id="puzzle-link" href="#" target="_blank">Try to solve</a>
+                        <a class="btn btn-outline-success btn-sm" id="puzzle-solution" href="#" target="_blank">View solution</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    {% include 'partials/background.html' with colour="C6A38B" %}
+
+    <script>
+        fetch("https://chesspuzzle.net/Daily/Api")
+            .then(response => response.json())
+            .then(daily_puzzle => {
+                document.getElementById("puzzle-image").src = daily_puzzle.Image;
+                document.getElementById("puzzle-text").innerHTML = daily_puzzle.Text;
+                document.getElementById("puzzle-link").href = daily_puzzle.Link;
+                document.getElementById("puzzle-solution").href = daily_puzzle.Link.replace("Puzzle", "Solution");
+            })
+
+        {% if user_tournaments %}
+            const userTournamentTable = new simpleDatatables.DataTable("#user-tournament-table", {
+                perPage: 5
+            })
+        {% endif %}
+    </script>
+    <!-- {% include 'partials/background.html' with colour="C6A38B" %} -->
 {% endblock %}

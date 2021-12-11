@@ -6,6 +6,7 @@ from clubs.tests.views.helpers import reverse_with_next
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
+
 class ViewTournamentTest(TestCase):
     """Unit tests of the view tournament view"""
     fixtures = [
@@ -15,6 +16,7 @@ class ViewTournamentTest(TestCase):
         "clubs/tests/fixtures/default_tournament.json",
         "clubs/tests/fixtures/default_match.json",
         "clubs/tests/fixtures/other_clubs.json",
+        'clubs/tests/fixtures/default_pairing.json',
     ]
 
     def setUp(self):
@@ -37,7 +39,8 @@ class ViewTournamentTest(TestCase):
         self.assertTemplateUsed(response, "view_tournament.html")
 
         self.assertContains(response, "Saint Louis Chess Tournament")
-        self.assertContains(response, "The region&#x27;s most prestigious tournament, held in our purpose-built tournament hall, with afterparty at the basement broadcast studio.")
+        self.assertContains(response,
+                            "The region&#x27;s most prestigious tournament, held in our purpose-built tournament hall, with afterparty at the basement broadcast studio.")
         self.assertContains(response, "MATCHES WILL BE SHOWN HERE")
 
         for participant in response.context["tournament"].participants.all():
@@ -49,7 +52,8 @@ class ViewTournamentTest(TestCase):
         self.assertContains(response, "Hi, I am John Doe")
 
         self.assertContains(response, "Saint Louis Chess Club")
-        self.assertContains(response, "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.")
+        self.assertContains(response,
+                            "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.")
 
         for coorganiser in response.context["tournament"].coorganisers.all():
             self.assertContains(response, coorganiser.full_name())
@@ -60,7 +64,7 @@ class ViewTournamentTest(TestCase):
 
     def test_get_view_tournament_with_invalid_id(self):
         self.client.login(email=self.user.email, password="Password123")
-        url = reverse("view_tournament", kwargs={"tournament_id": self.tournament.id+9999})
+        url = reverse("view_tournament", kwargs={"tournament_id": self.tournament.id + 9999})
         response = self.client.get(url, follow=True)
         response_url = reverse("home_page")
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)

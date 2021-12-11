@@ -44,10 +44,10 @@ class CreateTournamentFormTestCase(TestCase):
         form = CreateTournamentForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
-    def test_form_rejects_blank_coorganisers(self):
+    def test_form_accepts_blank_coorganisers(self):
         self.form_input["coorganisers"] = []
         form = CreateTournamentForm(data=self.form_input)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_form_rejects_blank_deadline_date(self):
         self.form_input["deadline_date"] = None
