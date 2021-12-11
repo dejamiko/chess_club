@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import Tournament, User, Club, ClubApplicationModel
+from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -351,7 +351,23 @@ def view_tournament(request, tournament_id):
     user_clubs = user_clubs_finder(request)
     try:
         tournament = Tournament.objects.get(id=tournament_id)
-    except:
+        if request.GET.get("create_pairings"):
+            tournament.create_initial_pairings()
+            return redirect("view_tournament", tournament_id)
+        if request.GET.get("results_entered"):
+            pairing = Pairing.objects.get(id=request.GET.get("pairing"))
+            if request.GET.get("player"):
+                match = pairing_to_match_elimination_phase(pairing, User.objects.get(id=request.GET.get("player")))
+            else:
+                match = pairing_to_match_elimination_phase(pairing)
+            match.save()
+            if tournament.all_pairings_completed() and not tournament.is_final:
+                tournament.next_pairings()
+            elif tournament.all_pairings_completed():
+                tournament.set_winner(match.winner)
+                tournament.save()
+            return redirect("view_tournament", tournament_id)
+    except Exception as e:
         return redirect("home_page")
     else:
         return render(request, "view_tournament.html",
