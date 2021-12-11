@@ -53,8 +53,10 @@
                                 <td>
                                     {% if tournament in requested_user.tournament_wins.all %}
                                         Winner! 
-                                    {% elif tournament in requested_user.participates_in.all %}
+                                    {% elif tournament in requested_user.participates_in.all and tournament.winner %}
                                         Participated <!-- later, try add round in the tournament they lost in -->
+                                    {% else %}
+                                        Ongoing
                                     {% endif %}
                                 </td>
                             </tr>
@@ -84,7 +86,7 @@
 
                 </br>
 
-                {% if requested_user.get_number_of_tournaments_participated_in > 0 %}
+                {% if requested_user.get_number_of_tournaments_won > 0 or requested_user.get_number_of_tournaments_lost > 0 %}
                 <div class="card">
                     <div class="card-body">
                             <h6 class="card-subtitle mb-2 text-muted">Tournaments</h6>
@@ -96,8 +98,9 @@
                         <ul class="list-group">
                             <li class="list-group-item"><b>Tournaments participated in:</b> {{ requested_user.get_number_of_tournaments_participated_in }}</li>
                             <li class="list-group-item"><b>Tournaments won:</b> {{ requested_user.get_number_of_tournaments_won }}</li>
+                            <li class="list-group-item"><b>Tournaments lost:</b> {{ requested_user.get_number_of_tournaments_lost }}</li>
                         </ul>
-                {% if requested_user.get_number_of_tournaments_participated_in > 0 %}
+                {% if requested_user.get_number_of_tournaments_won > 0 or requested_user.get_number_of_tournaments_lost > 0 %}
                     </div>
                 </div>
                 {% endif %}
@@ -174,7 +177,7 @@
                 data: {
                     labels: ['Wins', 'Losses'],
                     datasets: [{
-                        data: [{{ requested_user.get_number_of_tournaments_won }}, {{ requested_user.get_number_of_tournaments_participated_in }} - {{ requested_user.get_number_of_tournaments_won }}],
+                        data: [{{ requested_user.get_number_of_tournaments_won }}, {{ requested_user.get_number_of_tournaments_lost }}],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.2)',
                             'rgba(255, 99, 132, 0.2)'

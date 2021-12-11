@@ -111,6 +111,13 @@ class User(AbstractUser):
     def get_number_of_tournaments_participated_in(self):
         return self.participates_in.count()
 
+    def get_number_of_tournaments_lost(self):
+        counter = 0
+        for tournament in self.participates_in.all():
+            if tournament.winner and tournament.winner != self:
+                counter += 1
+        return counter
+
 
 class Club(models.Model):
     name = models.CharField(unique=True, blank=False, max_length=50)
@@ -351,6 +358,22 @@ class Tournament(models.Model):
     def set_winner(self, winner):
         self.winner = winner
 
+    def make_participant(self, user):
+        if user not in self.participants.all():
+            self.participants.add(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def remove_participant(self, user):
+        if user in self.participants.all():
+            self.participants.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def get_all_participants(self):
+        return self.participants.all()
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
