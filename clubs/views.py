@@ -363,28 +363,7 @@ def view_tournament(request, tournament_id):
     return render(request, "view_tournament.html",
                      {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
 
-@login_required
-def leaderboard(request, tournament_id):
-    try:
-        t = Tournament.objects.get(id = tournament_id)
-    except:
-        return redirect('home_page')
-    tournament_participants = t.get_all_participants()
 
-    elo_list = []
-    for temp_val in tournament_participants:
-        elo_list.append(temp_val.elo_rating)
-
-    remove_duplicates_dict = dict.fromkeys(elo_list)
-
-    filtered_list = list(remove_duplicates_dict)
-    filtered_list.sort(reverse = True)
-
-    filtered_dict = {}
-    for i in range (0, len(filtered_list)):
-        filtered_dict[i+1] = filtered_list[i]
-
-    return render(request, 'leaderboard.html', {'participants': tournament_participants, 'curr_tournament': t, 'filtered_dict': filtered_dict})
 
 @login_required
 def club_page(request, club_id):

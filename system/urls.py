@@ -36,5 +36,4 @@ urlpatterns = [
     path("home/create_club", views.create_club, name="create_club"),
     path('home/clubs/manage_applications/', views.manage_applications, name='manage_applications'),
     path("club_page/<int:club_id>", views.club_page, name="club_page"),
-    path('home/tournament/<tournament_id>/leaderboard', views.leaderboard, name='leaderboard'),
 ]
