@@ -1,5 +1,4 @@
 from django.shortcuts import redirect, render
-from requests.models import to_native_string
 from .models import Tournament, User, Club, ClubApplicationModel
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -8,7 +7,8 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, date
 from django.utils.timezone import make_aware
-from requests import get
+from random import choice
+from pathlib import Path
 
 global club
 club = None
@@ -199,6 +199,9 @@ def club_list(request):
 def home_page(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
+                                              "pun": choice(open(Path(__file__).with_name("puns.txt")).readlines()),
+                                              # i was going to make puns.txt a static file, but apparently django
+                                              # won't 'serve' them when debug mode will be turned off
                                               "user_tournaments": _get_current_user_tournaments(user_clubs),
                                               "user_clubs": user_clubs, "selected_club": club})
 
