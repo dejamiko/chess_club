@@ -33,54 +33,56 @@
                 <h1>{{ tournament.name }}</h1>
                 <p>{{ tournament.description }}</p>
 
-                {% if tournament.all_pairings_completed or not deadline_passed %}
-                {% else %}
-                    {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
-                        <h5>Pairings</h5>
-                        <form action="#" method="get">
-                            <input class="btn btn-outline-secondary" type="submit" value="Create pairings" name="create_pairings">
-                        </form>
-                    {% elif tournament.participants.count == 0 %}
+                {% if tournament.organiser == user  %}
+                    {% if tournament.all_pairings_completed or not deadline_passed %}
                     {% else %}
-                        <h5>Pairings</h5>
-                        <p>Click the player who won the match!</p>
-                        <table id="pairing-table" class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Round</th>
-                                    <th scope="col">White player</th>
-                                    <th scope="col">Black player</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            {% for pairing in tournament.pairings_within.all %}
-                                {% if not pairing.match_exists %}
+                        {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
+                            <h5>Pairings</h5>
+                            <form action="#" method="get">
+                                <input class="btn btn-outline-secondary" type="submit" value="Create pairings" name="create_pairings">
+                            </form>
+                        {% elif tournament.participants.count == 0 %}
+                        {% else %}
+                            <h5>Pairings</h5>
+                            <p>Click the player who won the match!</p>
+                            <table id="pairing-table" class="table table-hover">
+                                <thead>
                                     <tr>
-                                        <td>{{ pairing.round }}</td>
-                                         <td>
-                                            <form action="#" method="get">
-                                                <input hidden type="text" value="{{ pairing.white_player.id }}" name="player"/>
-                                                <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.white_player.full_name }}" name="results_entered">
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <form action="#" method="get">
-                                                <input hidden type="text" value="{{ pairing.black_player.id }}" name="player"/>
-                                                <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.black_player.full_name }}" name="results_entered">
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <form action="#" method="get">
-                                                <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                <input class="btn btn-outline-secondary btn-sm" type="submit" value="Draw" name="results_entered">
-                                            </form>
-                                        </td>
+                                        <th scope="col">Round</th>
+                                        <th scope="col">White player</th>
+                                        <th scope="col">Black player</th>
+                                        <th scope="col"></th>
                                     </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </table>
+                                </thead>
+                                {% for pairing in tournament.pairings_within.all %}
+                                    {% if not pairing.match_exists %}
+                                        <tr>
+                                            <td>{{ pairing.round }}</td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.white_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.white_player.full_name }}" name="results_entered">
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.black_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.black_player.full_name }}" name="results_entered">
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="Draw" name="results_entered">
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
 
