@@ -111,6 +111,7 @@ def create_future_tournament(club):
     coorganisers = members[0: random.randint(0, 5)]
 
     jeb = User.objects.get(email='jeb@example.org')
+    val = User.objects.get(email='val@example.org')
 
     if jeb in participants:
         participants.remove(jeb)
@@ -121,7 +122,7 @@ def create_future_tournament(club):
     future_tournament = Tournament.objects.create(
         club=club,
         name='Space Tournament',
-        organiser=User.objects.get(email='val@example.org'),
+        organiser=val,
         description='Chess but also space, what else could you possibly need?',
         deadline=make_aware(datetime.now() + timedelta(hours=24))
     )
@@ -141,13 +142,13 @@ def create_current_tournament(club):
     jeb = User.objects.get(email='jeb@example.org')
     val = User.objects.get(email='val@example.org')
 
-    if val not in participants:
-        participants.append(val)
+    if jeb not in participants:
+        participants.append(jeb)
 
     current_tournament = Tournament.objects.create(
         club=club,
         name='Space Tournament but better',
-        organiser=jeb,
+        organiser=val,
         description='Come on, chess is not rocket science!',
         deadline=make_aware(datetime.now() - timedelta(hours=24))
     )
