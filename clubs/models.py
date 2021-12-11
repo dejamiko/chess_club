@@ -354,6 +354,22 @@ class Tournament(models.Model):
     def set_winner(self, winner):
         self.winner = winner
 
+    def make_participant(self, user):
+        if user not in self.participants.all():
+            self.participants.add(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def remove_participant(self, user):
+        if user in self.participants.all():
+            self.participants.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def get_all_participants(self):
+        return self.participants.all()
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")

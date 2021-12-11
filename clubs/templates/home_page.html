@@ -17,6 +17,7 @@
                             <th scope="col">Name</th>
                             <th scope="col">Hosting club</th>
                             <th scope="col">Round</th>
+                            <th scope="col">Start date</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -25,6 +26,7 @@
                                     <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                     <td>{{ tournament.club.name }}</td>
                                     <td>{{ tournament.round }}</td>
+                                    <td>{{ tournament.deadline }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
