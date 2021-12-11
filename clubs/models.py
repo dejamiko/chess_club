@@ -111,6 +111,13 @@ class User(AbstractUser):
     def get_number_of_tournaments_participated_in(self):
         return self.participates_in.count()
 
+    def get_number_of_tournaments_lost(self):
+        counter = 0
+        for tournament in self.participates_in.all():
+            if tournament.winner and tournament.winner != self:
+                counter += 1
+        return counter
+
 
 class Club(models.Model):
     name = models.CharField(unique=True, blank=False, max_length=50)
