@@ -12,6 +12,7 @@ class UserListTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(email='janedoe@example.com')
+        self.john = User.objects.get(email='johndoe@example.com')
         self.club = Club.objects.get(name='Saint Louis Chess Club')
         self.url = reverse("users", kwargs={'club_id': self.club.id})
 
@@ -193,13 +194,29 @@ class UserListTest(TestCase):
                 self.club.make_member(temp_user)
 
     def test_promote_button(self):
-        #TODO: ADD TESTS FOR PROMOTE BUTTON
-        pass
+        self.club.make_member(self.user)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        self.assertNotIn(self.user, self.club.get_officers())
+        self.client.post(self.url, {'listed_user': self.user.email, 'promote': True})
+        self.assertIn(self.user, self.club.get_officers())
 
     def test_demote_button(self):
-        #TODO: ADD TESTS FOR DEMOTE BUTTON
-        pass
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        self.assertNotIn(self.user, self.club.get_members())
+        self.client.post(self.url, {'listed_user': self.user.email, 'demote': True})
+        self.assertIn(self.user, self.club.get_members())
 
     def test_switch_ownership_button(self):
-        #TODO: ADD TESTS FOR SWITCH OWNERSHIP BUTTON
-        pass
+        # this test doesnt work?
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        self.assertNotEquals(self.user, self.club.get_owner())
+        self.client.post(self.url, {'listed_user': self.user.email, 'switch_owner': True})
+        self.assertEquals(self.user, self.club.get_owner())
+        self.assertIn(self.john, self.club.get_officers())
