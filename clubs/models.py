@@ -112,6 +112,13 @@ class User(AbstractUser):
     def get_number_of_tournaments_participated_in(self):
         return self.participates_in.count()
 
+    def get_number_of_tournaments_lost(self):
+        counter = 0
+        for tournament in self.participates_in.all():
+            if tournament.winner and tournament.winner != self:
+                counter += 1
+        return counter
+
 
 class Club(models.Model):
     name = models.CharField(unique=True, blank=False, max_length=50)
@@ -234,6 +241,7 @@ class Tournament(models.Model):
     round = models.IntegerField(default=1)
     group_phase = models.BooleanField(default=False)
     elimination_phase = models.BooleanField(default=True)
+    is_final = models.BooleanField(default=False)
 
     SIZE_OF_BRACKET = 16
     NUMBER_OF_GROUPS = int(SIZE_OF_BRACKET / 2)
@@ -250,23 +258,20 @@ class Tournament(models.Model):
             return self.next_pairings()
         else:
             participants = list(self.participants.all())
+            self.round += 1
             return self.create_bracket_pairings(participants)
 
     def next_pairings(self):
         self.round += 1
+        if self.is_final:
+            return []
+
         if self.elimination_phase:
             previous_pairings = self.pairings_within.all().filter(round=self.round - 1)
             players = []
             for pairing in previous_pairings:
                 match = Match.objects.get(pairing=pairing)
-                if match.is_draw:
-                    # A simplified view of a tournament: in case of a draw, the arbiter tosses a coin
-                    if random.randint(0, 1) > 0:
-                        players.append(match.pairing.white_player)
-                    else:
-                        players.append(match.pairing.black_player)
-                else:
-                    players.append(match.winner)
+                players.append(match.winner)
             players = players + list(self.bye.all())
             self.bye.set([])
 
@@ -305,12 +310,12 @@ class Tournament(models.Model):
         # This method is more evenly spread than just taking the first however many users
         # because the last group could be way smaller. Here the difference is at most 1
         for i in range(0, len(participant_list)):
-            group = self.groups_within.get(group_number=i % self.NUMBER_OF_GROUPS)
+            group = self.groups_within.get(group_number=i % self.NUMBER_OF_GROUPS, tournament=self)
             group.participants.add(participant_list[i])
             group.save()
 
     def create_bracket_pairings(self, participants, ordering=None):
-        self.round += 1
+        self.is_final = False
         if len(participants) % 2 == 1:
             self.bye.add(participants[-1])
             participants = participants[0: len(participants) - 1]
@@ -322,20 +327,54 @@ class Tournament(models.Model):
 
         pairings = []
         for pair in ordering:
-            pairing = Pairing.objects.create(
-                tournament=self,
-                white_player=pair[0],
-                black_player=pair[1],
-                round=self.round
-            )
-            pairing.save()
-            pairings.append(pairing)
+            if pair[1] is not None and pair[0] is not None:
+                pairing = Pairing.objects.create(
+                    tournament=self,
+                    white_player=pair[0],
+                    black_player=pair[1],
+                    round=self.round
+                )
+                pairing.save()
+                pairings.append(pairing)
+        
+        if len(pairings) == 1 and self.bye.count() == 0:
+            self.is_final = True
+
+        self.save()
 
         return pairings
 
     def get_all_matches(self):
-        return list(Match.objects.filter(pairing__in=self.pairings_within))
+        return list(Match.objects.filter(pairing__in=self.pairings_within.all()))
+    
+    def all_pairings_completed(self):
+        if self.pairings_within.count() > 0:
+            for pairing in self.pairings_within.all():
+                if not pairing.match_exists():
+                    return False
+            return True
+        else:
+            return False
+        
+    def set_winner(self, winner):
+        self.winner = winner
 
+    def make_participant(self, user):
+        if user not in self.participants.all():
+            self.participants.add(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def remove_participant(self, user):
+        if user in self.participants.all():
+            self.participants.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def get_all_participants(self):
+        return self.participants.all()
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
@@ -344,6 +383,56 @@ class Pairing(models.Model):
 
     round = models.IntegerField(blank=False)
 
+    def get_other_player(self, player):
+        if player == self.white_player:
+            return self.black_player
+        else:
+            return self.white_player
+    
+    def match_exists(self):
+        return Match.objects.filter(pairing=self)
+
+
+def pairing_to_match_elimination_phase(pairing, winner=None):
+    if winner:
+        return Match.objects.create(
+            pairing=pairing,
+            winner=winner,
+            loser=pairing.get_other_player(winner),
+            is_draw=False
+        )
+    else:
+        # A simplified view - if the match is a draw, the arbiter flips a coin
+        if random.randint(0, 1) > 0:
+            return Match.objects.create(
+                pairing=pairing,
+                winner=pairing.white_player,
+                loser=pairing.black_player,
+                is_draw=True
+            )
+        else:
+            return Match.objects.create(
+                pairing=pairing,
+                winner=pairing.black_player,
+                loser=pairing.white_player,
+                is_draw=True
+            )
+
+
+def pairing_to_match_group_phase(pairing, winner=None):
+    if winner:
+        return Match.objects.create(
+            pairing=pairing,
+            winner=winner,
+            loser=pairing.get_other_player(winner),
+            is_draw=False
+        )
+    else:
+        return Match.objects.create(
+            pairing=pairing,
+            is_draw=True
+        )
+        
 
 class EloRating(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="has_elo_club")
@@ -354,7 +443,7 @@ class EloRating(models.Model):
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
     participants = models.ManyToManyField(User, related_name="participant_in_group")
-    group_number = models.IntegerField(unique=True, blank=False)
+    group_number = models.IntegerField(blank=False)
     pairings = models.ManyToManyField(Pairing, related_name="group_in_which_the_paring_takes_place")
 
     def create_all_pairs(self):
@@ -457,8 +546,8 @@ class Group(models.Model):
 
 class Match(models.Model):
     pairing = models.ForeignKey(Pairing, blank=False, on_delete=models.CASCADE, related_name="match")
-    winner = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_wins")
-    loser = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="match_losses")
+    winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="match_wins")
+    loser = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="match_losses")
     is_draw = models.BooleanField(blank=True)
 
     def set_winner(self, winner_user):

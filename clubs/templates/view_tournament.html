@@ -7,32 +7,112 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
-                {% if winner %}
+                {% if tournament.winner %}
                     <div class="alert alert-success" role="alert"><b><a href="{% url 'profile' tournament.winner.id %}">{{ tournament.winner.full_name }}</a></b> won this tournament, congratulations!</div>
                 {% endif %}
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
                     {% if user not in tournament.participants.all %}
-                        <input style="float:right;" type="submit" value="Join" class="btn btn-secondary">
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input style="float:right;" type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
+                    </form>
+
                     {% else %}
-                        <input style="float:right; margin-left:8px;" type="submit" value="Leave?" class="btn btn-outline-danger">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input style="float:right; margin-left:8px;" type="submit" name="Leave_tournament" value="Leave?" class="btn btn-outline-danger">
+                    </form>
+
                         <input disabled style="float:right;" type="submit" value="Joined!" class="btn btn-secondary">
                     {% endif %}
                 {% endif %}
 
+
                 <h1>{{ tournament.name }}</h1>
                 <p>{{ tournament.description }}</p>
 
-                <h5>Matches</h5>
-                {% if not tournament.get_all_matches %}
-                    <p>There are no matches yet.</p>
-                {% else %}
-                    <p>MATCHES WILL BE SHOWN HERE</p>
+                {% if tournament.organiser == user  %}
+                    {% if tournament.all_pairings_completed or not deadline_passed %}
+                    {% else %}
+                        {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
+                            <h5>Pairings</h5>
+                            <form action="#" method="get">
+                                <input class="btn btn-outline-secondary" type="submit" value="Create pairings" name="create_pairings">
+                            </form>
+                        {% elif tournament.participants.count == 0 %}
+                        {% else %}
+                            <h5>Pairings</h5>
+                            <p>Click the player who won the match!</p>
+                            <table id="pairing-table" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Round</th>
+                                        <th scope="col">White player</th>
+                                        <th scope="col">Black player</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                {% for pairing in tournament.pairings_within.all %}
+                                    {% if not pairing.match_exists %}
+                                        <tr>
+                                            <td>{{ pairing.round }}</td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.white_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.white_player.full_name }}" name="results_entered">
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.black_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.black_player.full_name }}" name="results_entered">
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <form action="#" method="get">
+                                                    <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="Draw" name="results_entered">
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                {% if tournament.get_all_matches|length > 0 %}
+                    <h5>Completed matches</h5>
+                    <table id="completed-match-table" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Round</th>
+                                <th scope="col">Winner</th>
+                                <th scope="col">Loser</th>
+                                <th scope="col">Was it a draw?</th>
+                            </tr>
+                        </thead>
+                        {% for match in tournament.get_all_matches %}
+                            <tr>
+                                <td>{{ match.pairing.round }}</td>
+                                <td>{{ match.winner.full_name }}</td>
+                                <td>{{ match.loser.full_name }}</td>
+                                <td>{{ match.is_draw }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
                 {% endif %}
 
                 <h5>Participants</h5>
-                {% if tournament.participants.count == 0 %}
+                {% if tournament.participants.count == 0 and not deadline_passed %}
                     <p>There are no participants yet, apply now!</p>
+                {% elif deadline_passed and tournament.participants.count == 0 %}
+                    <p>No one applied to participate, how sad :(</p>
                 {% else %}
                     <table id="participant-table" class="table table-hover">
                         <thead>
@@ -48,7 +128,7 @@
                                 <td>
                                     <img style="border-radius: 8px;" src="{{ participant.mini_gravatar }}" alt="{{ participant.full_name }}'s profile picture">
                                 </td>
-                                <td>{{ participant.full_name }}</td>
+                                <td><a href="{% url 'profile' participant.id %}">{{ participant.full_name }}</a></td>
                                 <td>{{ participant.chess_exp }}</td>
                                 <td>{{ participant.elo_rating }}</td>
                             </tr>
@@ -109,7 +189,17 @@
     </div>
 
     <script>
-        const dataTable = new simpleDatatables.DataTable("#participant-table", {
+        {% if not tournament.all_pairings_completed and tournament.pairings_within.count > 0 %}
+            const pairingTable = new simpleDatatables.DataTable("#pairing-table", {
+                columns: [
+                    {select: [0], sort: "asc"},
+                    {select: [3], sortable: false}
+                ],
+                perPage: 5
+            })
+        {% endif %}
+
+        const participantTable = new simpleDatatables.DataTable("#participant-table", {
             columns: [{select: [0], sortable: false}],
             perPage: 5
         })
