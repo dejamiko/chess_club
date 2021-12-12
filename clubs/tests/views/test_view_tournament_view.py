@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import Tournament, User, Club
+from clubs.tests.models.helpers import _create_test_users
 from clubs.tests.views.helpers import reverse_with_next
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
@@ -14,6 +15,7 @@ class ViewTournamentTest(TestCase):
         "clubs/tests/fixtures/other_users.json",
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/default_tournament.json",
+        "clubs/tests/fixtures/other_tournament.json",
         "clubs/tests/fixtures/default_match.json",
         "clubs/tests/fixtures/other_clubs.json",
         'clubs/tests/fixtures/default_pairing.json',
@@ -27,6 +29,7 @@ class ViewTournamentTest(TestCase):
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.other_club = Club.objects.get(name = "Saint Louis Chess Club 2")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
+        self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
         self.url = reverse("view_tournament", kwargs={"tournament_id": self.tournament.id})
 
     def test_view_tournament_url(self):
@@ -130,6 +133,21 @@ class ViewTournamentTest(TestCase):
         response = self.client.post(self.url, {'Leave_tournament': True})
         tournament_after_leave = Tournament.objects.get(name = "Saint Louis Chess Tournament")
         self.assertNotIn(self.michael, tournament_after_leave.get_all_participants())
+    
+    def test_user_cannot_join_if_96_participants(self):
+        self.client.login(email=self.user.email, password="Password123")
+
+        _create_test_users(100, 94)
+        for i in range(100, 194):
+            user = User.objects.get(id=i)
+            self.club.make_applicant(user)
+            self.club.make_member(user)
+            self.other_tournament.participants.add(user)
+        self.other_tournament.save()
+        
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Join")
 
     def create_two_members_for_club(self, c, user1, user2):
         c.make_applicant(user1)

@@ -13,10 +13,12 @@
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
                     {% if user not in tournament.participants.all %}
-                        <form style="float:right;" method="post">
-                            {% csrf_token %}
-                            <input type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
-                        </form>
+                        {% if tournament.participants.count < 96 %}
+                            <form style="float:right;" method="post">
+                                {% csrf_token %}
+                                <input type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
+                            </form>
+                        {% endif %}
                     {% else %}
                         <form style="float:right;" method="post">
                             {% csrf_token %}
