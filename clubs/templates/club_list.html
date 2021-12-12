@@ -35,29 +35,28 @@
               <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 
 
-              <form id="apply_button">
+              <form>
                 {% csrf_token %}
 
-
-                 {% for r in rejected_applications %}
-                {% if curr_user == r.associated_user and listed_club == r.associated_club %}
-                <p style="color:red;" >Status: Rejected</p>
-                {% endif %}
-                {% endfor %}
-
-                {% for a in applications %}
-               {% if curr_user == a.associated_user and listed_club == a.associated_club %}
-               <p style="color:green;" >Status: Submitted</p>
+                {% for r in rejected_applications %}
+               {% if curr_user == r.associated_user and listed_club == r.associated_club %}
+               <p style="color:red;" >Status: Rejected</p>
                {% endif %}
                {% endfor %}
 
+               {% for a in applications %}
+              {% if curr_user == a.associated_user and listed_club == a.associated_club %}
+              <p style="color:green;" >Status: Pending</p>
+              {% endif %}
+              {% endfor %}
+
                  {% if curr_user not in listed_club.get_all_applicants %}
                 {% if curr_user not in listed_club.get_all_users  %}
-                <input type="hidden" id="hidden_club_name" name="obj" value="{{ listed_club.name }}" />
-                <input class="btn btn-outline-secondary btn-sm" type="submit" id="submitbutton" value="Apply"/>
+                <input type="hidden" class="hidden_value" name="obj" value="{{ listed_club.name }}" />
+                <input class="submit_button" type="submit"  value="Apply"/>
+                <div class="success_text" <p style="display: none; color:green;"">Applied! </p></div>
                 {% endif %}
                 {% endif %}
-
               </form>
             </td>
           </tr>
@@ -78,12 +77,13 @@
       type: 'POST',
       url: '',
       data: {
-        name: curr_form.find('#hidden_club_name').val(),
+        name: curr_form.find('.hidden_value').val(),
         csrfmiddlewaretoken: $(`input[name=csrfmiddlewaretoken]`).val(),
       },
       success: function() {
-        curr_form.find('#submitbutton').attr('disabled', true);
-
+        curr_form.find('.submit_button').hide();
+        curr_form.find('.success_text').show();
+        curr_form.find('.submit_button').attr('disabled', true);
       }
     })
   })
