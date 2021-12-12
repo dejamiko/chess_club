@@ -1,0 +1,39 @@
+[
+    {
+        "model": "clubs.EloRating",
+        "pk": 2,
+        "fields": {
+            "club": 1,
+            "user": 2,
+            "elo_rating": 1000
+        }
+    },
+    {
+        "model": "clubs.EloRating",
+        "pk": 3,
+        "fields": {
+            "club": 1,
+            "user": 3,
+            "elo_rating": 1000
+        }
+    },
+    {
+        "model": "clubs.EloRating",
+        "pk": 4,
+        "fields": {
+            "club": 1,
+            "user": 4,
+            "elo_rating": 1000
+        }
+    },
+    {
+        "model": "clubs.EloRating",
+        "pk": 5,
+        "fields": {
+            "club": 1,
+            "user": 5,
+            "elo_rating": 1000
+        }
+    }
+
+]

@@ -49,7 +49,6 @@ class ViewTournamentTest(TestCase):
         for participant in response.context["tournament"].participants.all():
             self.assertContains(response, participant.full_name())
             self.assertContains(response, participant.chess_exp)
-            self.assertContains(response, participant.elo_rating)
 
         self.assertContains(response, "John Doe")
         self.assertContains(response, "Hi, I am John Doe")

@@ -19,19 +19,17 @@
                             <tr>
                                 <th scope="col">Name</th>
                                 <th scope="col">Position</th>
+                                <th scope="col">Elo rating</th>
                             </tr>
                         </thead>
                         {% for club in all_user_clubs %}
                             <tr>
-                                <td><a href="#">{{ club.name }}</a></td> <!-- TODO add club profile url -->
+                                <td><a href="#">{{ club.0.name }}</a></td> <!-- TODO add club profile url -->
                                 <td>
-                                    {% if club in requested_user.member_of.all %}
-                                        Member
-                                    {% elif club in requested_user.officer_of.all %}
-                                        Officer
-                                    {% elif club in requested_user.owner_of.all %}
-                                        Owner
-                                    {% endif %}
+                                    {{ club.1 }}
+                                </td>
+                                <td>
+                                    {{ club.2 }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -80,8 +78,7 @@
                         <li class="list-group-item"><b>Email address:</b> {{ requested_user.email }}</li>
                     {% endif %}
                     <li class="list-group-item"><b>Chess experience:</b> {{ requested_user.chess_exp }}</li>
-                    <li class="list-group-item"><b>Elo rating:</b> {{ requested_user.elo_rating }}</li>
-                    <li class="list-group-item"><b>Number of clubs:</b> {{ all_user_clubs.count }}</li>
+                    <li class="list-group-item"><b>Number of clubs:</b> {{ all_user_clubs|length }}</li>
                 </ul>
 
                 </br>

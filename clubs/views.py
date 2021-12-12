@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 
-from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase
+from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase, EloRating
 
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -122,14 +122,15 @@ def user_list(request, user_club):
     else:
         user_dict = user_club.get_all_users()
 
-    user_dict_with_levels = []
+    user_dict_with_levels_elo = []
     for user in user_dict:
-        user_dict_with_levels.append((user, user_club.user_level(user)))
+        user_elo_club = EloRating.objects.get(user=user, club=user_club)
+        user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
 
     user_clubs = user_clubs_finder(request)
 
     return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(user_club),
+                  {"users": user_dict_with_levels_elo, "user_level": request.user.user_level(user_club),
                    "user_clubs": user_clubs, "selected_club": user_club})
 
 
@@ -229,13 +230,17 @@ def profile(request, user_id):
     try:
         requested_user = User.objects.get(id=user_id)
         all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(requested_user.owner_of.all())
+        club_dict_elo = []
+        for club_x in all_user_clubs:
+            user_elo_club = EloRating.objects.get(user=requested_user, club=club_x)
+            club_dict_elo.append((club, club_x.user_level(requested_user), user_elo_club.elo_rating))
     except:
         if club:
             return redirect("users", club.id)
         else:
             return redirect("select_club")
     else:
-        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": all_user_clubs, "user_clubs": user_clubs, "selected_club": club})
+        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": club_dict_elo, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
@@ -325,7 +330,8 @@ def create_club(request):
     if request.method == 'POST':
         form = CreateClubForm(request.POST)
         if form.is_valid():
-            form.save(request.user)
+            temp_club = form.save(request.user)
+            EloRating.objects.create(user=request.user, club=temp_club, elo_rating=1000)
             return redirect('clubs')
     else:
         form = CreateClubForm()
@@ -394,6 +400,7 @@ def view_tournament(request, tournament_id):
 
 @login_required
 def club_page(request, club_id):
+    global club
     club = Club.objects.get(id=club_id)
     curr_user = request.user
     already_exists = False

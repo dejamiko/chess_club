@@ -42,7 +42,7 @@
                     {% if user_level == "Officer" or user_level == "Owner" %}
                         <td>{{ listed_user.0.email }}</td>
                         <td>{{ listed_user.1 }}</td>
-                        <td>{{ listed_user.0.elo_rating }}</td>
+                        <td>{{ listed_user.2 }}</td>
                         <td>
                             <form action="#" method="get">
                                 <input hidden type="text" value="{{ listed_user.0 }}" name="listed_user"/>
@@ -62,7 +62,7 @@
                             </form>
                         </td>
                     {% else %}
-                        <td>{{ listed_user.0.elo_rating }}</td>
+                        <td>{{ listed_user.2 }}</td>
                     {% endif %}
                     </tr>
                     {% endfor %}

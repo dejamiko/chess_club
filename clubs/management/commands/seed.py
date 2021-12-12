@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from django.utils.timezone import make_aware
 from faker import Faker
-from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase
+from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase, EloRating
 import random
 
 
@@ -50,8 +50,13 @@ def generate_tournament_matches(tournament, number_of_rounds=0, finish=False):
             # The chance of draws is highest for the best players
             # I arbitrarily chose 3000 elo as the elo where all games are draws
             # (which is not true for computer engines)
-            r_a = pairing.white_player.elo_rating
-            r_b = pairing.black_player.elo_rating
+            tournament_club = tournament.club
+            temp_white_player = User.objects.get(id=pairing.white_player.id)
+            temp_black_player = User.objects.get(id=pairing.black_player.id)
+            elo_white = EloRating.objects.get(user=temp_white_player, club=tournament_club)
+            elo_black = EloRating.objects.get(user=temp_black_player, club=tournament_club)
+            r_a = elo_white.elo_rating
+            r_b = elo_black.elo_rating
             is_draw = (r_a + r_b) / 6000  # average elo divided by 3000
 
             if random.random() < is_draw:

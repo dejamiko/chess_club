@@ -60,7 +60,6 @@ class User(AbstractUser):
     bio = models.CharField(blank=True, max_length=400)
     chess_exp = models.CharField(choices=ChessExperience.choices, max_length=12)
     personal_statement = models.CharField(blank=True, max_length=500)
-    elo_rating = models.IntegerField(default=1000)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -164,6 +163,7 @@ class Club(models.Model):
             self.members.add(user)
             self.applicants.remove(user)
             self.save()
+            EloRating.objects.create(user=user, club=self, elo_rating=1000)
         elif self.user_level(user) == "Officer":
             self.members.add(user)
             self.officers.remove(user)
@@ -395,49 +395,70 @@ class Pairing(models.Model):
 
 def pairing_to_match_elimination_phase(pairing, winner=None):
     if winner:
-        return Match.objects.create(
+        win_scenario = Match.objects.create(
             pairing=pairing,
             winner=winner,
             loser=pairing.get_other_player(winner),
             is_draw=False
         )
+        win_scenario.set_winner()
+        win_scenario.save()
+        return win_scenario
     else:
         # A simplified view - if the match is a draw, the arbiter flips a coin
         if random.randint(0, 1) > 0:
-            return Match.objects.create(
+            draw_scenario = Match.objects.create(
                 pairing=pairing,
                 winner=pairing.white_player,
                 loser=pairing.black_player,
                 is_draw=True
             )
+            draw_scenario.set_draw()
+            draw_scenario.save()
+            return draw_scenario
         else:
-            return Match.objects.create(
+            draw_scenario = Match.objects.create(
                 pairing=pairing,
                 winner=pairing.black_player,
                 loser=pairing.white_player,
                 is_draw=True
             )
+            draw_scenario.set_draw()
+            draw_scenario.save()
+            return draw_scenario
 
 
 def pairing_to_match_group_phase(pairing, winner=None):
     if winner:
-        return Match.objects.create(
+        win_scenario = Match.objects.create(
             pairing=pairing,
             winner=winner,
             loser=pairing.get_other_player(winner),
             is_draw=False
         )
+        win_scenario.set_winner()
+        win_scenario.save()
+        return win_scenario
+
     else:
-        return Match.objects.create(
+        draw_scenario = Match.objects.create(
             pairing=pairing,
             is_draw=True
         )
+        draw_scenario.set_draw()
+        draw_scenario.save()
+        return draw_scenario
         
 
 class EloRating(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="has_elo_club")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_elo')
-    elo_rating = models.IntegerField(default=1000)
+    elo_rating = models.IntegerField()
+
+    def assign_elo(self, club, user, elo_rating):
+        self.club = club
+        self.user = user
+        self.elo_rating = elo_rating
 
 
 class Group(models.Model):
@@ -550,32 +571,47 @@ class Match(models.Model):
     loser = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="match_losses")
     is_draw = models.BooleanField(blank=True)
 
-    def set_winner(self, winner_user):
-        self.winner = winner_user
-        if self.pairing.white_player == winner_user:
-            self.loser = self.pairing.black_player
-        else:
-            self.loser = self.pairing.white_player
-        self.winner.save()
-        self.loser.save()
-        self.winner.save()
+    def set_winner(self):
+
+        winner_new_rating = self.set_elo_winner(self.winner, self.loser)
+        loser_new_rating = self.set_elo_loser(self.winner, self.loser)
+
+        w_user = User.objects.get(email=self.winner.email)
+        l_user = User.objects.get(email=self.loser.email)
+        m_club = Club.objects.get(id=self.pairing.tournament.club.id)
+
+        w_elo = EloRating.objects.get(user=w_user, club=m_club)
+        w_elo.elo_rating = winner_new_rating
+        w_elo.save()
+
+        l_elo = EloRating.objects.get(user=l_user, club=m_club)
+        l_elo.elo_rating = loser_new_rating
+        l_elo.save()
 
     def set_draw(self):
-        user_draw_black = self.black_player
-        user_draw_white = self.white_player
+        user_draw_black = self.pairing.black_player
+        user_draw_white = self.pairing.white_player
 
         black_new_rating = self.set_elo_draw_black(user_draw_white,user_draw_black)
         white_new_rating = self.set_elo_draw_white(user_draw_white, user_draw_black)
 
-        user_draw_black.elo_rating = black_new_rating
-        user_draw_white.elo_rating = white_new_rating
+        b_user = User.objects.get(email=self.pairing.black_player.email)
+        wh_user = User.objects.get(email=self.pairing.white_player.email)
+        m_club = Club.objects.get(id=self.pairing.tournament.club.id)
 
-        self.black_player.save()
-        self.white_player.save()
+        b_elo = EloRating.objects.get(user=b_user, club=m_club)
+        b_elo.elo_rating = black_new_rating
+        b_elo.save()
 
+        wh_elo = EloRating.objects.get(user=wh_user, club=m_club)
+        wh_elo.elo_rating = white_new_rating
+        wh_elo.save()
 
     def get_elo_player(self, player):
-        return player.elo_rating
+        t_user = User.objects.get(email=player.email)
+        m_club = Club.objects.get(id=self.pairing.tournament.club.id)
+        t_elo = EloRating.objects.get(user=t_user, club=m_club)
+        return t_elo.elo_rating
 
     def expected_outcome(self, winner_user, loser_user):
         current_elo_winner = self.get_elo_player(winner_user)
@@ -599,7 +635,6 @@ class Match(models.Model):
         expected_outcome_loser = self.expected_outcome_alt(winner_user, loser_user)
         loser_new_elo = loser_current_elo + 32 * (0 - expected_outcome_loser)
         return loser_new_elo
-
 
     def set_elo_draw_white(self, white_player, black_player):
         white_current_elo = self.get_elo_player(white_player)

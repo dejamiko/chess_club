@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Tournament, Club, Match, Pairing
+from .models import User, Tournament, Club, Match, Pairing, EloRating
 
 
 @admin.register(User)
@@ -29,4 +29,10 @@ class MatchAdmin(admin.ModelAdmin):
 class PairingAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'tournament'
+    ]
+
+@admin.register(EloRating)
+class EloRatingAdmin(admin.ModelAdmin):
+    list_display = [
+        'user', 'club', 'elo_rating'
     ]

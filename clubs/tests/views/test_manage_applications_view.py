@@ -1,6 +1,6 @@
 """Unit tests of the manage application view"""
 from django.test import TestCase
-from clubs.models import User, Club, ClubApplicationModel
+from clubs.models import User, Club, ClubApplicationModel, EloRating
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 
@@ -13,6 +13,8 @@ class ManageApplicationViewTest(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/other_clubs.json",
         "clubs/tests/fixtures/default_application.json",
+        "clubs/tests/fixtures/default_elo.json",
+        "clubs/tests/fixtures/other_elo.json"
     ]
 
     def setUp(self):
