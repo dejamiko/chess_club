@@ -233,7 +233,7 @@ def profile(request, user_id):
         club_dict_elo = []
         for club_x in all_user_clubs:
             user_elo_club = EloRating.objects.get(user=requested_user, club=club_x)
-            club_dict_elo.append((club, club_x.user_level(requested_user), user_elo_club.elo_rating))
+            club_dict_elo.append((club_x, club_x.user_level(requested_user), user_elo_club.elo_rating))
     except:
         if club:
             return redirect("users", club.id)
