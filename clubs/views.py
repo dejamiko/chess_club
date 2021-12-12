@@ -29,14 +29,15 @@ def manage_applications(request):
     user = request.user
     if request.method == 'POST' and 'accepted' in request.POST:
         username = request.POST.get('uname')  # the user to promote
-        club_name = request.POST.get('clubname')  # the club they wish to become a member of
+        club_name = request.POST.get('clubname')  # the club they wish to become a member
         temp_club = Club.objects.get(name=club_name)
         temp_user = User.objects.get(email=username)
-        temp_club.make_member(temp_user)
-        temp_club.save()
-        form_to_be_deleted = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
-        form_to_be_deleted.delete()
-        return redirect('manage_applications')
+        if temp_user not in temp_club.get_all_users():
+            temp_club.make_member(temp_user)
+            temp_club.save()
+            form_to_be_deleted = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
+            form_to_be_deleted.delete()
+            return redirect('manage_applications')
 
     if request.method == 'POST' and 'rejected' in request.POST:
         username = request.POST.get('uname')  # the user to promote
@@ -44,9 +45,10 @@ def manage_applications(request):
         temp_club = Club.objects.get(name=club_name)
         temp_user = User.objects.get(email=username)
         form_to_be_rejected = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
-        form_to_be_rejected.is_rejected = True
-        form_to_be_rejected.save()
-        return redirect('manage_applications')
+        if form_to_be_rejected.is_rejected != True:
+            form_to_be_rejected.is_rejected = True
+            form_to_be_rejected.save()
+            return redirect('manage_applications')
 
     applications = []
     try:
