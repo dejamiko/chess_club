@@ -13,19 +13,16 @@
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
                     {% if user not in tournament.participants.all %}
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <input style="float:right;" type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
-                    </form>
-
+                        <form style="float:right;" method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="Join" name="Join_tournament" class="btn btn-secondary">
+                        </form>
                     {% else %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <input style="float:right; margin-left:8px;" type="submit" name="Leave_tournament" value="Leave?" class="btn btn-outline-danger">
-                    </form>
-
-                        <input disabled style="float:right;" type="submit" value="Joined!" class="btn btn-secondary">
+                        <form style="float:right;" method="post">
+                            {% csrf_token %}
+                            <input disabled type="submit" value="Joined!" class="btn btn-secondary">
+                            <input type="submit" name="Leave_tournament" value="Leave?" class="btn btn-outline-danger">
+                        </form>
                     {% endif %}
                 {% endif %}
 
