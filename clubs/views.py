@@ -99,13 +99,17 @@ def user_list(request, user_club):
     if user_club.user_level(request.user) == 'Applicant':
         redirect('home_page')
 
-    if request.GET.get("listed_user"):
-        listed_user = User.objects.get(email=request.GET.get("listed_user"))
+    curr_user = request.user
 
-        listed_user.promote(user_club) if request.GET.get("promote") else None
-        listed_user.demote(user_club) if request.GET.get("demote") else None
-        user_club.make_owner(listed_user) if request.GET.get(
-            "switch_owner") else None
+    if request.method == 'POST':
+        listed_user = User.objects.get(email=request.POST.get("listed_user"))
+        if 'demote' in request.POST and listed_user.user_level(user_club) == 'Officer' and user_club.get_owner() == curr_user:
+            listed_user.demote(user_club)
+        elif 'promote' in request.POST and listed_user.user_level(user_club) == 'Member' and \
+        (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user) :
+            listed_user.promote(user_club)
+        elif 'switch_owner' in request.POST and user_club.get_owner() == curr_user and listed_user.user_level(user_club) == 'Officer':
+            user_club.make_owner(listed_user)
 
         return redirect("users", user_club.id)
 

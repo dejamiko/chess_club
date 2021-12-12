@@ -44,7 +44,8 @@
                         <td>{{ listed_user.1 }}</td>
                         <td>{{ listed_user.0.elo_rating }}</td>
                         <td>
-                            <form action="#" method="get">
+                            <form method="post">
+                              {% csrf_token %}
                                 <input hidden type="text" value="{{ listed_user.0 }}" name="listed_user"/>
 
                                 {% if user_level != "Member" and listed_user.1 == "Applicant" or listed_user.1 == "Member" %}

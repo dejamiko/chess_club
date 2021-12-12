@@ -191,3 +191,15 @@ class UserListTest(TestCase):
                 self.club.make_officer(temp_user)
             if level == "Member":
                 self.club.make_member(temp_user)
+
+    def test_promote_button(self):
+        #TODO: ADD TESTS FOR PROMOTE BUTTON
+        pass
+
+    def test_demote_button(self):
+        #TODO: ADD TESTS FOR DEMOTE BUTTON
+        pass
+
+    def test_switch_ownership_button(self):
+        #TODO: ADD TESTS FOR SWITCH OWNERSHIP BUTTON
+        pass
