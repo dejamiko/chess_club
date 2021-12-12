@@ -119,6 +119,7 @@
                         <ul class="list-group">
                             <li class="list-group-item"><b>Matches played:</b> {{ requested_user.get_number_of_matches_played }}</li>
                             <li class="list-group-item"><b>Matches won:</b> {{ requested_user.get_number_of_matches_won }}</li>
+                            <li class="list-group-item"><b>Matches lost:</b> {{ requested_user.get_number_of_matches_lost }}</li>
                         </ul>
                 {% if requested_user.get_number_of_matches_played > 0 %}
                     </div>
@@ -146,16 +147,20 @@
             const matchChart = new Chart(document.getElementById("match_chart"), {
                 type: 'pie',
                 data: {
-                    labels: ['Wins', 'Losses'],
+                    labels: ['Wins', 'Losses', 'Draws'],
                     datasets: [{
-                        data: [{{ requested_user.get_number_of_matches_won }}, {{ requested_user.get_number_of_matches_lost }}],
+                        data: [{{ requested_user.get_number_of_matches_won }},
+                               {{ requested_user.get_number_of_matches_lost }},
+                               {{ requested_user.get_number_of_matches_played }} - {{ requested_user.get_number_of_matches_won }} - {{ requested_user.get_number_of_matches_lost }}],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 99, 132, 0.2)'
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(128, 128, 128, 0.2)'
                         ],
                         borderColor: [
                             'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)'
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(128, 128, 128, 1)'
                         ],
                         borderWidth: 2
                     }]
@@ -175,16 +180,20 @@
             const tournamentChart = new Chart(document.getElementById("tournament_chart"), {
                 type: 'pie',
                 data: {
-                    labels: ['Wins', 'Losses'],
+                    labels: ['Wins', 'Losses', 'Ongoing'],
                     datasets: [{
-                        data: [{{ requested_user.get_number_of_tournaments_won }}, {{ requested_user.get_number_of_tournaments_lost }}],
+                        data: [{{ requested_user.get_number_of_tournaments_won }},
+                               {{ requested_user.get_number_of_tournaments_lost }},
+                               {{ requested_user.get_number_of_tournaments_participated_in }} - {{ requested_user.get_number_of_tournaments_won }} - {{ requested_user.get_number_of_tournaments_lost }}],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 99, 132, 0.2)'
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(128, 128, 128, 0.2)'
                         ],
                         borderColor: [
                             'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)'
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(128, 128, 128, 1)'
                         ],
                         borderWidth: 2
                     }]
