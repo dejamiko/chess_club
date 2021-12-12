@@ -331,7 +331,7 @@ def create_club(request):
         form = CreateClubForm(request.POST)
         if form.is_valid():
             temp_club = form.save(request.user)
-            EloRating.objects.create(user=request.user, club=temp_club, elo_rating=1000)
+            temp_club.give_elo(request.user)
             return redirect('clubs')
     else:
         form = CreateClubForm()

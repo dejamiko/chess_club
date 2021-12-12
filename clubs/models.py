@@ -163,7 +163,7 @@ class Club(models.Model):
             self.members.add(user)
             self.applicants.remove(user)
             self.save()
-            EloRating.objects.create(user=user, club=self, elo_rating=1000)
+            self.give_elo(user)
         elif self.user_level(user) == "Officer":
             self.members.add(user)
             self.officers.remove(user)
@@ -171,6 +171,8 @@ class Club(models.Model):
         else:
             raise ValueError
 
+    def give_elo(self, user):
+        EloRating.objects.create(user=user, club=self, elo_rating=1000)
 
     def make_user(self, user):
         if self.user_level(user) == "Member":

@@ -245,6 +245,7 @@ class Command(BaseCommand):
             description='After our success with space programmes, we decided to start a chess club',
             owner=owner
         )
+        kerbal.give_elo(owner)
         kerbal.make_member(User.objects.get(email='jeb@example.org'))
         kerbal.make_member(User.objects.get(email='val@example.org'))
         kerbal.make_member(User.objects.get(email='billie@example.org'))
@@ -257,6 +258,7 @@ class Command(BaseCommand):
             description='The Empire State Chess Club',
             owner=owner
         )
+        new_york.give_elo(owner)
         new_york.make_member(User.objects.get(email='jeb@example.org'))
         new_york.make_officer(User.objects.get(email='jeb@example.org'))
         self.generate_club_users(new_york)
@@ -268,6 +270,7 @@ class Command(BaseCommand):
             description='The Chess Club for the Dutch talent',
             owner=owner
         )
+        amsterdam.give_elo(owner)
         self.generate_club_users(amsterdam)
         print('amsterdam created')
         owner = get_user()
@@ -277,6 +280,7 @@ class Command(BaseCommand):
             description='The Russian School of chess',
             owner=owner
         )
+        moscow.give_elo(owner)
         moscow.make_member(User.objects.get(email='billie@example.org'))
         self.generate_club_users(moscow)
         print('moscow created')
