@@ -200,9 +200,10 @@ def home_page(request):
     user_clubs = user_clubs_finder(request)
     return render(request, 'home_page.html', {"date": date.today().strftime("%d/%m/%Y"),
                                               "pun": choice(open(Path(__file__).with_name("puns.txt")).readlines()),
+                                              "today": make_aware(datetime.now()),
                                               # i was going to make puns.txt a static file, but apparently django
                                               # won't 'serve' them when debug mode will be turned off
-                                              "user_tournaments": _get_current_user_tournaments(user_clubs),
+                                              "incomplete_user_tournaments": _get_current_user_tournaments(user_clubs),
                                               "user_clubs": user_clubs, "selected_club": club})
 
 
@@ -210,7 +211,7 @@ def _get_current_user_tournaments(user_clubs):
     temp_list = []
     for club in user_clubs:
         for tournament in club.get_all_tournaments():
-            if not tournament.winner or tournament.deadline < make_aware(datetime.now()):
+            if not tournament.winner:
                 temp_list.append(tournament)
     return temp_list
 
