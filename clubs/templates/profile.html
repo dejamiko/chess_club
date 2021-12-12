@@ -29,7 +29,11 @@
                                     {{ club.1 }}
                                 </td>
                                 <td>
-                                    {{ club.2 }}
+                                    {% if club.0 in user_clubs %}
+                                        {{ club.2 }}
+                                    {% else %}
+                                        ----
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
