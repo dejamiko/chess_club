@@ -262,6 +262,9 @@ class Tournament(models.Model):
 
     def next_pairings(self):
         self.round += 1
+        if self.is_final:
+            return []
+
         if self.elimination_phase:
             previous_pairings = self.pairings_within.all().filter(round=self.round - 1)
             players = []
@@ -306,7 +309,7 @@ class Tournament(models.Model):
         # This method is more evenly spread than just taking the first however many users
         # because the last group could be way smaller. Here the difference is at most 1
         for i in range(0, len(participant_list)):
-            group = self.groups_within.get(group_number=i % self.NUMBER_OF_GROUPS)
+            group = self.groups_within.get(group_number=i % self.NUMBER_OF_GROUPS, tournament=self)
             group.participants.add(participant_list[i])
             group.save()
 
@@ -323,14 +326,15 @@ class Tournament(models.Model):
 
         pairings = []
         for pair in ordering:
-            pairing = Pairing.objects.create(
-                tournament=self,
-                white_player=pair[0],
-                black_player=pair[1],
-                round=self.round
-            )
-            pairing.save()
-            pairings.append(pairing)
+            if pair[1] is not None and pair[0] is not None:
+                pairing = Pairing.objects.create(
+                    tournament=self,
+                    white_player=pair[0],
+                    black_player=pair[1],
+                    round=self.round
+                )
+                pairing.save()
+                pairings.append(pairing)
         
         if len(pairings) == 1 and self.bye.count() == 0:
             self.is_final = True
@@ -354,6 +358,22 @@ class Tournament(models.Model):
     def set_winner(self, winner):
         self.winner = winner
 
+    def make_participant(self, user):
+        if user not in self.participants.all():
+            self.participants.add(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def remove_participant(self, user):
+        if user in self.participants.all():
+            self.participants.remove(user)
+            self.save()
+        else:
+            raise ValueError
+
+    def get_all_participants(self):
+        return self.participants.all()
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
@@ -395,7 +415,8 @@ def pairing_to_match_elimination_phase(pairing, winner=None):
                 loser=pairing.white_player,
                 is_draw=True
             )
-                        
+
+
 def pairing_to_match_group_phase(pairing, winner=None):
     if winner:
         return Match.objects.create(
@@ -411,11 +432,10 @@ def pairing_to_match_group_phase(pairing, winner=None):
         )
         
 
-
 class Group(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="groups_within")
     participants = models.ManyToManyField(User, related_name="participant_in_group")
-    group_number = models.IntegerField(unique=True, blank=False)
+    group_number = models.IntegerField(blank=False)
     pairings = models.ManyToManyField(Pairing, related_name="group_in_which_the_paring_takes_place")
 
     def create_all_pairs(self):
