@@ -168,7 +168,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Hosted by</h6>
-                        <h5 class="card-title"><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5> <!-- TODO add club profile url -->
+                        <h5 class="card-title"><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5>
                         <p class="card-text">{{ tournament.club.description }}</p>
                         <ul class="list-group">
                             <li class="list-group-item"><b>Tournaments hosted:</b> {{ tournament.club.get_number_of_tournaments }}</li>
