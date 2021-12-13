@@ -69,6 +69,7 @@ class ProfileViewTest(TestCase):
     
     def test_get_profile_with_invalid_id_and_no_club_selected(self):
         self.client.login(username=self.user.email, password="Password123")
+        self.club.give_elo(self.target_user)
         url = reverse("profile", kwargs={"user_id": self.user.id+9999})
         response = self.client.get(url, follow=True)
         response_url = reverse("select_club")
@@ -77,6 +78,7 @@ class ProfileViewTest(TestCase):
     
     def test_own_profile_has_email_address(self):
         self.client.login(email=self.user.email, password="Password123")
+        self.club.give_elo(self.target_user)
         url = reverse("profile", kwargs={"user_id": self.user.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -85,6 +87,7 @@ class ProfileViewTest(TestCase):
 
     def test_own_profile_has_edit_button(self):
         self.client.login(email=self.user.email, password="Password123")
+        self.club.give_elo(self.target_user)
         url = reverse("profile", kwargs={"user_id": self.user.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -92,6 +95,7 @@ class ProfileViewTest(TestCase):
         self.assertContains(response, "Edit profile")
 
     def test_no_clubs_section_if_user_has_no_clubs(self):
+        self.club.give_elo(self.target_user)
         self.client.login(email=self.target_user.email, password="Password123")
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -100,6 +104,7 @@ class ProfileViewTest(TestCase):
 
     def test_no_tournaments_section_if_user_has_no_tournaments(self):
         self.client.login(email=self.target_user.email, password="Password123")
+        self.club.give_elo(self.target_user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Saint Louis Chess Tournament")

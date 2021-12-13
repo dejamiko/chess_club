@@ -90,6 +90,7 @@ class CreateTournamentViewTest(TestCase):
         clubs.views.club = self.club
         self.club.make_member(self.jane)
         self.club.make_officer(self.jane)
+        self.club.give_elo(self.user)
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input)
         after_count = Tournament.objects.count()

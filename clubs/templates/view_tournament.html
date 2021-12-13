@@ -157,6 +157,7 @@
                             <li class="list-group-item"><b>Tournaments organised:</b> {{ tournament.organiser.organises.count }}</li>
                             <li class="list-group-item"><b>Tournaments won:</b> {{ tournament.organiser.get_number_of_tournaments_won }}</li>
                             <li class="list-group-item"><b>Chess experience:</b> {{ tournament.organiser.chess_exp }}</li>
+                            <li class="list-group-item"><b>Average elo rating:</b> {{ tournament.organiser.get_mean_elo }}</li>
                         </ul>
                     </div>
                 </div>
