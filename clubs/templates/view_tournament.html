@@ -94,6 +94,7 @@
                                 <th scope="col" width="10%">Round</th>
                                 <th scope="col">White player</th>
                                 <th scope="col">Black player</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         {% for match in tournament.get_all_matches %}
@@ -111,6 +112,7 @@
                                     {% else %} class="table-light"
                                     {% endif %}
                                 >{{ match.pairing.black_player.full_name }}</td>
+                                <td>{% if match.is_draw %}Draw{% else %}{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -204,6 +206,16 @@
                     {select: [3], sortable: false}
                 ],
                 perPage: 5
+            })
+        {% endif %}
+
+        {% if tournament.get_all_matches|length > 0 %}
+            const matchTable = new simpleDatatables.DataTable("#completed-match-table", {
+                columns: [
+                    {select: [0], sort: "desc"},
+                    {select: [1, 2, 3], sortable: false}
+                ],
+                perPage: 15
             })
         {% endif %}
 
