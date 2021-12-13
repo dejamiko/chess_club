@@ -1,0 +1,59 @@
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+
+{% extends 'base_content.html' %}
+{% block content %}
+{% if owned_clubs %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Owned clubs</h1>
+      <table id="club-table" class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Location</th>
+            <th scope="col">Description</th>
+            <th scope="col">Members</th>
+            <th scope="col">Officers</th>
+            <th scope="col">Applicants</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for owned_club in owned_clubs %}
+          <tr>
+            <td><a href="{% url 'club_page' owned_club.id %}">{{ owned_club.name }}</a></td>
+            <td>{{ owned_club.location }}</td>
+            <td>{{ owned_club.description }}</td>
+            <td>{{ owned_club.members.count }}</td>
+            <td>{{ owned_club.officers.count }}</td>
+            <td>{{ owned_club.applicants.count }}</td>
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const dataTable = new simpleDatatables.DataTable("#club-table", {
+    columns: [{select: [1], sortable: false}],
+    perPage: 15,
+    fixedColumns: false
+  })
+</script>
+
+{% else %}
+<div class="card w-50 mx-auto">
+  <div class="card-body">
+    <h5 class="card-title">Create a chess club!</h5>
+    <p class="card-text">You do not own a chess club. Click below to create a club!</p>
+    <a href="{% url 'create_club' %}" class="btn btn-secondary">Create club</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

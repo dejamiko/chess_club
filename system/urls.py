@@ -26,6 +26,7 @@ urlpatterns = [
     path("home/no_club", views.user_list_no_club, name="no_club"),
     path("home/select_club", views.user_list_select_club, name="select_club"),
     path("home/", views.home_page, name="home_page"),
+    path("home/owned_clubs", views.owned_club_list, name="owned_clubs"),
     path("sign_up/", views.sign_up, name="sign_up"),
     path("", views.welcome_screen, name="welcome_screen"),
     path("log_in/", views.log_in, name="log_in"),

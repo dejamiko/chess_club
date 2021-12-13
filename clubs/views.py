@@ -158,11 +158,30 @@ def user_applied_clubs_finder(request):
     return user_clubs
 
 @login_required
+def owned_clubs_finder(request):
+    owned_clubs = []
+    clubs = Club.objects.all()
+
+    for owned_club in clubs:
+        if request.user == owned_club.owner:
+            owned_clubs.append(owned_club)
+
+    return owned_clubs
+
+@login_required
+def owned_club_list(request):
+    owned_clubs = owned_clubs_finder(request)
+    user_clubs = user_clubs_finder(request)
+
+    return render(request, "owner_club_list.html",
+                  {"user_clubs": user_clubs, "selected_club": club, "owned_clubs": owned_clubs})
+
+
+@login_required
 def club_list(request):
     curr_user = request.user
     already_exists = False
     if request.method == 'POST':
-        #club_name = request.POST['name']
         club_name = request.POST.get('name')
 
         temp_club = Club.objects.get(name=club_name)
