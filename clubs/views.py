@@ -27,29 +27,33 @@ def login_prohibited(view_function):
 @login_required
 def manage_applications(request):
     user = request.user
-    if request.method == 'POST' and 'accepted' in request.POST:
+    if request.method == 'POST':
         username = request.POST.get('uname')  # the user to promote
         club_name = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=club_name)
         temp_user = User.objects.get(email=username)
 
-        if temp_user not in temp_club.get_all_users():
-            temp_club.make_member(temp_user)
-            temp_club.save()
-            form_to_be_deleted = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
-            form_to_be_deleted.delete()
-            return redirect('manage_applications')
+        try:
+            temp_app = ClubApplicationModel.objects.get(associated_club = temp_club,
+            associated_user = temp_user
+            )
+        except ClubApplicationModel.DoesNotExist:
+            temp_app = None
 
-    if request.method == 'POST' and 'rejected' in request.POST:
-        username = request.POST.get('uname')  # the user to promote
-        club_name = request.POST.get('clubname')  # the club they wish to become a member of
-        temp_club = Club.objects.get(name=club_name)
-        temp_user = User.objects.get(email=username)
-        form_to_be_rejected = ClubApplicationModel.objects.get(associated_club=temp_club, associated_user=temp_user)
-        if form_to_be_rejected.is_rejected != True:
-            form_to_be_rejected.is_rejected = True
-            form_to_be_rejected.save()
-            return redirect('manage_applications')
+        if 'accepted' in request.POST:
+            if temp_user not in temp_club.get_all_users() and temp_app is not None:
+                temp_club.make_member(temp_user)
+                temp_club.save()
+                temp_app.delete()
+                return redirect('manage_applications')
+
+        if 'rejected' in request.POST:
+
+            if temp_app is not None and temp_user not in temp_club.get_all_users():
+                if temp_app.is_rejected != True:
+                    temp_app.is_rejected = True
+                    temp_app.save()
+                    return redirect('manage_applications')
 
     applications = []
     try:
@@ -160,17 +164,19 @@ def user_applied_clubs_finder(request):
 @login_required
 def club_list(request):
     curr_user = request.user
-    already_exists = False
     if request.method == 'POST':
-        #club_name = request.POST['name']
         club_name = request.POST.get('name')
 
         temp_club = Club.objects.get(name=club_name)
-        club_applicants = temp_club.get_all_applicants()
-        for applicant in club_applicants:
-            if applicant == curr_user:
-                already_exists = True
-        if not already_exists:
+
+        try:
+            temp_app = ClubApplicationModel.objects.get(associated_club = temp_club,
+            associated_user = curr_user
+            )
+        except ClubApplicationModel.DoesNotExist:
+            temp_app = None
+
+        if temp_app is None and curr_user not in temp_club.get_all_users():
             club_application = ClubApplicationModel(
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)

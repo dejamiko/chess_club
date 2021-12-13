@@ -44,7 +44,7 @@ class ManageApplicationViewTest(TestCase):
 
 
     def test_submit_creates_application(self):
-        self.client.login(email=self.first_user.email, password='Password123')
+        self.client.login(email=self.second_user.email, password='Password123')
         temp = Club.objects.count()
         before_count = ClubApplicationModel.objects.count()
         response = self.client.post(self.apply_url, {'name' : self.second_club.name})
@@ -140,28 +140,26 @@ class ManageApplicationViewTest(TestCase):
 
     def test_owner_cannot_apply_to_their_club(self):
         self.client.login(email=self.first_user.email, password='Password123')
+        before_count = ClubApplicationModel.objects.count()
         temp = self.client.post(self.apply_url, {'name' : self.first_club.name})
-        with self.assertRaises(ValueError):
-            response = self.client.post(self.url, {'uname' : self.first_user.email,
-            'clubname': self.first_club.name, 'accepted': True })
+        after_count = ClubApplicationModel.objects.count()
+        self.assertEqual(before_count, after_count)
+
 
     def test_user_cannot_apply_to_their_club(self):
+        self.second_club.make_member(self.second_user)
+        before_count = ClubApplicationModel.objects.count()
         self.client.login(email=self.second_user.email, password='Password123')
         temp = self.client.post(self.apply_url, {'name' : self.second_club.name})
-        response = self.client.post(self.url, {'uname' : self.second_user.email,
-        'clubname': self.second_club.name, 'accepted': True})
+        after_count = ClubApplicationModel.objects.count()
+        self.assertEqual(before_count, after_count)
 
-        self.client.login(email=self.second_user.email, password='Password123')
-        temp = self.client.post(self.apply_url, {'name' : self.second_club.name })
 
-        with self.assertRaises(ValueError):
-            response = self.client.post(self.url, {'uname' : self.second_user.email,
-            'clubname': self.second_club.name, 'accepted': True })
 
     def test_only_officers_and_owners_can_see_manage_applications_navbar_icon(self):
         self.client.login(email=self.first_user.email, password='Password123')
         # NOTE: this may need to change as the URLs change
-        select_club = self.client.get('/home/1/users/')
+        select_club = self.client.get(reverse('users', kwargs={"club_id": self.first_club.id}))
         html_content = str(select_club.content)
         str_to_test = """href="/home/clubs/manage_applications/">"""
         res = str_to_test in html_content

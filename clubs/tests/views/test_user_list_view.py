@@ -218,5 +218,6 @@ class UserListTest(TestCase):
         self.client.get(self.url)
         self.assertNotEquals(self.user, self.club.get_owner())
         self.client.post(self.url, {'listed_user': self.user.email, 'switch_owner': True})
-        self.assertEquals(self.user, self.club.get_owner())
-        self.assertIn(self.john, self.club.get_officers())
+        updated_club = Club.objects.get(name=self.club.name)
+        self.assertEquals(self.user, updated_club.get_owner())
+        self.assertIn(self.john, updated_club.get_officers())
