@@ -1,9 +1,11 @@
+from datetime import datetime
 import random
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
+from django.utils.timezone import make_aware
 from libgravatar import Gravatar
 import math
 
@@ -194,6 +196,7 @@ class Club(models.Model):
         if self.user_level(user) == "Member":
             self.members.remove(user)
             self.save()
+            EloRating.objects.filter(user=user, club=self).delete()
         else:
             raise ValueError
 
@@ -393,6 +396,16 @@ class Tournament(models.Model):
 
     def get_all_participants(self):
         return self.participants.all()
+    
+    def get_status(self):
+        if self.winner:
+            return "Completed"
+        elif self.deadline < make_aware(datetime.now()):
+            return f"Round {self.round}"
+        elif self.participants.count() > 95:
+            return "Applications full"
+        else:
+            return "Taking applications"
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
