@@ -18,7 +18,7 @@ class UserListTest(TestCase):
         self.url = reverse("users", kwargs={'club_id': self.club.id})
 
     def test_user_list_url(self):
-        self.assertEqual(self.url, "/home/1/users/")
+        self.assertEqual(self.url, "/1/users")
 
     def test_logged_in_redirect(self):
         redirect_url = reverse_with_next('log_in', self.url)

@@ -30,7 +30,7 @@ class CreateTournamentViewTest(TestCase):
         }
 
     def test_create_tournament_url(self):
-        self.assertEqual(self.url, "/home/create_tournament")
+        self.assertEqual(self.url, "/create_tournament")
     
     def test_get_create_tournament_without_club_selected(self):
         self.client.login(email=self.user.email, password="Password123")

@@ -20,7 +20,7 @@ class LogOutViewTestCase(TestCase, LogInTester):
                              status_code=302, target_status_code=200)
 
     def test_log_out_url(self):
-        self.assertEqual(self.url, '/home/log_out/')
+        self.assertEqual(self.url, '/log_out')
 
     def test_get_log_out(self):
         self.client.login(email=self.user.email, password='Password123')
