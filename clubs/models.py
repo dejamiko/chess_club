@@ -119,22 +119,20 @@ class User(AbstractUser):
         return counter
     
     def get_highest_elo(self):
-        temp_array = []
-        for elo in self.user_elo.all():
-            temp_array.append(elo.elo_rating)
-        return max(temp_array)
+        return max(self._get_all_elos())
     
     def get_lowest_elo(self):
-        temp_array = []
-        for elo in self.user_elo.all():
-            temp_array.append(elo.elo_rating)
-        return min(temp_array)
+        return min(self._get_all_elos())
     
     def get_mean_elo(self):
+        all_elos = self._get_all_elos()
+        return round(sum(all_elos) / len(all_elos), 2)
+    
+    def _get_all_elos(self):
         temp_array = []
         for elo in self.user_elo.all():
             temp_array.append(elo.elo_rating)
-        return round(sum(temp_array) / len(temp_array), 2)
+        return temp_array
 
 
 class Club(models.Model):
