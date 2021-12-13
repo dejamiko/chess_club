@@ -337,6 +337,7 @@ class Command(BaseCommand):
             description=description,
             owner=owner
         )
+        club.give_elo(owner)
         return club
 
     def create_tournament(self, club, past=False):
