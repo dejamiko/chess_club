@@ -402,8 +402,8 @@ def club_page(request, club_id):
     requested_club = Club.objects.get(id=club_id)
     already_exists = False
 
-    if request.method == 'POST':
-        club_name = request.POST['name']
+    if request.method == "POST":
+        club_name = request.POST["name"]
         temp_club = Club.objects.get(name=club_name)
         club_applicants = temp_club.get_all_applicants()
         for applicant in club_applicants:
@@ -419,6 +419,7 @@ def club_page(request, club_id):
             temp_club.save()
 
     user_clubs = user_clubs_finder(request)
-    return render(request, 'club_page.html',
-                  {'club': requested_club, "today": make_aware(datetime.now()), 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
-    # 'owner_elo': EloRating.objects.get(user=club.owner, club=club),
+    return render(request, "club_page.html", {"club": requested_club, 
+                                              "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
+                                              "today": make_aware(datetime.now()), "curr_user": request.user,
+                                              "user_clubs": user_clubs, "selected_club": club})
