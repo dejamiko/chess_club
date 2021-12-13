@@ -129,7 +129,7 @@
                                 <th scope="col"></th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Chess experience</th>
-                                <th scope="col">Elo rating</th>
+                                <th scope="col">Average elo rating</th>
                             </tr>
                         </thead>
                         {% for participant in tournament.participants.all %}
@@ -139,7 +139,7 @@
                                 </td>
                                 <td><a href="{% url 'profile' participant.id %}">{{ participant.full_name }}</a></td>
                                 <td>{{ participant.chess_exp }}</td>
-                                <td>{{ participant.elo_rating }}</td>
+                                <td>{{ participant.get_mean_elo }}</td>
                             </tr>
                         {% endfor %}
                     </table>
