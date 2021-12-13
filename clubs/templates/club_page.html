@@ -57,8 +57,6 @@
                             You are a <b>member</b> of this club.
                         {% elif curr_user in club.get_officers %}
                             You are an <b>officer</b> of this club.
-                        {% elif curr_user in club.get %}
-                            You are a <b>member</b> of this club.
                         {% elif curr_user == club.get_owner %}
                             You are the <b>owner</b> of this club.
                         {% else %}
