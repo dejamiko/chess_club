@@ -72,6 +72,7 @@
 
             <ul class="list-group">
                 <li class="list-group-item"><b>Location:</b> {{ club.location }}</li>
+                <li class="list-group-item"><b>Tournaments hosted:</b> {{ club.get_number_of_tournaments }}</li>
             </ul>
 
             </br>
@@ -88,6 +89,16 @@
                     </ul>
                 </div>
             </div>
+
+            </br>
+
+            <ul class="list-group">
+                <li class="list-group-item"><b>Number of officers:</b> {{ club.officers.count }}</li>
+                <li class="list-group-item"><b>Number of members:</b> {{ club.members.count }}</li>
+                <li class="list-group-item"><b>Number of applicants:</b> {{ club.applicants.count }}</li>
+            </ul>
+
+            </br>
         </div>
     </div>
 </div>
