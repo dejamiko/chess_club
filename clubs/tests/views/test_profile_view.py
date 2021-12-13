@@ -1,6 +1,6 @@
 """Unit tests of the profile view"""
 from django.test import TestCase
-from clubs.models import Tournament, User, Club
+from clubs.models import Tournament, User, Club, EloRating
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 import clubs.views
@@ -8,9 +8,12 @@ import clubs.views
 class ProfileViewTest(TestCase):
     """Unit tests of the profile view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", "clubs/tests/fixtures/other_users.json",
-                "clubs/tests/fixtures/default_club.json", "clubs/tests/fixtures/default_tournament.json"]
+                "clubs/tests/fixtures/default_club.json", "clubs/tests/fixtures/default_tournament.json",
+                "clubs/tests/fixtures/default_elo.json",
+                "clubs/tests/fixtures/other_elo.json"]
 
     def setUp(self):
+        EloRating.objects.filter(pk=2).delete()
         self.user = User.objects.get(email="johndoe@example.com")
         self.target_user = User.objects.get(email="janedoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")

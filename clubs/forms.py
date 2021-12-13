@@ -76,7 +76,6 @@ class CreateClubForm(forms.ModelForm):
         )
         return club
 
-
 class CreateTournamentForm(forms.ModelForm):    
     def __init__(self, post=None, club=None, current_user=None, *args, **kwargs):
         if post:
