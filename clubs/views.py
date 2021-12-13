@@ -399,9 +399,7 @@ def view_tournament(request, tournament_id):
 
 @login_required
 def club_page(request, club_id):
-    global club
-    club = Club.objects.get(id=club_id)
-    curr_user = request.user
+    requested_club = Club.objects.get(id=club_id)
     already_exists = False
 
     if request.method == 'POST':
@@ -409,24 +407,18 @@ def club_page(request, club_id):
         temp_club = Club.objects.get(name=club_name)
         club_applicants = temp_club.get_all_applicants()
         for applicant in club_applicants:
-            if applicant == curr_user:
+            if applicant == request.user:
                 already_exists = True
         if not already_exists:
             club_application = ClubApplicationModel(
                 associated_club=Club.objects.get(name=club_name),
-                associated_user=curr_user)
+                associated_user=request.user)
             club_application.save()
             temp_club = Club.objects.get(name=club_name)
-            temp_club.make_applicant(curr_user)
+            temp_club.make_applicant(request.user)
             temp_club.save()
-
-    try:
-        applications = ClubApplicationModel.objects.all()
-    except ClubApplicationModel.DoesNotExist:
-        applications = None
-        return redirect('clubs')
 
     user_clubs = user_clubs_finder(request)
     return render(request, 'club_page.html',
-                  {'club': club, "today": make_aware(datetime.now()), 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
+                  {'club': requested_club, "today": make_aware(datetime.now()), 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
     # 'owner_elo': EloRating.objects.get(user=club.owner, club=club),
