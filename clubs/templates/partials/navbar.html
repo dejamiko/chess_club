@@ -63,6 +63,10 @@
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
+                                {% if selected_club %}
+                                    <li><a class="dropdown-item" href="{% url 'club_page' selected_club.id %}">View current club</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
                                 {% for club in user_clubs %}
                                 <li><a class="dropdown-item" href="{% url 'users' club.id %}">{{ club.name }}</a></li>
                                 {% endfor %}
