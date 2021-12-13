@@ -12,7 +12,6 @@ from django.utils.timezone import make_aware
 from random import choice
 from pathlib import Path
 
-
 global club
 club = None
 
@@ -143,7 +142,6 @@ def user_clubs_finder(request):
     for temp_club in clubs:
         if request.user in temp_club.get_all_users():
             user_clubs.append(temp_club)
-
     return user_clubs
 
 
