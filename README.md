@@ -8,8 +8,6 @@ The members of the team are:
 - Zafira Shah
 - Brendon Zoto
 
-*Add any further information about the team here, such as absent team members.*
-
 ## Project structure
 The project is called `system`.  It currently consists of a single app `clubs`.
 
@@ -47,7 +45,11 @@ Run all tests with:
 $ python3 manage.py test
 ```
 
-*The above instructions should work in your version of the application.  If there are deviations, declare those here in bold.  Otherwise, remove this line.*
-
 ## Sources
-The packages used by this application are specified in `requirements.txt`. In addition, the animated background used on the Welcome screen is sourced from [VantaJS](https://www.vantajs.com/?effect=net).
+The packages used by this application are specified in `requirements.txt`. In addition:
+- The animated background used on the Welcome screen is sourced from [VantaJS](https://www.vantajs.com/?effect=net),
+- The daily Chess puzzle on the homepage is from [ChessPuzzle.net](https://chesspuzzle.net/Daily),
+- The pie charts on user profile pages are made using [Chart.js](https://www.chartjs.org),
+- The sortable data tables are made using [Simple-DataTables](https://github.com/fiduswriter/Simple-DataTables),
+- The [chess pieces glyph](https://fontawesome.com/v5.15/icons/chess?style=solid) by the navbar logo, and the [quotation mark glyph](https://fontawesome.com/v5.15/icons/quote-left?style=solid) by the homepage pun, are from [FontAwesome](https://fontawesome.com/),
+- The font used is `IBM Plex Sans` sourced from [Google Fonts](https://fonts.google.com/specimen/IBM+Plex+Sans).
