@@ -24,7 +24,7 @@
                         </thead>
                         {% for club in all_user_clubs %}
                             <tr>
-                                <td><a href="#">{{ club.0.name }}</a></td> <!-- TODO add club profile url -->
+                                <td><a href="{% url 'club_page' club.0.id %}">{{ club.0.name }}</a></td>
                                 <td>
                                     {{ club.1 }}
                                 </td>
