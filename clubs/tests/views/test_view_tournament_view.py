@@ -37,6 +37,7 @@ class ViewTournamentTest(TestCase):
 
     def test_get_view_tournament_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
+        self.club.give_elo(self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "view_tournament.html")
@@ -82,6 +83,7 @@ class ViewTournamentTest(TestCase):
 
     def test_no_join_buttons_if_not_in_club(self):
         self.client.login(email=self.jane.email, password="Password123")
+        self.club.give_elo(self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Join")
@@ -90,6 +92,7 @@ class ViewTournamentTest(TestCase):
 
     def test_no_join_buttons_if_organiser(self):
         self.client.login(email=self.user.email, password="Password123")
+        self.club.give_elo(self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Join")
@@ -98,6 +101,7 @@ class ViewTournamentTest(TestCase):
 
     def test_join_buttons_if_not_participant_but_in_club(self):
         self.client.login(email=self.jane.email, password="Password123")
+        self.club.give_elo(self.user)
         self.club.make_applicant(self.jane)
         self.club.make_member(self.jane)
         response = self.client.get(self.url)
@@ -106,6 +110,7 @@ class ViewTournamentTest(TestCase):
 
     def test_join_buttons_if_already_participant(self):
         self.client.login(email=self.michael.email, password="Password123")
+        self.club.give_elo(self.user)
         self.club.make_applicant(self.michael)
         self.club.make_member(self.michael)
         response = self.client.get(self.url)
@@ -117,6 +122,7 @@ class ViewTournamentTest(TestCase):
         self.client.login(email=self.jane.email, password="Password123")
         self.club.make_applicant(self.jane)
         self.club.make_member(self.jane)
+        self.club.give_elo(self.user)
         tournament_before_join = Tournament.objects.get(name = "Saint Louis Chess Tournament")
         self.assertNotIn(self.jane, tournament_before_join.get_all_participants())
         response = self.client.post(self.url, {'Join_tournament': True})
@@ -127,6 +133,7 @@ class ViewTournamentTest(TestCase):
         self.client.login(email=self.michael.email, password="Password123")
         self.club.make_applicant(self.michael)
         self.club.make_member(self.michael)
+        self.club.give_elo(self.user)
         tournament_before_leave = Tournament.objects.get(name = "Saint Louis Chess Tournament")
         self.assertIn(self.michael, tournament_before_leave.get_all_participants())
         response = self.client.post(self.url, {'Leave_tournament': True})
@@ -135,6 +142,7 @@ class ViewTournamentTest(TestCase):
     
     def test_user_cannot_join_if_96_participants(self):
         self.client.login(email=self.user.email, password="Password123")
+        self.club.give_elo(self.user)
 
         _create_test_users(100, 94)
         for i in range(100, 194):
@@ -155,18 +163,18 @@ class ViewTournamentTest(TestCase):
         c.make_member(user2)
 
     def test_user_cannot_join_tournament_after_deadline(self):
-
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.give_elo(self.user)
         # create a time that is 5 minutes before current time
         d = datetime.now() - timedelta(minutes = 5)
         make_aware_date = make_aware(d)
 
         late_tournament = Tournament.objects.create(
-        club = self.other_club,
-        name = "Late Tournament",
-        description = "This tournament's deadline has passed",
-        organiser = self.user,
-        deadline = make_aware_date
+            club = self.other_club,
+            name = "Late Tournament",
+            description = "This tournament's deadline has passed",
+            organiser = self.user,
+            deadline = make_aware_date
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)
@@ -184,18 +192,18 @@ class ViewTournamentTest(TestCase):
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
 
     def test_user_cannot_leave_tournament_after_deadline(self):
-
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.give_elo(self.user)
         # create a time that is 5 minutes before current time
         d = datetime.now() - timedelta(minutes = 5)
         make_aware_date = make_aware(d)
 
         late_tournament = Tournament.objects.create(
-        club = self.other_club,
-        name = "Late Tournament",
-        description = "This tournament's deadline has passed",
-        organiser = self.user,
-        deadline = make_aware_date
+            club = self.other_club,
+            name = "Late Tournament",
+            description = "This tournament's deadline has passed",
+            organiser = self.user,
+            deadline = make_aware_date  
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)
