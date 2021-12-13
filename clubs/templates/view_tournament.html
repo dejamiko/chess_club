@@ -34,7 +34,7 @@
 
                 {% if tournament.organiser == user  %}
                     {% if tournament.all_pairings_completed or not deadline_passed %}
-                    {% else %}
+                    {% elif tournament.participants.count > 1 %}
                         {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
                             <h5>Pairings</h5>
                             <form action="#" method="get">
@@ -123,6 +123,9 @@
                 {% elif deadline_passed and tournament.participants.count == 0 %}
                     <p>No one applied to participate, how sad :(</p>
                 {% else %}
+                    {% if tournament.participants.count < 2 %}
+                        <p>Not enough people applied to participate, how sad :(</p>
+                    {% endif %}
                     <table id="participant-table" class="table table-hover">
                         <thead>
                             <tr>
