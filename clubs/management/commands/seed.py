@@ -341,7 +341,7 @@ class Command(BaseCommand):
         return club
 
     def create_tournament(self, club, past=False):
-        name = f'{club.name} {club.get_all_tournaments().count() + 1} Tournament'
+        name = f'{club.name} Tournament #{club.get_all_tournaments().count() + 1}'
         description = self.faker.text(max_nb_chars=500)
         officers = list(club.officers.all())
         random.shuffle(officers)
