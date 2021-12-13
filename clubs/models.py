@@ -117,6 +117,24 @@ class User(AbstractUser):
             if tournament.winner and tournament.winner != self:
                 counter += 1
         return counter
+    
+    def get_highest_elo(self):
+        temp_array = []
+        for elo in self.user_elo.all():
+            temp_array.append(elo.elo_rating)
+        return max(temp_array)
+    
+    def get_lowest_elo(self):
+        temp_array = []
+        for elo in self.user_elo.all():
+            temp_array.append(elo.elo_rating)
+        return min(temp_array)
+    
+    def get_mean_elo(self):
+        temp_array = []
+        for elo in self.user_elo.all():
+            temp_array.append(elo.elo_rating)
+        return round(sum(temp_array) / len(temp_array), 2)
 
 
 class Club(models.Model):
