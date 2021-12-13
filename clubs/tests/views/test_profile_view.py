@@ -27,7 +27,7 @@ class ProfileViewTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_profile_url(self):
-        self.assertEqual(self.url, f"/home/profile/{self.target_user.id}")
+        self.assertEqual(self.url, f"/user/{self.target_user.id}")
 
     def test_get_profile_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")

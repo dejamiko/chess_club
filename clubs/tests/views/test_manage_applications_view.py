@@ -28,7 +28,7 @@ class ManageApplicationViewTest(TestCase):
 
 
     def test_manage_applications_url(self):
-        self.assertEqual(self.url, '/home/clubs/manage_applications/')
+        self.assertEqual(self.url, '/manage_applications')
 
     def test_manage_applications_list(self):
         self.client.login(email=self.first_user.email, password="Password123")
@@ -162,10 +162,9 @@ class ManageApplicationViewTest(TestCase):
 
     def test_only_officers_and_owners_can_see_manage_applications_navbar_icon(self):
         self.client.login(email=self.first_user.email, password='Password123')
-        # NOTE: this may need to change as the URLs change
-        select_club = self.client.get('/home/1/users/')
+        select_club = self.client.get('/1/users')
         html_content = str(select_club.content)
-        str_to_test = """href="/home/clubs/manage_applications/">"""
+        str_to_test = """href="/manage_applications">"""
         res = str_to_test in html_content
         self.assertTrue(res)
 
@@ -175,9 +174,8 @@ class ManageApplicationViewTest(TestCase):
         first_application = self.client.post(self.apply_url, {'name' : self.second_club.name})
         response = self.client.post(self.url, {'uname' : self.second_user.email,
         'clubname': self.second_club.name, 'accepted': True })
-        # NOTE: this may need to change as the URLs change
-        select_club = self.client.get('/home/2/users/')
+        select_club = self.client.get('/2/users')
         html_content = str(select_club.content)
-        str_to_test = """href="/home/clubs/manage_applications/">"""
+        str_to_test = """href="/manage_applications">"""
         res = str_to_test in html_content
         self.assertFalse(res)

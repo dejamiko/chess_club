@@ -33,7 +33,7 @@ class ViewTournamentTest(TestCase):
         self.url = reverse("view_tournament", kwargs={"tournament_id": self.tournament.id})
 
     def test_view_tournament_url(self):
-        self.assertEqual(self.url, f"/home/tournament/{self.tournament.id}")
+        self.assertEqual(self.url, f"/tournament/{self.tournament.id}")
 
     def test_get_view_tournament_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")

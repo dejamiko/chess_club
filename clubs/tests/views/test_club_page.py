@@ -23,7 +23,7 @@ class ClubPageViewTest(TestCase):
         self.url = reverse("club_page", kwargs={"club_id": self.club.id})
 
     def test_club_page_url(self):
-        self.assertEqual(self.url, f"/home/club/{self.club.id}")
+        self.assertEqual(self.url, f"/club/{self.club.id}")
 
     def test_club_page_has_club_info(self):
         self.club.give_elo(self.club.owner)
