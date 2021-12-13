@@ -222,7 +222,8 @@ def _get_current_user_tournaments(user_clubs):
     for club in user_clubs:
         for tournament in club.get_all_tournaments():
             if not tournament.winner:
-                temp_list.append(tournament)
+                if not(tournament.deadline < make_aware(datetime.now()) and tournament.participants.count() < 2):
+                    temp_list.append(tournament)
     return temp_list
 
 

@@ -21,12 +21,12 @@ class ClubPageViewTest(TestCase):
         self.target_user = User.objects.get(email="janedoe@example.com")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.url = reverse("club_page", kwargs={"club_id": self.club.id})
+        self.club.give_elo(self.club.owner)
 
     def test_club_page_url(self):
         self.assertEqual(self.url, f"/club/{self.club.id}")
 
     def test_club_page_has_club_info(self):
-        self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
@@ -40,7 +40,6 @@ class ClubPageViewTest(TestCase):
         self.assertContains(response, "<b>Number of applicants:</b> 0")
 
     def test_club_page_has_tournament_info(self):
-        self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
@@ -53,7 +52,6 @@ class ClubPageViewTest(TestCase):
             self.assertContains(response, tournament.get_status())
     
     def test_club_page_has_owner_info(self):
-        self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)

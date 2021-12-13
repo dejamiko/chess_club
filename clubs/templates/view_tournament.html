@@ -34,7 +34,7 @@
 
                 {% if tournament.organiser == user  %}
                     {% if tournament.all_pairings_completed or not deadline_passed %}
-                    {% else %}
+                    {% elif tournament.participants.count > 1 %}
                         {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
                             <h5>Pairings</h5>
                             <form action="#" method="get">
@@ -123,13 +123,16 @@
                 {% elif deadline_passed and tournament.participants.count == 0 %}
                     <p>No one applied to participate, how sad :(</p>
                 {% else %}
+                    {% if tournament.participants.count < 2 %}
+                        <p>Not enough people applied to participate, how sad :(</p>
+                    {% endif %}
                     <table id="participant-table" class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col"></th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Chess experience</th>
-                                <th scope="col">Elo rating</th>
+                                <th scope="col">Average elo rating</th>
                             </tr>
                         </thead>
                         {% for participant in tournament.participants.all %}
@@ -139,7 +142,7 @@
                                 </td>
                                 <td><a href="{% url 'profile' participant.id %}">{{ participant.full_name }}</a></td>
                                 <td>{{ participant.chess_exp }}</td>
-                                <td>{{ participant.elo_rating }}</td>
+                                <td>{{ participant.get_mean_elo }}</td>
                             </tr>
                         {% endfor %}
                     </table>
