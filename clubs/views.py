@@ -109,10 +109,15 @@ def user_list(request, user_club):
     if request.GET.get("listed_user"):
         listed_user = User.objects.get(email=request.GET.get("listed_user"))
 
-        listed_user.promote(user_club) if request.GET.get("promote") else None
-        listed_user.demote(user_club) if request.GET.get("demote") else None
-        user_club.make_owner(listed_user) if request.GET.get(
-            "switch_owner") else None
+        if request.GET.get("promote"):
+            listed_user.promote(user_club)
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was promoted to {user_club.user_level(listed_user).lower()}!")
+        if request.GET.get("demote"):
+            listed_user.demote(user_club)
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was demoted to {user_club.user_level(listed_user).lower()}!")
+        if request.GET.get("switch_owner"):
+            user_club.make_owner(listed_user)
+            messages.add_message(request, messages.SUCCESS, f"You switched ownership with {listed_user.full_name()}!")
 
         return redirect("users", user_club.id)
 
@@ -162,7 +167,6 @@ def club_list(request):
     curr_user = request.user
     already_exists = False
     if request.method == 'POST':
-        #club_name = request.POST['name']
         club_name = request.POST.get('name')
 
         temp_club = Club.objects.get(name=club_name)
@@ -177,7 +181,6 @@ def club_list(request):
             club_application.save()
             temp_club = Club.objects.get(name=club_name)
             temp_club.make_applicant(curr_user)
-            new_club_applicants = temp_club.get_all_applicants()
             temp_club.save()
 
     applications = []
@@ -331,12 +334,13 @@ def create_club(request):
         if form.is_valid():
             temp_club = form.save(request.user)
             temp_club.give_elo(request.user)
-            return redirect('clubs')
+            messages.add_message(request, messages.SUCCESS, "Club successfully created!")
+            return redirect("club_page", club_id=temp_club.id)
     else:
         form = CreateClubForm()
     user_clubs = user_clubs_finder(request)
     return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
-    # redirect to home page with new club as drop down choice when user story done
+
 
 @login_required
 def create_tournament(request):
@@ -347,11 +351,13 @@ def create_tournament(request):
                 form = CreateTournamentForm(post=request.POST, club=club, current_user=request.user)
                 if form.is_valid():
                     new_tournament = form.save(request.user, club.id)
+                    messages.add_message(request, messages.SUCCESS, "Tournament successfully created!")
                     return redirect("view_tournament", tournament_id=new_tournament.id)
             else:
                 form = CreateTournamentForm(club=club, current_user=request.user)
             return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
         else:
+            messages.add_message(request, messages.ERROR, "Only officers or owners can create tournaments!")
             return redirect("home_page")
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
