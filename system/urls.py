@@ -20,7 +20,6 @@ from clubs import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("home/<club_id>/users/", views.user_list_main, name="users"),
-    path("home/<club_id>/club/", views.view_club, name="view_club"),
     path("home/create_tournament", views.create_tournament, name="create_tournament"),
     path("home/tournament/<tournament_id>", views.view_tournament, name="view_tournament"),
     path("home/clubs/", views.club_list, name="clubs"),
