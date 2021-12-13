@@ -26,6 +26,7 @@ class ClubPageViewTest(TestCase):
         self.assertEqual(self.url, f"/home/club/{self.club.id}")
 
     def test_club_page_has_all_info(self):
+        self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
@@ -36,6 +37,7 @@ class ClubPageViewTest(TestCase):
         self.assertContains(response, "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.")
 
     def test_has_tournament_list(self):
+        self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
