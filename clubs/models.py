@@ -180,6 +180,7 @@ class Club(models.Model):
         if self.user_level(user) == "Member":
             self.members.remove(user)
             self.save()
+            EloRating.objects.filter(user=user, club=self).delete()
         else:
             raise ValueError
 
