@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
-from os import path
-import django_heroku
+from os import path, environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,4 +142,6 @@ MESSAGE_TAGS =  {
 }
 
 # Activate django_heroku
-django_heroku.settings(locals())
+if "/app" in environ['HOME']:
+    import django_heroku
+    django_heroku.settings(locals())
