@@ -9,23 +9,31 @@
                 <h1>Hello, {{ user.first_name }}!</h1>
                 <p><span class="fas fa-quote-left"></span>&nbsp;&nbsp;{{ pun }}</p>
 
-                <h5>Internal tournaments</h5>
-                {% if user_tournaments %}
+                <h5>Incomplete tournaments</h5>
+                {% if incomplete_user_tournaments %}
                     <table id="user-tournament-table" class="table table-hover">
                         <thead>
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">Hosting club</th>
-                            <th scope="col">Round</th>
+                            <th scope="col">Status</th>
                             <th scope="col">Start date</th>
                         </tr>
                         </thead>
                         <tbody>
-                            {% for tournament in user_tournaments %}
+                            {% for tournament in incomplete_user_tournaments %}
                                 <tr>
                                     <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                     <td>{{ tournament.club.name }}</td>
-                                    <td>{{ tournament.round }}</td>
+                                    <td>
+                                        {% if tournament.deadline < today %}
+                                            Round {{ tournament.round }}
+                                        {% elif tournament.participants.count > 95 %}
+                                            Applications full
+                                        {% else %}
+                                            Taking applications
+                                        {% endif %}
+                                    </td>
                                     <td>{{ tournament.deadline }}</td>
                                 </tr>
                             {% endfor %}
@@ -59,7 +67,7 @@
                 document.getElementById("puzzle-solution").href = daily_puzzle.Link.replace("Puzzle", "Solution");
             })
 
-        {% if user_tournaments %}
+        {% if incomplete_user_tournaments %}
             const userTournamentTable = new simpleDatatables.DataTable("#user-tournament-table", {
                 perPage: 5
             })
