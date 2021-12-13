@@ -87,7 +87,6 @@
 
                 {% if tournament.get_all_matches|length > 0 %}
                     <h5>Completed matches</h5>
-                    <p class="text-muted">If a match is coloured in grey, it was a draw!</p>
                     <table id="completed-match-table" class="table table-hover">
                         <thead>
                             <tr>
@@ -158,7 +157,7 @@
                             <li class="list-group-item"><b>Tournaments organised:</b> {{ tournament.organiser.organises.count }}</li>
                             <li class="list-group-item"><b>Tournaments won:</b> {{ tournament.organiser.get_number_of_tournaments_won }}</li>
                             <li class="list-group-item"><b>Chess experience:</b> {{ tournament.organiser.chess_exp }}</li>
-                            <li class="list-group-item"><b>Average Elo rating:</b> {{ tournament.organiser.get_mean_elo }}</li>
+                            <li class="list-group-item"><b>Average elo rating:</b> {{ tournament.organiser.get_mean_elo }}</li>
                         </ul>
                     </div>
                 </div>
@@ -168,7 +167,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Hosted by</h6>
-                        <h5 class="card-title"><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5> <!-- TODO add club profile url -->
+                        <h5 class="card-title"><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5>
                         <p class="card-text">{{ tournament.club.description }}</p>
                         <ul class="list-group">
                             <li class="list-group-item"><b>Tournaments hosted:</b> {{ tournament.club.get_number_of_tournaments }}</li>

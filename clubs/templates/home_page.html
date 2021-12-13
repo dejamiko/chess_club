@@ -24,16 +24,8 @@
                             {% for tournament in incomplete_user_tournaments %}
                                 <tr>
                                     <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
-                                    <td>{{ tournament.club.name }}</td>
-                                    <td>
-                                        {% if tournament.deadline < today %}
-                                            Round {{ tournament.round }}
-                                        {% elif tournament.participants.count > 95 %}
-                                            Applications full
-                                        {% else %}
-                                            Taking applications
-                                        {% endif %}
-                                    </td>
+                                    <td><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></td>
+                                    <td>{{ tournament.get_status }}</td>
                                     <td>{{ tournament.deadline }}</td>
                                 </tr>
                             {% endfor %}
