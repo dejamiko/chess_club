@@ -33,7 +33,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_edit_profile_url(self):
-        self.assertEqual(self.url, '/home/edit_profile')
+        self.assertEqual(self.url, '/edit_profile')
 
     def test_unsuccessful_profile_update_due_to_duplicate_email(self):
         self.client.login(email=self.user.email, password='Password123')

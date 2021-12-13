@@ -21,7 +21,7 @@ class CreateClubViewTestCase(TestCase):
         }
 
     def test_create_club_url(self):
-        self.assertEqual(self.url, '/home/create_club')
+        self.assertEqual(self.url, '/create_club')
 
     def test_get_create_club(self):
         self.client.login(email=self.user.email, password='Password123')

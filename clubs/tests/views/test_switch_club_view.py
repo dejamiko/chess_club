@@ -22,19 +22,19 @@ class SwitchClubViewTest(TestCase):
         self.url = reverse("users", kwargs={'club_id': self.first_club.id})
 
     def test_club_url(self):
-        self.assertEqual(self.url, '/home/1/users/')
+        self.assertEqual(self.url, '/1/users')
 
     def test_switch_club_url(self):
         self.url = reverse("users", kwargs={'club_id': self.second_club.id})
-        self.assertEqual(self.url, '/home/2/users/')
+        self.assertEqual(self.url, '/2/users')
 
     def test_no_club(self):
         self.url = reverse("no_club")
-        self.assertEqual(self.url, '/home/no_club')
+        self.assertEqual(self.url, '/no_club')
 
     def test_select_club(self):
         self.url = reverse("select_club")
-        self.assertEqual(self.url, '/home/select_club')
+        self.assertEqual(self.url, '/select_club')
 
     def test_log_in_redirect(self):
         redirect_url = reverse_with_next('log_in', self.url)
@@ -43,22 +43,22 @@ class SwitchClubViewTest(TestCase):
 
     def test_no_club_user(self):
         self.client.login(email=self.other_user.email, password="Password123")
-        response = self.client.get("/home/no_club")
+        response = self.client.get("/no_club")
         self.assertTemplateUsed(response, "no_club_screen.html")
 
     def test_select_club_user(self):
         self.client.login(email=self.other_user.email, password="Password123")
-        response = self.client.get("/home/select_club")
+        response = self.client.get("/select_club")
         self.assertTemplateUsed(response, "select_club_screen.html")
 
     def test_non_existent_club(self):
         self.client.login(email=self.user.email, password="Password123")
-        response = self.client.get("/home/99/users/")
+        response = self.client.get("/99/users")
         self.assertTemplateUsed(response, "no_access_screen.html")
 
     def test_not_member_of_club(self):
         self.client.login(email=self.other_user.email, password="Password123")
-        response = self.client.get("/home/1/users/")
+        response = self.client.get("/1/users")
         self.assertTemplateUsed(response, "no_access_screen.html")
 
     def test_user_clubs_list(self):
