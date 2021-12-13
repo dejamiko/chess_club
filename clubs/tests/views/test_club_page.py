@@ -1,9 +1,9 @@
-"""Unit tests of the club page view"""
+"""Unit tests of the club page view."""
 from django.test import TestCase
 from clubs.models import Tournament, User, Club
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
-import clubs.views
+
 
 class ClubPageViewTest(TestCase):
     """Unit tests of the club page view."""
@@ -25,7 +25,7 @@ class ClubPageViewTest(TestCase):
     def test_club_page_url(self):
         self.assertEqual(self.url, f"/home/club/{self.club.id}")
 
-    def test_club_page_has_all_info(self):
+    def test_club_page_has_club_info(self):
         self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
@@ -35,17 +35,34 @@ class ClubPageViewTest(TestCase):
         self.assertContains(response, "Saint Louis Chess Club")
         self.assertContains(response, "St. Louis, Missouri")
         self.assertContains(response, "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.")
+        self.assertContains(response, "<b>Number of officers:</b> 0")
+        self.assertContains(response, "<b>Number of members:</b> 0")
+        self.assertContains(response, "<b>Number of applicants:</b> 0")
 
-    def test_has_tournament_list(self):
+    def test_club_page_has_tournament_info(self):
         self.club.give_elo(self.club.owner)
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "club_page.html")
+        self.assertContains(response, "<b>Tournaments hosted:</b> 1")
         for tournament in self.club.get_all_tournaments():
             self.assertContains(response, tournament.name)
             self.assertContains(response, tournament.get_number_of_participants())
+            self.assertContains(response, tournament.get_status())
+    
+    def test_club_page_has_owner_info(self):
+        self.club.give_elo(self.club.owner)
+        self.client.login(username=self.user.email, password="Password123")
+        url = reverse("club_page", kwargs={"club_id": self.club.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "club_page.html")
+        self.assertContains(response, "John Doe")
+        self.assertContains(response, "Hi, I am John Doe")
+        self.assertContains(response, "<b>Chess experience:</b> Beginner")
+        self.assertContains(response, "<b>Elo rating in this club:</b> 1000")
 
     def test_club_page_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next("log_in", self.url)
