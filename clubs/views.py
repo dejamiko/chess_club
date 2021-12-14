@@ -49,12 +49,17 @@ def manage_applications(request):
                     return redirect('manage_applications')
 
         if 'rejected' in request.POST:
-
             if temp_app is not None and temp_user not in temp_club.get_all_users():
                 if temp_app.is_rejected == False:
-                    print("MAKING REJECTED APP")
                     temp_app.is_rejected = True
                     temp_app.save()
+                    return redirect('manage_applications')
+
+        if 'revert' in request.POST:
+            if temp_app is not None and temp_user not in temp_club.get_all_users():
+                if temp_app.is_rejected == True:
+                    #print("DELETIGN THIS APPLICATION SO THEY CAN REAPPLY")
+                    temp_app.delete()
                     return redirect('manage_applications')
 
     applications = []

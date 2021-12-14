@@ -5,16 +5,19 @@
 {% extends 'base_content.html' %}
 {% block content %}
 <div>
-  <button type="button" class="btn btn-success" id="success">Success</button>
+  <button type="button" class="btn btn-success" id="success" disabled="disabled">Success</button>
 <button type="button" class="btn btn-danger" id="danger">Danger</button>
 </div>
 <script type="text/javascript">
   $('#success').click(function(){
+  $('#danger').removeAttr("disabled");
+  $('#success').attr("disabled", true);
   $("#accepted_apps").removeClass('d-none');
   $("#rejected_apps").addClass('d-none');
 });
 $('#danger').click(function(){
-  console.log("SHOWING REJECTED")
+  $('#success').removeAttr("disabled");
+  $('#danger').attr("disabled", true);
   $("#accepted_apps").addClass('d-none');
   $("#rejected_apps").removeClass('d-none');
 });
@@ -24,11 +27,6 @@ $('#danger').click(function(){
         <div class="row">
             <div class="col-12">
                 <h1>Manage applications</h1>
-                      {% for r in rejected_applications %}
-                      {% if r.associated_club == selected_club %}
-                      <p>{{ r.associated_user.email }}</p>
-                      {% endif %}
-                      {% endfor %}
                 <table id="manage_applications-table" class="table table-hover">
                     <thead>
                     <tr>
@@ -130,7 +128,7 @@ $('#danger').click(function(){
                                     {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
                                         <input type="hidden" name="uname" value="{{ rej.associated_user.email }}">
                                         <input type="hidden" name="clubname" value="{{ rej.associated_club.name }}">
-                                        <input style="background-color:green;" type="submit"  name="accepted" value="Revert" class="btn btn-sm btn-secondary" >
+                                        <input style="background-color:green;" type="submit"  name="revert" value="Revert" class="btn btn-sm btn-secondary" >
 
                                     {% endif %}
                                 </form>
