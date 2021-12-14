@@ -116,6 +116,26 @@ def user_list_select_club(request):
     response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
 
+def get_occupied_users():
+        try:
+            tournaments = Tournament.objects.all()
+        except Tournament.DoesNotExist:
+            tournaments = None
+
+        occupied_users = []
+        for t in tournaments:
+            # you cannot kick the tournament organiser
+            occupied_users.append(t.organiser)
+            if t.coorganisers.exists():
+                for c in t.coorganisers.all():
+                    occupied_users.append(c)
+                    #you cannot kick the tournament participants
+                    # if they are in a tournament that has started
+            if t.deadline < make_aware(datetime.now()):
+                if t.participants.exists():
+                    for p in t.participants.all():
+                        occupied_users.append(p)
+        return occupied_users
 
 @login_required
 def user_list(request, user_club):
@@ -133,6 +153,11 @@ def user_list(request, user_club):
             listed_user.promote(user_club)
         if 'switch_owner' in request.POST and user_club.get_owner() == curr_user and listed_user.user_level(user_club) == 'Officer':
             user_club.make_owner(listed_user)
+        if 'kick' in request.POST and listed_user.user_level(user_club) == 'Member' and \
+        (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user):
+            if listed_user not in get_occupied_users():
+                    user_club.members.remove(listed_user)
+                    user_club.save()
 
         return redirect("users", user_club.id)
 
@@ -146,28 +171,11 @@ def user_list(request, user_club):
         user_dict_with_levels.append((user, user_club.user_level(user)))
 
     user_clubs = user_clubs_finder(request)
-    try:
-        tournaments = Tournament.objects.all()
-    except Tournament.DoesNotExist:
-        tournaments = None
 
-    occupied_users = []
-    for t in tournaments:
-        # you cannot kick the tournament organiser
-        occupied_users.append(t.organiser)
-        if t.coorganisers.exists():
-            for c in t.coorganisers.all():
-                occupied_users.append(c)
-                #you cannot kick the tournament participants
-                # if they are in a tournament that has started
-        if t.deadline < make_aware(datetime.now()):
-            if t.participants.exists():
-                for p in t.participants.all():
-                    occupied_users.append(p)
 
     return render(request, "user_list.html",
                   {"users": user_dict_with_levels, "user_level": request.user.user_level(user_club),
-                   "user_clubs": user_clubs, "selected_club": user_club, 'occupied_users': occupied_users})
+                   "user_clubs": user_clubs, "selected_club": user_club, 'occupied_users': get_occupied_users()})
 
 
 @login_required
