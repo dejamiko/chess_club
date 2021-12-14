@@ -29,8 +29,7 @@ class ProfileViewTest(TestCase):
     def test_get_profile_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
 
-        self.club.make_applicant(self.target_user)
-        self.club.make_member(self.target_user)
+        self.club.add_new_member(self.target_user)
         self.club.make_officer(self.target_user)
         self.tournament.participants.add(self.target_user)
 
@@ -63,7 +62,7 @@ class ProfileViewTest(TestCase):
         response_url = reverse("users", kwargs={"club_id": self.club.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, "user_list.html")
-    
+
     def test_get_profile_with_invalid_id_and_no_club_selected(self):
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("profile", kwargs={"user_id": self.user.id+9999})
@@ -71,7 +70,7 @@ class ProfileViewTest(TestCase):
         response_url = reverse("select_club")
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, "select_club_screen.html")
-    
+
     def test_own_profile_has_email_address(self):
         self.client.login(email=self.user.email, password="Password123")
         url = reverse("profile", kwargs={"user_id": self.user.id})

@@ -25,7 +25,7 @@ class UserListTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_member_can_only_see_members(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
 
         self._create_test_users(start_id=5, count=5)
         self._create_test_users(start_id=10, count=5, level="Member")
@@ -45,7 +45,7 @@ class UserListTest(TestCase):
             self.assertNotContains(response, f"First {user_id} Last {user_id}")
 
     def test_member_sees_limited_variables(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
 
         response = self._access_user_list_page()
         self.assertContains(response, "Name")
@@ -55,7 +55,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Options")
 
     def test_officer_can_see_everyone(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=5, count=5)
@@ -71,7 +71,7 @@ class UserListTest(TestCase):
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_officer_sees_all_variables(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
         response = self._access_user_list_page()
@@ -82,7 +82,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Options")
 
     def test_owner_can_see_everyone(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
 
@@ -99,7 +99,7 @@ class UserListTest(TestCase):
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_owner_sees_all_variables(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
 
@@ -111,7 +111,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Options")
 
     def test_officer_has_promote_button_for_member(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Member")
@@ -120,7 +120,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Officer")
@@ -129,7 +129,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_owner(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
         self._create_test_users(start_id=0, count=1, level="Owner")
@@ -138,7 +138,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_no_promote_button_for_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
 
@@ -148,7 +148,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_demote_button_for_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
 
@@ -158,7 +158,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Demote")
 
     def test_owner_has_switch_ownership_button_for_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
 
@@ -184,17 +184,17 @@ class UserListTest(TestCase):
                 chess_exp="Beginner",
             )
             if level == "Owner":
-                self.club.make_member(temp_user)
+                self.club.add_new_member(temp_user)
                 self.club.make_officer(temp_user)
                 self.club.make_owner(temp_user)
             if level == "Officer":
-                self.club.make_member(temp_user)
+                self.club.add_new_member(temp_user)
                 self.club.make_officer(temp_user)
             if level == "Member":
-                self.club.make_member(temp_user)
+                self.club.add_new_member(temp_user)
 
     def test_promote_button(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
         self.assertNotIn(self.user, self.club.get_officers())
@@ -202,7 +202,7 @@ class UserListTest(TestCase):
         self.assertIn(self.user, self.club.get_officers())
 
     def test_demote_button(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
@@ -212,7 +212,7 @@ class UserListTest(TestCase):
 
     def test_switch_ownership_button(self):
         # this test doesnt work?
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)

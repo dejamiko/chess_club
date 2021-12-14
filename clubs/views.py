@@ -41,16 +41,18 @@ def manage_applications(request):
             temp_app = None
 
         if 'accepted' in request.POST:
-            if temp_user not in temp_club.get_all_users() and temp_app is not None:
-                temp_club.make_member(temp_user)
-                temp_club.save()
-                temp_app.delete()
-                return redirect('manage_applications')
+            if temp_app is not None and temp_user not in temp_club.get_all_users():
+                if temp_app.is_rejected == False:
+                    temp_club.add_new_member(temp_user)
+                    temp_club.save()
+                    temp_app.delete()
+                    return redirect('manage_applications')
 
         if 'rejected' in request.POST:
 
             if temp_app is not None and temp_user not in temp_club.get_all_users():
-                if temp_app.is_rejected != True:
+                if temp_app.is_rejected == False:
+                    print("MAKING REJECTED APP")
                     temp_app.is_rejected = True
                     temp_app.save()
                     return redirect('manage_applications')
@@ -64,10 +66,19 @@ def manage_applications(request):
         if user in app.associated_club.get_officers() or user == app.associated_club.get_owner():
             applications.append(app)
 
+    rejected_applications = []
+    try:
+        temp_rejected = ClubApplicationModel.objects.filter(is_rejected = True)
+    except ClubApplicationModel.DoesNotExist:
+        temp_rejected = None
+    for rej_app in temp_rejected:
+        if user in rej_app.associated_club.get_officers() or user == rej_app.associated_club.get_owner():
+            rejected_applications.append(rej_app)
+
     user_clubs = user_clubs_finder(request)
 
     return render(request, 'manage_applications.html',
-                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club})
+                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club, 'rejected_applications': rejected_applications})
 
 
 @login_required
@@ -103,7 +114,7 @@ def user_list_select_club(request):
 
 @login_required
 def user_list(request, user_club):
-    if user_club.user_level(request.user) == 'Applicant':
+    if request.user not in user_club.get_all_users():
         redirect('home_page')
 
     curr_user = request.user
@@ -149,17 +160,6 @@ def user_clubs_finder(request):
     return user_clubs
 
 
-@login_required
-# Finds all clubs the logged in user belongs to and returns this information in a list
-def user_applied_clubs_finder(request):
-    user_clubs = []
-
-    clubs = Club.objects.all()
-    for temp_club in clubs:
-        if request.user in temp_club.get_all_applicants():
-            user_clubs.append(temp_club)
-
-    return user_clubs
 
 @login_required
 def club_list(request):
@@ -181,26 +181,18 @@ def club_list(request):
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)
             club_application.save()
-            temp_club = Club.objects.get(name=club_name)
-            temp_club.make_applicant(curr_user)
-            new_club_applicants = temp_club.get_all_applicants()
-            temp_club.save()
+            print("APPLICATION CREATED")
 
-    applications = []
     try:
-        apps = ClubApplicationModel.objects.filter(is_rejected = False)
+        applications = ClubApplicationModel.objects.filter(is_rejected = False)
     except ClubApplicationModel.DoesNotExist:
-        apps = None
-    for a in apps:
-        applications.append(a)
+        applications = None
 
-    rejected_applications = []
     try:
-        rejected = ClubApplicationModel.objects.filter(is_rejected = True)
+        rejected_applications = ClubApplicationModel.objects.filter(is_rejected = True)
     except ClubApplicationModel.DoesNotExist:
-        rejected = None
-    for r in rejected:
-        rejected_applications.append(r)
+        rejected_applications = None
+
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_list.html",
@@ -407,18 +399,19 @@ def club_page(request, club_id):
     if request.method == 'POST':
         club_name = request.POST['name']
         temp_club = Club.objects.get(name=club_name)
-        club_applicants = temp_club.get_all_applicants()
-        for applicant in club_applicants:
-            if applicant == curr_user:
-                already_exists = True
-        if not already_exists:
+        try:
+            temp_app = ClubApplicationModel.objects.get(
+            associated_club = temp_club,
+            associated_user = curr_user
+            )
+        except ClubApplicationModel.DoesNotExist:
+            temp_app = None
+        if temp_app is None:
             club_application = ClubApplicationModel(
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)
             club_application.save()
-            temp_club = Club.objects.get(name=club_name)
-            temp_club.make_applicant(curr_user)
-            temp_club.save()
+
 
     try:
         applications = ClubApplicationModel.objects.all()

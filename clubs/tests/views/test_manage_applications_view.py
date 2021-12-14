@@ -147,7 +147,7 @@ class ManageApplicationViewTest(TestCase):
 
 
     def test_user_cannot_apply_to_their_club(self):
-        self.second_club.make_member(self.second_user)
+        self.second_club.add_new_member(self.second_user)
         before_count = ClubApplicationModel.objects.count()
         self.client.login(email=self.second_user.email, password='Password123')
         temp = self.client.post(self.apply_url, {'name' : self.second_club.name})

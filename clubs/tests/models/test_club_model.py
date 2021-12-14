@@ -62,26 +62,26 @@ class ClubModelTestCase(TestCase):
         self._assert_club_is_invalid()
 
     def test_club_can_have_members(self):
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 1)
         self.assertEqual(self.club.get_members().get(email='janedoe@example.com'), self.jane)
 
     def test_club_can_have_officers(self):
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_number_of_members(), 0)
         self.assertEqual(self.club.get_officers().get(email=self.jane.email), self.jane)
 
     def test_club_can_change_owners(self):
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         self.club.make_owner(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 0)
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_officers().get(email=self.user.email), self.user)
         self.assertEqual(self.club.get_owner(), self.jane)
-    
+
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)

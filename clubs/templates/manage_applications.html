@@ -7,6 +7,11 @@
         <div class="row">
             <div class="col-12">
                 <h1>Manage applications</h1>
+                      {% for r in rejected_applications %}
+                      {% if r.associated_club == selected_club %}
+                      <p>{{ r.associated_user.email }}</p>
+                      {% endif %}
+                      {% endfor %}
                 <table id="manage_applications-table" class="table table-hover">
                     <thead>
                     <tr>
