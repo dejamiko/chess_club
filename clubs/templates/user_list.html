@@ -60,6 +60,15 @@
                                            value="Switch ownership" name="switch_owner">
                                     <!-- popup box for switching ownership -->
                                 {% endif %}
+                                {% if listed_user.0 not in occupied_users %}
+                                {% if user_level == 'Owner' and listed_user.1 == 'Officer' or 'Member' %}
+                                <input class="btn btn-danger btn-sm" type="submit" value="Kick"
+                                       name="kick">
+                                {% elif user_level == 'Officer' and listed_user.1 == 'Member' %}
+                                <input class="btn btn-danger btn-sm" type="submit" value="Kick"
+                                       name="kick">
+                                {% endif %}
+                                {% endif %}
                             </form>
                         </td>
                     {% else %}

@@ -177,3 +177,11 @@ class ManageApplicationViewTest(TestCase):
         str_to_test = """href="/home/clubs/manage_applications/">"""
         res = str_to_test in html_content
         self.assertFalse(res)
+
+    def test_revert_rejected_applications(self):
+        # TODO: Add tests for reverting rejected applications
+        pass
+
+    def test_toggle_rejected_pending_applications(self):
+        # TODO: add test for toggle on manage application page
+        pass
