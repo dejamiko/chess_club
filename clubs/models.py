@@ -238,13 +238,10 @@ class Club(models.Model):
         return self.has_tournaments.count()
     
     def get_average_elo(self):
-        if self.get_all_users().count() > 0:
-            temp_array = []
-            for elo in EloRating.objects.filter(club=self):
-                temp_array.append(elo.elo_rating)
-            return round(sum(temp_array) / len(temp_array), 2)
-        else:
-            return 0
+        temp_array = []
+        for elo in EloRating.objects.filter(club=self):
+            temp_array.append(elo.elo_rating)
+        return round(sum(temp_array) / len(temp_array), 2)
 
 
 def toggle_superuser(user):
