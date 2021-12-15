@@ -17,8 +17,9 @@ class ClubPageViewTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(email="johndoe@example.com")
+        self.jane = User.objects.get(email="janedoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
-        self.target_user = User.objects.get(email="janedoe@example.com")
+        self.alice = User.objects.get(email="alicedoe@example.com")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.url = reverse("club_page", kwargs={"club_id": self.club.id})
         self.club.give_elo(self.club.owner)
@@ -67,10 +68,31 @@ class ClubPageViewTest(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
-    def test_already_member_text(self):
+    def test_already_applied_text(self):
         self.client.login(username=self.user.email, password="Password123")
         self.club.make_applicant(self.user)
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You have <b>applied</b> to this club.")
+
+    def test_is_officer_text(self):
+        self.client.login(email=self.jane.email, password="Password123")
+        self.club.make_applicant(self.jane)
+        self.club.make_member(self.jane)
+        self.club.make_officer(self.jane)
+        url = reverse("club_page", kwargs={"club_id": self.club.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You are an <b>officer</b> of this club.")
+
+    def test_is_owner_text(self):
+        self.client.login(email=self.jane.email, password="Password123")
+        self.club.make_applicant(self.jane)
+        self.club.make_member(self.jane)
+        self.club.make_officer(self.jane)
+        self.club.make_owner(self.jane)
+        url = reverse("club_page", kwargs={"club_id": self.club.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You are the <b>owner</b> of this club.")
