@@ -72,3 +72,7 @@ class EloRatingModelTestCase(TestCase):
         third_club = Club.objects.get(name='KCL Chess Club')
         michael_third_club_elo = EloRating.objects.get(user=self.michael, club=third_club)
         self.assertTrue(michael_third_club_elo.elo_rating)
+
+    def test_assign_elo(self):
+        self.user_elo.assign_elo(club=self.club, user=self.user, elo_rating=2000)
+        self.assertEqual(self.user_elo.elo_rating, 2000)
