@@ -14,6 +14,7 @@
             <th scope="col">Location</th>
             <th scope="col">Description</th>
             <th scope="col">Members</th>
+            <th scope="col">Average elo</th>
             <th scope="col">Owner</th>
             <th scope="col"></th>
           </tr>
@@ -25,6 +26,7 @@
             <td>{{ listed_club.location }}</td>
             <td>{{ listed_club.description }}</td>
             <td>{{ listed_club.get_number_of_members }}</td>
+            <td>{{ listed_club.get_average_elo }}</td>
             <td>
               <img style="border-radius: 8px; margin: 0 10px 10px 0;" src="{{ listed_club.owner.mini_gravatar }}" alt="{{ listed_club.owner.email }}'s profile picture">
               {{ listed_club.owner.first_name }} {{ listed_club.owner.last_name }}
@@ -92,7 +94,7 @@
 
 <script>
   const dataTable = new simpleDatatables.DataTable("#club-table", {
-    columns: [{select: [5], sortable: false}],
+    columns: [{select: [6], sortable: false}],
     perPage: 15,
     fixedColumns: false
   })
