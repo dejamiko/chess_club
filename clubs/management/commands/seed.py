@@ -246,9 +246,9 @@ class Command(BaseCommand):
             owner=owner
         )
         kerbal.give_elo(owner)
-        kerbal.make_member(User.objects.get(email='jeb@example.org'))
-        kerbal.make_member(User.objects.get(email='val@example.org'))
-        kerbal.make_member(User.objects.get(email='billie@example.org'))
+        kerbal.add_new_member(User.objects.get(email='jeb@example.org'))
+        kerbal.add_new_member(User.objects.get(email='val@example.org'))
+        kerbal.add_new_member(User.objects.get(email='billie@example.org'))
         self.generate_club_users(kerbal)
         print('kerbal created')
         owner = get_user()
@@ -259,7 +259,7 @@ class Command(BaseCommand):
             owner=owner
         )
         new_york.give_elo(owner)
-        new_york.make_member(User.objects.get(email='jeb@example.org'))
+        new_york.add_new_member(User.objects.get(email='jeb@example.org'))
         new_york.make_officer(User.objects.get(email='jeb@example.org'))
         self.generate_club_users(new_york)
         print('new york created')
@@ -281,7 +281,7 @@ class Command(BaseCommand):
             owner=owner
         )
         moscow.give_elo(owner)
-        moscow.make_member(User.objects.get(email='billie@example.org'))
+        moscow.add_new_member(User.objects.get(email='billie@example.org'))
         self.generate_club_users(moscow)
         print('moscow created')
 
@@ -374,9 +374,9 @@ class Command(BaseCommand):
         # make members
         members_list = get_number_of_applicants(club, self.number_of_members)
         for user in members_list:
-            club.make_member(user)
+            club.add_new_member(user)
         # make officers
         officer_list = get_number_of_applicants(club, self.number_of_officers)
         for user in officer_list:
-            club.make_member(user)
+            club.add_new_member(user)
             club.make_officer(user)
