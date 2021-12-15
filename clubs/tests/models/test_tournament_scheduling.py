@@ -97,6 +97,8 @@ class TournamentSchedulingTestCase(TestCase):
 
         for i in range(0, len(correct_bracket_pairings)):
             pairings = self.tournament.next_pairings()
+            self.assertFalse(self.tournament.all_pairings_completed())
+
             for j in range(0, len(correct_bracket_pairings[i])):
                 self.assertEqual(pairings[j].white_player.id, correct_bracket_pairings[i][j][0])
                 self.assertEqual(pairings[j].black_player.id, correct_bracket_pairings[i][j][1])

@@ -36,6 +36,12 @@ class PairingModelTestCase(TestCase):
     def test_round_cannot_be_null(self):
         self.pairing.round = None
         self._assert_pairing_is_invalid()
+    
+    def test_get_other_player_when_white(self):
+        self.assertEqual(self.pairing.get_other_player(self.pairing.white_player), self.pairing.black_player)
+
+    def test_get_other_player_when_black(self):
+        self.assertEqual(self.pairing.get_other_player(self.pairing.black_player), self.pairing.white_player)
 
     def _assert_pairing_is_valid(self):
         try:

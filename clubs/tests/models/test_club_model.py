@@ -62,6 +62,16 @@ class ClubModelTestCase(TestCase):
         self.club.owner = None
         self._assert_club_is_invalid()
 
+    def test_club_can_accept_applicant(self):
+        self.club.make_applicant(self.jane)
+        self.assertEqual(self.club.applicants.count(), 1)
+        self.assertEqual(self.club.get_all_applicants().get(email='janedoe@example.com'), self.jane)
+
+    def test_club_cannot_have_same_applicant_twice(self):
+        self.club.make_applicant(self.jane)
+        with self.assertRaises(ValueError):
+            self.club.make_applicant(self.jane)
+
     def test_club_can_have_members(self):
         self.club.make_member(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 1)
@@ -86,6 +96,9 @@ class ClubModelTestCase(TestCase):
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)
+    
+    def test_club_has_non_applicants(self):
+        self.assertEqual(self.club.get_all_non_applicants().count(), 5)
 
     def test_club_average_elo(self):
         give_all_missing_elos(self.club)

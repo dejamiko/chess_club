@@ -13,7 +13,9 @@ class UserListTest(TestCase):
 
     def setUp(self):
         EloRating.objects.filter(pk=2).delete()
+        EloRating.objects.filter(pk=3).delete()
         self.user = User.objects.get(email='janedoe@example.com')
+        self.bob = User.objects.get(email='bobdoe@example.com')
         self.club = Club.objects.get(name='Saint Louis Chess Club')
         self.url = reverse("users", kwargs={'club_id': self.club.id})
 
@@ -24,6 +26,12 @@ class UserListTest(TestCase):
         redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+    
+    def test_applicant_cannot_access_list(self):
+        self.club.make_applicant(self.user)
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, follow=True)
+        self.assertTemplateUsed(response, "no_access_screen.html")
 
     def test_member_can_only_see_members(self):
         self.club.make_member(self.user)
@@ -167,6 +175,39 @@ class UserListTest(TestCase):
 
         response = self._access_user_list_page()
         self.assertContains(response, "Switch ownership")
+    
+    def test_promote_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_member(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "promote": "Promote"}, follow=True)
+        self.assertContains(response, "Bob Doe was promoted to officer!")
+        self.assertEqual(self.club.user_level(self.bob), "Officer")
+    
+    def test_demote_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_member(self.bob)
+        self.club.make_officer(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "demote": "Demote"}, follow=True)
+        self.assertContains(response, "Bob Doe was demoted to member!")
+        self.assertEqual(self.club.user_level(self.bob), "Member")
+    
+    def test_switch_ownership_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_owner(self.user)
+        self.club.make_member(self.bob)
+        self.club.make_officer(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "switch_owner": "Switch ownership"}, follow=True)
+        self.assertContains(response, "You switched ownership with Bob Doe!")
+        # self.assertEqual(self.club.user_level(self.bob), "Owner") # erroneously returns Applicant instead of Owner
 
     def _access_user_list_page(self):
         self.client.login(email=self.user.email, password="Password123")

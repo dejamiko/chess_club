@@ -38,6 +38,12 @@ class ManageApplicationViewTest(TestCase):
         self.assertTemplateUsed(response, "manage_applications.html")
         self.assertEqual(self.first_club_application.associated_user, self.first_user)
         self.assertEqual(self.first_club_application.associated_club, self.first_club)
+    
+    def test_manage_applications_list_when_no_applications(self):
+        self.first_club_application.delete()
+        self.client.login(email=self.first_user.email, password="Password123")
+        response = self.client.get(self.url)
+        self.assertEquals(response.context["applications"], [])
 
     def test_manage_application_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)
