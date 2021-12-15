@@ -207,7 +207,7 @@ class UserListTest(TestCase):
         self.client.login(email=self.user.email, password="Password123")
         response = self.client.get(self.url, {"listed_user": self.bob.email, "switch_owner": "Switch ownership"}, follow=True)
         self.assertContains(response, "You switched ownership with Bob Doe!")
-        # self.assertEqual(self.club.user_level(self.bob), "Owner") # erroneously returns Applicant instead of Owner
+        self.assertEqual(Club.objects.get(name="Saint Louis Chess Club").user_level(self.bob), "Owner")
 
     def _access_user_list_page(self):
         self.client.login(email=self.user.email, password="Password123")
