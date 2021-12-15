@@ -7,6 +7,7 @@ from clubs.forms import CreateTournamentForm
 import clubs.views
 from datetime import datetime
 
+
 class CreateTournamentViewTest(TestCase):
     """Unit tests of the create tournament view"""
     fixtures = ["clubs/tests/fixtures/default_user.json",
@@ -31,7 +32,7 @@ class CreateTournamentViewTest(TestCase):
 
     def test_create_tournament_url(self):
         self.assertEqual(self.url, "/create_tournament")
-    
+
     def test_get_create_tournament_without_club_selected(self):
         self.client.login(email=self.user.email, password="Password123")
         response = self.client.get(self.url)
@@ -46,7 +47,7 @@ class CreateTournamentViewTest(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "home_page.html")
-    
+
     def test_get_create_tournament_with_club_selected_when_owner(self):
         self.client.login(email=self.user.email, password="Password123")
         clubs.views.club = self.club
@@ -56,7 +57,7 @@ class CreateTournamentViewTest(TestCase):
         form = response.context["form"]
         self.assertTrue(isinstance(form, CreateTournamentForm))
         self.assertFalse(form.is_bound)
-    
+
     def test_get_create_tournament_with_club_selected_when_officer(self):
         self.client.login(email=self.jane.email, password="Password123")
         clubs.views.club = self.club
@@ -94,9 +95,9 @@ class CreateTournamentViewTest(TestCase):
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input)
         after_count = Tournament.objects.count()
-        self.assertEqual(after_count, before_count+1)
+        self.assertEqual(after_count, before_count + 1)
         new_tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
-        response_url = reverse("view_tournament", kwargs={"tournament_id":new_tournament.id})
+        response_url = reverse("view_tournament", kwargs={"tournament_id": new_tournament.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertEqual(new_tournament.club, self.club)
         self.assertEqual(new_tournament.name, "Saint Louis Chess Tournament")
