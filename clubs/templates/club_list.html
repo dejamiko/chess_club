@@ -50,13 +50,13 @@
               {% endif %}
               {% endfor %}
 
-                {% if curr_user not in listed_club.get_all_users %}
-                {% if curr_user not in listed_club.get_all_applicants_users %}
-                <input type="hidden" class="hidden_value" name="obj" value="{{ listed_club.name }}" />
-                <input class="submit_button" type="submit"  value="Apply"/>
-                <div class="success_text" <p style="display: none; color:green;"">Applied! </p></div>
-                {% endif %}
-                {% endif %}
+              {% if curr_user not in listed_club.get_all_users %}
+              {% if curr_user not in listed_club.get_all_applicants_users %}
+              <input type="hidden" class="hidden_value" name="obj" value="{{ listed_club.name }}" />
+              <input class="submit_button" type="submit"  value="Apply"/>
+              <div class="success_text" <p style="display: none; color:green;"">Applied! </p></div>
+              {% endif %}
+              {% endif %}
               </form>
             </td>
           </tr>

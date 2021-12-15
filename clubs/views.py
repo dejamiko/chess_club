@@ -213,7 +213,7 @@ def club_list(request):
     curr_user = request.user
     if request.method == 'POST':
         club_name = request.POST.get('name')
-
+        print(club_name)
         temp_club = Club.objects.get(name=club_name)
 
         try:

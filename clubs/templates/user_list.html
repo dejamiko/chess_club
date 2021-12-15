@@ -7,16 +7,6 @@
         <div class="row">
             <div class="col-12">
                 <h1>Users</h1>
-                <!-- REMOVE THIS IT IS TEMPORARY -->
-                {% for x in occupied_users %}
-                <p> occupied user: {{ x }}</p>
-                {% for c in curr_tournaments %}
-                {% if x == c.organiser or x in c.coorganisers.all or x in c.participants.all %}
-                  <p>  in tournaments :{{ c.name }}</p>
-                {% endif %}
-                {% endfor %}
-
-                {% endfor %}
 
                 <table id="user-table" class="table table-hover">
                     <thead>
@@ -79,11 +69,6 @@
                                 {% endif %}
                                 {% endif %}
                                 {% else %}
-                                {% for c in curr_tournaments %}
-                                {% if listed_user.0 == c.organiser or listed_user.0 in c.coorganisers.all or listed_user.0 in c.participants.all %}
-                                  <p>{{ c.name }}</p>
-                                {% endif %}
-                                {% endfor %}
                                 {% endif %}
 
                             </form>

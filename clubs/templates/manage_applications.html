@@ -5,19 +5,19 @@
 {% extends 'base_content.html' %}
 {% block content %}
 <div>
-  <button type="button" class="btn btn-success" id="success" disabled="disabled">Pending</button>
-<button type="button" class="btn btn-danger" id="danger">Rejected</button>
+  <button type="button" class="btn btn-success" id="show_pending" disabled="disabled">Pending</button>
+<button type="button" class="btn btn-danger" id="show_rejected">Rejected</button>
 </div>
 <script type="text/javascript">
-  $('#success').click(function(){
-  $('#danger').removeAttr("disabled");
-  $('#success').attr("disabled", true);
+  $('#show_pending').click(function(){
+  $('#show_rejected').removeAttr("disabled");
+  $('#show_pending').attr("disabled", true);
   $("#accepted_apps").removeClass('d-none');
   $("#rejected_apps").addClass('d-none');
 });
-$('#danger').click(function(){
-  $('#success').removeAttr("disabled");
-  $('#danger').attr("disabled", true);
+$('#show_rejected').click(function(){
+  $('#show_pending').removeAttr("disabled");
+  $('#show_rejected').attr("disabled", true);
   $("#accepted_apps").addClass('d-none');
   $("#rejected_apps").removeClass('d-none');
 });
