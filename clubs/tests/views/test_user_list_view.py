@@ -211,7 +211,6 @@ class UserListTest(TestCase):
         self.assertIn(self.user, self.club.get_members())
 
     def test_switch_ownership_button(self):
-        # this test doesnt work?
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.client.login(email=self.john.email, password='Password123')
@@ -221,3 +220,37 @@ class UserListTest(TestCase):
         updated_club = Club.objects.get(name=self.club.name)
         self.assertEquals(self.user, updated_club.get_owner())
         self.assertIn(self.john, updated_club.get_officers())
+
+    def test_member_or_officer_cannot_kick(self):
+        pass
+
+    def test_can_kick_member_not_in_tournament(self):
+        pass
+
+    def test_can_kick_member_not_in_tournament_in_current_club(self):
+        pass
+
+    def test_can_kick_member_in_tournament_as_participant_that_has_not_started(self):
+        # can kick a member in a tournament in the current club that has not started
+        pass
+
+    def test_can_kick_member_in_tournament_as_coorganiser_that_has_not_started(self):
+        # can kick a member in a tournament in the current club that has not started
+        pass
+
+    def test_can_kick_member_in_tournament_as_owner_that_has_not_started(self):
+        # should DELETE the tournament
+        pass
+
+    def test_can_kick_member_in_active_tournament_as_owner_that_has_no_participants(self):
+        # can kick an owner of an active tournament in the current club that has no participants
+        pass
+
+    def test_cannot_kick_member_as_participant_in_active_tournament(self):
+        pass
+
+    def test_cannot_kick_member_as_coorganiser_in_active_tournament(self):
+        pass
+
+    def test_cannot_kick_member_as_owner_in_active_tournament(self):
+        pass
