@@ -82,11 +82,11 @@ class ClubModelTestCase(TestCase):
         self.assertEqual(self.club.get_number_of_officers(), 1)
         self.assertEqual(self.club.get_officers().get(email=self.user.email), self.user)
         self.assertEqual(self.club.get_owner(), self.jane)
-    
+
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)
-    
+
     def test_club_average_elo(self):
         give_all_missing_elos(self.club)
         self.assertEqual(self.club.get_average_elo(), 1000)

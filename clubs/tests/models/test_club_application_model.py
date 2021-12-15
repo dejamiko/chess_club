@@ -1,7 +1,7 @@
 """Unit tests of the club application model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import User, Club, ClubApplicationModel
+from clubs.models import User, Club, ClubApplication
 from django.urls import reverse
 
 
@@ -22,8 +22,8 @@ class ClubApplicationModelTestCase(TestCase):
         self.second_user = User.objects.get(email="janedoe@example.com")
         self.first_club = Club.objects.get(name="Saint Louis Chess Club")
         self.second_club = Club.objects.get(name="Saint Louis Chess Club 2")
-        self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
-        self.second_club_application = ClubApplicationModel.objects.get(associated_club=self.second_club)
+        self.first_club_application = ClubApplication.objects.get(associated_club=self.first_club)
+        self.second_club_application = ClubApplication.objects.get(associated_club=self.second_club)
 
     def test_club_application_always_has_an_associated_user(self):
         self.first_club_application.associated_user = None

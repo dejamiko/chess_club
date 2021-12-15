@@ -50,7 +50,7 @@ class ClubPageViewTest(TestCase):
             self.assertContains(response, tournament.name)
             self.assertContains(response, tournament.get_number_of_participants())
             self.assertContains(response, tournament.get_status())
-    
+
     def test_club_page_has_owner_info(self):
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
