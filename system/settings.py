@@ -141,5 +141,4 @@ MESSAGE_TAGS = {
 # Activate django_heroku
 if "/app" in environ['HOME']:
     import django_heroku
-
     django_heroku.settings(locals())

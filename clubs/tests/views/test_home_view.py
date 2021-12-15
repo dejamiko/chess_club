@@ -31,7 +31,7 @@ class HomeTest(TestCase):
         self.url = reverse("home_page")
 
     def test_home_displays_correct_upcoming_tournaments(self):
-        # the clubs do not have any partiticpants, hence the need for creating one
+        # the clubs do not have any participants, hence the need for creating one
         temp_club = Club.objects.create(
             name="Test club",
             location="London",

@@ -6,8 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from django.utils.timezone import make_aware
 from faker import Faker
-from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase, \
-    EloRating
+from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase, EloRating
 import random
 
 

@@ -1,6 +1,6 @@
 [
   {
-    "model": "clubs.EloRating",
+    "model": "clubs.elorating",
     "pk": 1,
     "fields": {
       "club": 1,

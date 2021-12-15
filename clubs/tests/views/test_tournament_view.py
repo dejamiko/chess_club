@@ -162,15 +162,15 @@ class ViewTournamentTest(TestCase):
     def test_user_cannot_join_tournament_after_deadline(self):
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
         # create a time that is 5 minutes before current time
-        d = datetime.now() - timedelta(minutes=5)
-        make_aware_date = make_aware(d)
+        date = make_aware(datetime.now() - timedelta(minutes=5))
+
 
         late_tournament = Tournament.objects.create(
             club=self.other_club,
             name="Late Tournament",
             description="This tournament's deadline has passed",
             organiser=self.user,
-            deadline=make_aware_date
+            deadline=date
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)
@@ -181,7 +181,7 @@ class ViewTournamentTest(TestCase):
         self.other_club.make_applicant(self.alice)
         self.other_club.make_member(self.alice)
 
-        # before joining, should  not be in tournament
+        # before joining, should not be in tournament
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
         self.client.post(late_t_url, {'Join_tournament': True})
         # after joining, should not be in tournament also
@@ -190,15 +190,14 @@ class ViewTournamentTest(TestCase):
     def test_user_cannot_leave_tournament_after_deadline(self):
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
         # create a time that is 5 minutes before current time
-        d = datetime.now() - timedelta(minutes=5)
-        make_aware_date = make_aware(d)
+        date = make_aware(datetime.now() - timedelta(minutes=5))
 
         late_tournament = Tournament.objects.create(
             club=self.other_club,
             name="Late Tournament",
             description="This tournament's deadline has passed",
             organiser=self.user,
-            deadline=make_aware_date
+            deadline=date
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)
