@@ -2,18 +2,26 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
-from clubs.models import User, Club
+from clubs.models import User, Club, Tournament
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 
 
 class UserListTest(TestCase):
     """Unit tests of the user list view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/other_users.json',
-                'clubs/tests/fixtures/default_club.json']
+                'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/default_tournament.json',
+                'clubs/tests/fixtures/other_clubs.json']
 
     def setUp(self):
         self.user = User.objects.get(email='janedoe@example.com')
         self.john = User.objects.get(email='johndoe@example.com')
+        self.michael = User.objects.get(email='michaeldoe@example.com')
+        self.bob = User.objects.get(email='bobdoe@example.com')
         self.club = Club.objects.get(name='Saint Louis Chess Club')
+        self.other_club = Club.objects.get(name='Saint Louis Chess Club 2')
+        self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
+        #self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
         self.url = reverse("users", kwargs={'club_id': self.club.id})
 
     def test_user_list_url(self):
@@ -221,36 +229,144 @@ class UserListTest(TestCase):
         self.assertEquals(self.user, updated_club.get_owner())
         self.assertIn(self.john, updated_club.get_officers())
 
-    def test_member_or_officer_cannot_kick(self):
-        pass
+    def test_member_cannot_kick(self):
+        self.club.add_new_member(self.user)
+        self.club.add_new_member(self.michael)
+        self.client.login(email=self.user.email, password='Password123')
+        self.client.get(self.url)
+        #print(self.client.get(self.url).content)
+        before_count1 = self.club.get_all_users().count()
+        # Try kick Michael, a member, as a member
+        self.client.post(self.url, {'listed_user': self.michael.email, 'kick': True})
+        after_count1 = self.club.get_all_users().count()
+        self.assertEqual(before_count1, after_count1)
+        self.club.make_officer(self.michael)
+        self.client.get(self.url)
+        before_count2 = self.club.get_all_users().count()
+        # Try kick Michael, now an officer, as a member
+        self.client.post(self.url, {'listed_user': self.michael.email, 'kick': True})
+        after_count2 = self.club.get_all_users().count()
+        self.assertEqual(before_count2, after_count2)
 
-    def test_can_kick_member_not_in_tournament(self):
-        pass
+        self.club.make_owner(self.michael)
+        self.client.get(self.url)
+        before_count3 = self.club.get_all_users().count()
+        # Try kick Michael, now the OWNER, as a member
+        self.client.post(self.url, {'listed_user': self.michael.email, 'kick': True})
+        after_count3 = self.club.get_all_users().count()
+        self.assertEqual(before_count3, after_count3)
 
-    def test_can_kick_member_not_in_tournament_in_current_club(self):
-        pass
+    def test_officer_can_kick_member_not_in_tournament(self):
+        self.club.add_new_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.add_new_member(self.michael)
+        self.client.login(email=self.user.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.michael.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        self.assertEqual(before_count, after_count+1)
 
-    def test_can_kick_member_in_tournament_as_participant_that_has_not_started(self):
+    def test_owner_can_kick_member_not_in_tournament(self):
+        self.club.add_new_member(self.user)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.user.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        self.assertEqual(before_count, after_count+1)
+
+
+    def test_can_kick_member_in_tournament_in_other_club(self):
+        self.club.add_new_member(self.user)
+        temp_other_tournament = Tournament.objects.create(
+        club = self.other_club, name="other tournament", description="other", organiser = self.user,
+        deadline = make_aware(datetime.now()+timedelta(days = 1))
+        )
+        before_tournament_count = Tournament.objects.count()
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.user.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        after_tournament_count = Tournament.objects.count()
+        self.assertEqual(before_count, after_count+1)
+        self.assertEqual(before_tournament_count, after_tournament_count)
+
+    def test_can_kick_member_in_tournament_in_same_club_who_is_participant_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
-        pass
+        self.club.add_new_member(self.michael)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.michael.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        self.assertEqual(before_count, after_count+1)
 
-    def test_can_kick_member_in_tournament_as_coorganiser_that_has_not_started(self):
+
+    def test_can_kick_member_in_tournament_in_same_club_who_is_coorganiser_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
-        pass
+        self.club.add_new_member(self.bob)
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.bob.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        self.assertEqual(before_count, after_count+1)
 
-    def test_can_kick_member_in_tournament_as_owner_that_has_not_started(self):
+    def test_can_kick_member_in_tournament_in_same_club_who_is_owner_that_has_not_started(self):
         # should DELETE the tournament
-        pass
+        self.club.add_new_member(self.user)
+        temp_other_tournament = Tournament.objects.create(
+        club = self.club, name="other tournament", description="other", organiser = self.user,
+        deadline = make_aware(datetime.now()+timedelta(days = 1))
+        )
+        before_tournament_count = Tournament.objects.count()
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.user.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        after_tournament_count = Tournament.objects.count()
+        self.assertEqual(before_count, after_count+1)
+        self.assertEqual(before_tournament_count, after_tournament_count+1)
 
-    def test_can_kick_member_in_active_tournament_as_owner_that_has_no_participants(self):
-        # can kick an owner of an active tournament in the current club that has no participants
-        pass
+    def test_can_kick_member_in_active_tournament_who_is_owner_that_has_no_participants(self):
+        # should delete the tournament, as it has no participants and the organiser has been kicked
+        # from the club
+        self.club.add_new_member(self.user)
+        temp_other_tournament = Tournament.objects.create(
+        club = self.club, name="other tournament", description="other", organiser = self.user,
+        deadline = make_aware(datetime.now()-timedelta(days = 1))
+        )
+        before_tournament_count = Tournament.objects.count()
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.user.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        after_tournament_count = Tournament.objects.count()
+        self.assertEqual(before_count, after_count+1)
+        self.assertEqual(before_tournament_count, after_tournament_count+1)
 
-    def test_cannot_kick_member_as_participant_in_active_tournament(self):
-        pass
 
-    def test_cannot_kick_member_as_coorganiser_in_active_tournament(self):
-        pass
-
-    def test_cannot_kick_member_as_owner_in_active_tournament(self):
-        pass
+    def test_cannot_kick_member_who_is_in_active_tournament(self):
+        # should not be able to kick a user in a tournament with 1 or more participants
+        self.club.add_new_member(self.user)
+        self.club.add_new_member(self.bob)
+        temp_other_tournament = Tournament.objects.create(
+        club = self.club, name="other tournament", description="other", organiser = self.user,
+        deadline = make_aware(datetime.now()-timedelta(days = 1))
+        )
+        temp_other_tournament.participants.add(self.bob)
+        temp_other_tournament.save()
+        before_tournament_count = Tournament.objects.count()
+        self.client.login(email=self.john.email, password='Password123')
+        self.client.get(self.url)
+        before_count = self.club.get_all_users().count()
+        self.client.post(self.url, {'listed_user': self.bob.email, 'kick': True})
+        self.client.post(self.url, {'listed_user': self.user.email, 'kick': True})
+        after_count = self.club.get_all_users().count()
+        after_tournament_count = Tournament.objects.count()
+        self.assertEqual(before_count, after_count)
+        self.assertEqual(before_tournament_count, after_tournament_count)

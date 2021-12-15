@@ -58,7 +58,6 @@ def manage_applications(request):
         if 'revert' in request.POST:
             if temp_app is not None and temp_user not in temp_club.get_all_users():
                 if temp_app.is_rejected == True:
-                    #print("DELETIGN THIS APPLICATION SO THEY CAN REAPPLY")
                     temp_app.delete()
                     return redirect('manage_applications')
 
@@ -229,7 +228,6 @@ def club_list(request):
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)
             club_application.save()
-            print("APPLICATION CREATED")
 
     try:
         applications = ClubApplicationModel.objects.filter(is_rejected = False)
