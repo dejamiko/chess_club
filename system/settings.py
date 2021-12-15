@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
+from os import path, environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,6 +122,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    path.join(BASE_DIR, 'static')
+]
+STATIC_ROOT = path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -138,3 +143,8 @@ MESSAGE_TAGS =  {
     message_constants.DEBUG: 'dark',
     message_constants.ERROR: 'danger',
 }
+
+# Activate django_heroku
+if "/app" in environ['HOME']:
+    import django_heroku
+    django_heroku.settings(locals())

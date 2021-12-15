@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import Tournament, User, Club
+from clubs.tests.models.helpers import _create_test_users
 from clubs.tests.views.helpers import reverse_with_next
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
@@ -14,6 +15,7 @@ class ViewTournamentTest(TestCase):
         "clubs/tests/fixtures/other_users.json",
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/default_tournament.json",
+        "clubs/tests/fixtures/other_tournament.json",
         "clubs/tests/fixtures/default_match.json",
         "clubs/tests/fixtures/other_clubs.json",
         'clubs/tests/fixtures/default_pairing.json',
@@ -27,10 +29,16 @@ class ViewTournamentTest(TestCase):
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.other_club = Club.objects.get(name = "Saint Louis Chess Club 2")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
+        self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
         self.url = reverse("view_tournament", kwargs={"tournament_id": self.tournament.id})
 
+        self.club.give_elo(self.user)
+        self.club.give_elo(self.jane)
+        self.club.give_elo(self.michael)
+        self.club.give_elo(self.alice)
+
     def test_view_tournament_url(self):
-        self.assertEqual(self.url, f"/home/tournament/{self.tournament.id}")
+        self.assertEqual(self.url, f"/tournament/{self.tournament.id}")
 
     def test_get_view_tournament_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
@@ -49,7 +57,6 @@ class ViewTournamentTest(TestCase):
         for participant in response.context["tournament"].participants.all():
             self.assertContains(response, participant.full_name())
             self.assertContains(response, participant.chess_exp)
-            self.assertContains(response, participant.elo_rating)
 
         self.assertContains(response, "John Doe")
         self.assertContains(response, "Hi, I am John Doe")
@@ -127,23 +134,36 @@ class ViewTournamentTest(TestCase):
         tournament_after_leave = Tournament.objects.get(name = "Saint Louis Chess Tournament")
         self.assertNotIn(self.michael, tournament_after_leave.get_all_participants())
 
+    def test_user_cannot_join_if_96_participants(self):
+        self.client.login(email=self.user.email, password="Password123")
+
+        _create_test_users(100, 94)
+        for i in range(100, 194):
+            user = User.objects.get(id=i)
+            self.club.add_new_member(user)
+            self.other_tournament.participants.add(user)
+        self.other_tournament.save()
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Join")
+
     def create_two_members_for_club(self, c, user1, user2):
         c.add_new_member(user1)
         c.add_new_member(user2)
 
     def test_user_cannot_join_tournament_after_deadline(self):
-
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
         # create a time that is 5 minutes before current time
         d = datetime.now() - timedelta(minutes = 5)
         make_aware_date = make_aware(d)
 
         late_tournament = Tournament.objects.create(
-        club = self.other_club,
-        name = "Late Tournament",
-        description = "This tournament's deadline has passed",
-        organiser = self.user,
-        deadline = make_aware_date
+            club = self.other_club,
+            name = "Late Tournament",
+            description = "This tournament's deadline has passed",
+            organiser = self.user,
+            deadline = make_aware_date
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)
@@ -160,18 +180,17 @@ class ViewTournamentTest(TestCase):
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
 
     def test_user_cannot_leave_tournament_after_deadline(self):
-
         self.create_two_members_for_club(self.other_club, self.jane, self.michael)
         # create a time that is 5 minutes before current time
         d = datetime.now() - timedelta(minutes = 5)
         make_aware_date = make_aware(d)
 
         late_tournament = Tournament.objects.create(
-        club = self.other_club,
-        name = "Late Tournament",
-        description = "This tournament's deadline has passed",
-        organiser = self.user,
-        deadline = make_aware_date
+            club = self.other_club,
+            name = "Late Tournament",
+            description = "This tournament's deadline has passed",
+            organiser = self.user,
+            deadline = make_aware_date
         )
         late_tournament.make_participant(self.jane)
         late_tournament.make_participant(self.michael)

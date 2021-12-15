@@ -10,10 +10,12 @@ from django.utils.timezone import make_aware
 class UserListTest(TestCase):
     """Unit tests of the user list view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", 'clubs/tests/fixtures/other_users.json',
-                'clubs/tests/fixtures/default_club.json', 'clubs/tests/fixtures/default_tournament.json',
-                'clubs/tests/fixtures/other_clubs.json']
+                'clubs/tests/fixtures/default_club.json', "clubs/tests/fixtures/other_clubs.json",
+                "clubs/tests/fixtures/default_elo.json", "clubs/tests/fixtures/other_elo.json"
+                , 'clubs/tests/fixtures/default_tournament.json']
 
     def setUp(self):
+        EloRating.objects.filter(pk=2).delete()
         self.user = User.objects.get(email='janedoe@example.com')
         self.john = User.objects.get(email='johndoe@example.com')
         self.michael = User.objects.get(email='michaeldoe@example.com')
@@ -25,7 +27,7 @@ class UserListTest(TestCase):
         self.url = reverse("users", kwargs={'club_id': self.club.id})
 
     def test_user_list_url(self):
-        self.assertEqual(self.url, "/home/1/users/")
+        self.assertEqual(self.url, "/1/users")
 
     def test_logged_in_redirect(self):
         redirect_url = reverse_with_next('log_in', self.url)

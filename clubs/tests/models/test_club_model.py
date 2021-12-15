@@ -2,6 +2,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import User, Club, Tournament
+from clubs.tests.views.helpers import give_all_missing_elos
 
 
 class ClubModelTestCase(TestCase):
@@ -85,6 +86,10 @@ class ClubModelTestCase(TestCase):
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)
+    
+    def test_club_average_elo(self):
+        give_all_missing_elos(self.club)
+        self.assertEqual(self.club.get_average_elo(), 1000)
 
     def _assert_club_is_valid(self):
         try:

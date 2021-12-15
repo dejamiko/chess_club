@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from clubs.models import Tournament, User, Club, Match, Pairing
+from .helpers import _create_test_users
 
 
 class TournamentModelTestCase(TestCase):
@@ -29,7 +30,7 @@ class TournamentModelTestCase(TestCase):
     def test_name_must_be_unique(self):
         self.tournament.name = self.other_tournament.name
         self._assert_tournament_is_invalid()
-    
+
     def test_name_can_be_50_characters_long(self):
         self.tournament.name = "x" * 50
         self._assert_tournament_is_valid()
@@ -68,7 +69,7 @@ class TournamentModelTestCase(TestCase):
         self.assertEquals(self.tournament.coorganisers.count(), 2)
         self.assertTrue(User.objects.get(email="janedoe@example.com") in self.tournament.coorganisers.all())
         self.assertTrue(User.objects.get(email="bobdoe@example.com") in self.tournament.coorganisers.all())
-    
+
     def test_tournament_with_no_coorganisers(self):
         self.tournament.coorganisers.set([])
         self._assert_tournament_is_valid()
@@ -85,7 +86,28 @@ class TournamentModelTestCase(TestCase):
     def test_tournament_has_pairings_in_it(self):
         self.assertEquals(self.tournament.pairings_within.count(), 1)
         self.assertTrue(self.pairing in self.tournament.pairings_within.all())
-    
+
+    def test_tournament_status_completed(self):
+        self.assertEqual(self.tournament.get_status(), "Completed")
+
+    def test_tournament_status_applications_full(self):
+        self.tournament.winner = None
+        self.tournament.save()
+
+        _create_test_users(100, 94)
+        for i in range(100, 194):
+            user = User.objects.get(id=i)
+            self.club.add_new_member(user)
+            self.tournament.participants.add(user)
+        self.tournament.save()
+
+        self.assertEqual(self.tournament.get_status(), "Applications full")
+
+    def test_tournament_status_taking_applications(self):
+        self.tournament.winner = None
+        self.tournament.save()
+        self.assertEqual(self.tournament.get_status(), "Taking applications")
+
     def _assert_tournament_is_valid(self):
         try:
             self.tournament.full_clean()

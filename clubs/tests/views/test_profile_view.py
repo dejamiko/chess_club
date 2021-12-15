@@ -1,6 +1,6 @@
 """Unit tests of the profile view"""
 from django.test import TestCase
-from clubs.models import Tournament, User, Club
+from clubs.models import Tournament, User, Club, EloRating
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 import clubs.views
@@ -8,7 +8,9 @@ import clubs.views
 class ProfileViewTest(TestCase):
     """Unit tests of the profile view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", "clubs/tests/fixtures/other_users.json",
-                "clubs/tests/fixtures/default_club.json", "clubs/tests/fixtures/default_tournament.json"]
+                "clubs/tests/fixtures/default_club.json", "clubs/tests/fixtures/default_tournament.json",
+                "clubs/tests/fixtures/default_elo.json",
+                "clubs/tests/fixtures/other_elo.json"]
 
     def setUp(self):
         self.user = User.objects.get(email="johndoe@example.com")
@@ -17,6 +19,7 @@ class ProfileViewTest(TestCase):
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         clubs.views.club = None
         self.url = reverse("profile", kwargs={"user_id": self.target_user.id})
+        self.club.give_elo(self.target_user)
 
     def test_get_profile_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next("log_in", self.url)
@@ -24,7 +27,7 @@ class ProfileViewTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_profile_url(self):
-        self.assertEqual(self.url, f"/home/profile/{self.target_user.id}")
+        self.assertEqual(self.url, f"/user/{self.target_user.id}")
 
     def test_get_profile_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
@@ -33,7 +36,7 @@ class ProfileViewTest(TestCase):
         self.club.make_officer(self.target_user)
         self.tournament.participants.add(self.target_user)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "profile.html")
         self.assertContains(response, "Jane Doe")

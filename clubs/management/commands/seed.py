@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from django.utils.timezone import make_aware
 from faker import Faker
-from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase
+from clubs.models import User, Club, Tournament, pairing_to_match_elimination_phase, pairing_to_match_group_phase, EloRating
 import random
 
 
@@ -50,8 +50,13 @@ def generate_tournament_matches(tournament, number_of_rounds=0, finish=False):
             # The chance of draws is highest for the best players
             # I arbitrarily chose 3000 elo as the elo where all games are draws
             # (which is not true for computer engines)
-            r_a = pairing.white_player.elo_rating
-            r_b = pairing.black_player.elo_rating
+            tournament_club = tournament.club
+            temp_white_player = User.objects.get(id=pairing.white_player.id)
+            temp_black_player = User.objects.get(id=pairing.black_player.id)
+            elo_white = EloRating.objects.get(user=temp_white_player, club=tournament_club)
+            elo_black = EloRating.objects.get(user=temp_black_player, club=tournament_club)
+            r_a = elo_white.elo_rating
+            r_b = elo_black.elo_rating
             is_draw = (r_a + r_b) / 6000  # average elo divided by 3000
 
             if random.random() < is_draw:
@@ -240,6 +245,7 @@ class Command(BaseCommand):
             description='After our success with space programmes, we decided to start a chess club',
             owner=owner
         )
+        kerbal.give_elo(owner)
         kerbal.make_member(User.objects.get(email='jeb@example.org'))
         kerbal.make_member(User.objects.get(email='val@example.org'))
         kerbal.make_member(User.objects.get(email='billie@example.org'))
@@ -252,6 +258,7 @@ class Command(BaseCommand):
             description='The Empire State Chess Club',
             owner=owner
         )
+        new_york.give_elo(owner)
         new_york.make_member(User.objects.get(email='jeb@example.org'))
         new_york.make_officer(User.objects.get(email='jeb@example.org'))
         self.generate_club_users(new_york)
@@ -263,6 +270,7 @@ class Command(BaseCommand):
             description='The Chess Club for the Dutch talent',
             owner=owner
         )
+        amsterdam.give_elo(owner)
         self.generate_club_users(amsterdam)
         print('amsterdam created')
         owner = get_user()
@@ -272,6 +280,7 @@ class Command(BaseCommand):
             description='The Russian School of chess',
             owner=owner
         )
+        moscow.give_elo(owner)
         moscow.make_member(User.objects.get(email='billie@example.org'))
         self.generate_club_users(moscow)
         print('moscow created')
@@ -328,10 +337,11 @@ class Command(BaseCommand):
             description=description,
             owner=owner
         )
+        club.give_elo(owner)
         return club
 
     def create_tournament(self, club, past=False):
-        name = f'{club.name} {club.get_all_tournaments().count() + 1} Tournament'
+        name = f'{club.name} Tournament #{club.get_all_tournaments().count() + 1}'
         description = self.faker.text(max_nb_chars=500)
         officers = list(club.officers.all())
         random.shuffle(officers)

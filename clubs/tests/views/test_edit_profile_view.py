@@ -1,7 +1,7 @@
 """Unit tests of the edit profile view"""
 from django.test import TestCase
 from clubs.forms import EditForm
-from clubs.models import User
+from clubs.models import User, Club
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 from .helpers import LogInTester
@@ -13,6 +13,7 @@ class EditProfileTestCase(TestCase, LogInTester):
 
     fixtures = [
         'clubs/tests/fixtures/default_user.json',
+        'clubs/tests/fixtures/default_club.json',
         'clubs/tests/fixtures/other_users.json'
     ]
 
@@ -20,6 +21,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.url = reverse('edit_profile')
         self.login_url = reverse('log_in')
         self.user = User.objects.get(email="johndoe@example.com")
+        self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.edit_profile_form_input = {'first_name': 'NOTJohn',
                                         'last_name': 'NOTdoe', 'email': 'NOTjohndoe@test.com', 'bio': 'NOT my bio',
                                         'chess_exp': 'Advanced', 'personal_statement': 'NOT john doe personal statement'
@@ -31,7 +33,7 @@ class EditProfileTestCase(TestCase, LogInTester):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_edit_profile_url(self):
-        self.assertEqual(self.url, '/home/edit_profile')
+        self.assertEqual(self.url, '/edit_profile')
 
     def test_unsuccessful_profile_update_due_to_duplicate_email(self):
         self.client.login(email=self.user.email, password='Password123')
@@ -56,7 +58,7 @@ class EditProfileTestCase(TestCase, LogInTester):
 
     def test_edit_profile_changes_attributes(self):
         self.client.login(email=self.user.email, password='Password123')
-
+        self.club.give_elo(self.user)
         response = self.client.post(self.url, self.edit_profile_form_input, follow=True)
         response_url = reverse('profile', kwargs={'user_id': self.user.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)

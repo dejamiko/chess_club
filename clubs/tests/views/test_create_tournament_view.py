@@ -30,7 +30,7 @@ class CreateTournamentViewTest(TestCase):
         }
 
     def test_create_tournament_url(self):
-        self.assertEqual(self.url, "/home/create_tournament")
+        self.assertEqual(self.url, "/create_tournament")
 
     def test_get_create_tournament_without_club_selected(self):
         self.client.login(email=self.user.email, password="Password123")
@@ -89,6 +89,7 @@ class CreateTournamentViewTest(TestCase):
         clubs.views.club = self.club
         self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
+        self.club.give_elo(self.user)
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input)
         after_count = Tournament.objects.count()

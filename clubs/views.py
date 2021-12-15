@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, render
-from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase
+
+from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase, EloRating
+
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -12,7 +14,6 @@ from pathlib import Path
 
 global club
 club = None
-
 
 def login_prohibited(view_function):
     def modified_view_function(request):
@@ -84,6 +85,13 @@ def manage_applications(request):
     return render(request, 'manage_applications.html',
                   {'applications': applications, "user_clubs": user_clubs, "selected_club": club, 'rejected_applications': rejected_applications})
 
+@login_required
+def view_club(request, club_id):
+    current_user = request.user
+    user_clubs = user_clubs_finder(request)
+    club_to_view = Club.objects.get(id=club_id)
+    return render(request, "club_profile.html", {"user_clubs": user_clubs, "selected_club": club,
+                                          "club_to_view": club_to_view, 'curr_user': current_user})
 
 @login_required
 def user_list_main(request, club_id):
@@ -101,7 +109,6 @@ def user_list_main(request, club_id):
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
         return response
-
 
 @login_required
 def user_list_no_club(request):
@@ -149,11 +156,14 @@ def user_list(request, user_club):
         listed_user = User.objects.get(email=request.POST.get("listed_user"))
         if 'demote' in request.POST and listed_user.user_level(user_club) == 'Officer' and user_club.get_owner() == curr_user:
             listed_user.demote(user_club)
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was demoted to {user_club.user_level(listed_user).lower()}!")
         if 'promote' in request.POST and listed_user.user_level(user_club) == 'Member' and \
         (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user) :
             listed_user.promote(user_club)
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was promoted to {user_club.user_level(listed_user).lower()}!")
         if 'switch_owner' in request.POST and user_club.get_owner() == curr_user and listed_user.user_level(user_club) == 'Officer':
             user_club.make_owner(listed_user)
+            messages.add_message(request, messages.SUCCESS, f"You switched ownership with {listed_user.full_name()}!")
         if 'kick' in request.POST and listed_user.user_level(user_club) == 'Member' and \
         (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user):
             if listed_user not in get_occupied_users(user_club):
@@ -177,9 +187,10 @@ def user_list(request, user_club):
     else:
         user_dict = user_club.get_all_users()
 
-    user_dict_with_levels = []
+    user_dict_with_levels_elo = []
     for user in user_dict:
-        user_dict_with_levels.append((user, user_club.user_level(user)))
+        user_elo_club = EloRating.objects.get(user=user, club=user_club)
+        user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
 
     user_clubs = user_clubs_finder(request)
 
@@ -188,8 +199,7 @@ def user_list(request, user_club):
     except Tournament.DoesNotExist:
         tournaments = None
 
-    return render(request, "user_list.html",
-                  {"users": user_dict_with_levels, "user_level": request.user.user_level(user_club),
+    return render(request, "user_list.html", {"users": user_dict_with_levels_elo, "user_level": request.user.user_level(user_club),
                    "user_clubs": user_clubs, "selected_club": user_club, 'occupied_users': get_occupied_users(user_club),
                    'curr_tournaments': curr_tournaments, 'tournaments': tournaments})
 
@@ -203,7 +213,6 @@ def user_clubs_finder(request):
     for temp_club in clubs:
         if request.user in temp_club.get_all_users():
             user_clubs.append(temp_club)
-
     return user_clubs
 
 
@@ -262,7 +271,8 @@ def _get_current_user_tournaments(user_clubs):
     for club in user_clubs:
         for tournament in club.get_all_tournaments():
             if not tournament.winner:
-                temp_list.append(tournament)
+                if not(tournament.deadline < make_aware(datetime.now()) and tournament.participants.count() < 2):
+                    temp_list.append(tournament)
     return temp_list
 
 
@@ -272,13 +282,17 @@ def profile(request, user_id):
     try:
         requested_user = User.objects.get(id=user_id)
         all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(requested_user.owner_of.all())
+        club_dict_elo = []
+        for club_x in all_user_clubs:
+            user_elo_club = EloRating.objects.get(user=requested_user, club=club_x)
+            club_dict_elo.append((club_x, club_x.user_level(requested_user), user_elo_club.elo_rating))
     except:
         if club:
             return redirect("users", club.id)
         else:
             return redirect("select_club")
     else:
-        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": all_user_clubs, "user_clubs": user_clubs, "selected_club": club})
+        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": club_dict_elo, "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_prohibited
@@ -368,13 +382,14 @@ def create_club(request):
     if request.method == 'POST':
         form = CreateClubForm(request.POST)
         if form.is_valid():
-            form.save(request.user)
-            return redirect('clubs')
+            temp_club = form.save(request.user)
+            temp_club.give_elo(request.user)
+            messages.add_message(request, messages.SUCCESS, "Club successfully created!")
+            return redirect("club_page", club_id=temp_club.id)
     else:
         form = CreateClubForm()
     user_clubs = user_clubs_finder(request)
     return render(request, 'create_club.html', {'form': form, "user_clubs": user_clubs, "selected_club": club})
-    # redirect to home page with new club as drop down choice when user story done
 
 
 @login_required
@@ -386,11 +401,13 @@ def create_tournament(request):
                 form = CreateTournamentForm(post=request.POST, club=club, current_user=request.user)
                 if form.is_valid():
                     new_tournament = form.save(request.user, club.id)
+                    messages.add_message(request, messages.SUCCESS, "Tournament successfully created!")
                     return redirect("view_tournament", tournament_id=new_tournament.id)
             else:
                 form = CreateTournamentForm(club=club, current_user=request.user)
             return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
         else:
+            messages.add_message(request, messages.ERROR, "Only officers or owners can create tournaments!")
             return redirect("home_page")
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
@@ -438,11 +455,10 @@ def view_tournament(request, tournament_id):
 
 @login_required
 def club_page(request, club_id):
-    club = Club.objects.get(id=club_id)
-    curr_user = request.user
-    already_exists = False
-    if request.method == 'POST':
-        club_name = request.POST['name']
+    requested_club = Club.objects.get(id=club_id)
+
+    if request.method == "POST":
+        club_name = request.POST["name"]
         temp_club = Club.objects.get(name=club_name)
         try:
             temp_app = ClubApplicationModel.objects.get(
@@ -454,16 +470,12 @@ def club_page(request, club_id):
         if temp_app is None:
             club_application = ClubApplicationModel(
                 associated_club=Club.objects.get(name=club_name),
-                associated_user=curr_user)
+                associated_user=request.user)
             club_application.save()
 
 
-    try:
-        applications = ClubApplicationModel.objects.all()
-    except ClubApplicationModel.DoesNotExist:
-        applications = None
-        return redirect('clubs')
-
     user_clubs = user_clubs_finder(request)
-    return render(request, 'club_page.html',
-        {'club': club, 'curr_user': request.user, "user_clubs": user_clubs, "selected_club": club})
+    return render(request, "club_page.html", {"club": requested_club,
+                                              "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
+                                              "today": make_aware(datetime.now()), "curr_user": request.user,
+                                              "user_clubs": user_clubs, "selected_club": club})

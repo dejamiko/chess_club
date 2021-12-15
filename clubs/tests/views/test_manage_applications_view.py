@@ -1,8 +1,8 @@
 """Unit tests of the manage application view"""
 from django.test import TestCase
-from clubs.models import User, Club, ClubApplicationModel
+from clubs.models import User, Club, ClubApplicationModel, EloRating
 from django.urls import reverse
-from clubs.tests.views.helpers import reverse_with_next
+from clubs.tests.views.helpers import reverse_with_next, give_all_missing_elos
 
 
 class ManageApplicationViewTest(TestCase):
@@ -13,6 +13,8 @@ class ManageApplicationViewTest(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/other_clubs.json",
         "clubs/tests/fixtures/default_application.json",
+        "clubs/tests/fixtures/default_elo.json",
+        "clubs/tests/fixtures/other_elo.json"
     ]
 
     def setUp(self):
@@ -23,10 +25,12 @@ class ManageApplicationViewTest(TestCase):
         self.first_club = Club.objects.get(name="Saint Louis Chess Club")
         self.second_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
+        give_all_missing_elos(self.first_club)
+        give_all_missing_elos(self.second_club)
 
 
     def test_manage_applications_url(self):
-        self.assertEqual(self.url, '/home/clubs/manage_applications/')
+        self.assertEqual(self.url, '/manage_applications')
 
     def test_manage_applications_list(self):
         self.client.login(email=self.first_user.email, password="Password123")
@@ -161,7 +165,7 @@ class ManageApplicationViewTest(TestCase):
         # NOTE: this may need to change as the URLs change
         select_club = self.client.get(reverse('users', kwargs={"club_id": self.first_club.id}))
         html_content = str(select_club.content)
-        str_to_test = """href="/home/clubs/manage_applications/">"""
+        str_to_test = """href="/manage_applications">"""
         res = str_to_test in html_content
         self.assertTrue(res)
 
@@ -171,10 +175,9 @@ class ManageApplicationViewTest(TestCase):
         first_application = self.client.post(self.apply_url, {'name' : self.second_club.name})
         response = self.client.post(self.url, {'uname' : self.second_user.email,
         'clubname': self.second_club.name, 'accepted': True })
-        # NOTE: this may need to change as the URLs change
-        select_club = self.client.get('/home/2/users/')
+        select_club = self.client.get('/2/users')
         html_content = str(select_club.content)
-        str_to_test = """href="/home/clubs/manage_applications/">"""
+        str_to_test = """href="/manage_applications">"""
         res = str_to_test in html_content
         self.assertFalse(res)
 

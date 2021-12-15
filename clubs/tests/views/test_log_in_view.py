@@ -17,7 +17,7 @@ class LogInViewTestCase(TestCase, LogInTester):
         self.club = Club.objects.get(name='Saint Louis Chess Club')
 
     def test_log_in_url(self):
-        self.assertEqual(self.url, '/log_in/')
+        self.assertEqual(self.url, '/log_in')
 
     def test_get_log_in(self):
         response = self.client.get(self.url)

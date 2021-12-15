@@ -6,8 +6,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1>Users</h1>
-
+                <h1 style="display: inline;">Users <h5 class="text-muted" style="display: inline;">in {{ selected_club.name }}</h5></h1>
                 <table id="user-table" class="table table-hover">
                     <thead>
                     <tr>
@@ -19,10 +18,10 @@
                         {% if user_level == "Officer" or user_level == "Owner" %}
                             <th scope="col">Email</th>
                             <th scope="col">Role</th>
-                            <th scope="col">Elo Rating</th>
+                            <th scope="col">Elo rating</th>
                             <th scope="col">Options</th>
                         {% else %}
-                            <th scope="col">Elo Rating</th>
+                            <th scope="col">Elo rating</th>
                         {% endif %}
 
 
@@ -43,7 +42,7 @@
                     {% if user_level == "Officer" or user_level == "Owner" %}
                         <td>{{ listed_user.0.email }}</td>
                         <td>{{ listed_user.1 }}</td>
-                        <td>{{ listed_user.0.elo_rating }}</td>
+                        <td>{{ listed_user.2 }}</td>
                         <td>
                             <form method="post">
                               {% csrf_token %}
@@ -74,7 +73,7 @@
                             </form>
                         </td>
                     {% else %}
-                        <td>{{ listed_user.0.elo_rating }}</td>
+                        <td>{{ listed_user.2 }}</td>
                     {% endif %}
                     </tr>
                     {% endfor %}
