@@ -2,7 +2,7 @@
 from django.test import TestCase
 from clubs.models import User, Club, ClubApplicationModel, EloRating
 from django.urls import reverse
-from clubs.tests.views.helpers import reverse_with_next
+from clubs.tests.views.helpers import reverse_with_next, give_all_missing_elos
 
 
 class ManageApplicationViewTest(TestCase):
@@ -25,6 +25,8 @@ class ManageApplicationViewTest(TestCase):
         self.first_club = Club.objects.get(name="Saint Louis Chess Club")
         self.second_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.first_club_application = ClubApplicationModel.objects.get(associated_club=self.first_club)
+        give_all_missing_elos(self.first_club)
+        give_all_missing_elos(self.second_club)
 
 
     def test_manage_applications_url(self):
