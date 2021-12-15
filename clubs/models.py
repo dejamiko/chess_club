@@ -7,7 +7,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from django.utils.timezone import make_aware
 from libgravatar import Gravatar
-import math
 
 
 # This user manager is following tutorial from
@@ -119,17 +118,17 @@ class User(AbstractUser):
             if tournament.winner and tournament.winner != self:
                 counter += 1
         return counter
-    
+
     def get_highest_elo(self):
         return max(self._get_all_elos())
-    
+
     def get_lowest_elo(self):
         return min(self._get_all_elos())
-    
+
     def get_mean_elo(self):
         all_elos = self._get_all_elos()
         return round(sum(all_elos) / len(all_elos), 2)
-    
+
     def _get_all_elos(self):
         temp_array = []
         for elo in self.user_elo.all():
@@ -237,16 +236,22 @@ class Club(models.Model):
     def get_number_of_tournaments(self):
         return self.has_tournaments.count()
 
+    def get_average_elo(self):
+        temp_array = []
+        for elo in EloRating.objects.filter(club=self):
+            temp_array.append(elo.elo_rating)
+        return round(sum(temp_array) / len(temp_array), 2)
+
 
 def toggle_superuser(user):
     user.is_staff = not user.is_staff
     user.is_superuser = not user.is_superuser
 
 
-class ClubApplicationModel(models.Model):
+class ClubApplication(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
-    is_rejected = models.BooleanField(default = False)
+    is_rejected = models.BooleanField(default=False)
 
 
 class Tournament(models.Model):
@@ -357,7 +362,7 @@ class Tournament(models.Model):
                 )
                 pairing.save()
                 pairings.append(pairing)
-        
+
         if len(pairings) == 1 and self.bye.count() == 0:
             self.is_final = True
 
@@ -367,7 +372,7 @@ class Tournament(models.Model):
 
     def get_all_matches(self):
         return list(Match.objects.filter(pairing__in=self.pairings_within.all()))
-    
+
     def all_pairings_completed(self):
         if self.pairings_within.count() > 0:
             for pairing in self.pairings_within.all():
@@ -376,7 +381,7 @@ class Tournament(models.Model):
             return True
         else:
             return False
-        
+
     def set_winner(self, winner):
         self.winner = winner
 
@@ -396,7 +401,7 @@ class Tournament(models.Model):
 
     def get_all_participants(self):
         return self.participants.all()
-    
+
     def get_status(self):
         if self.winner:
             return "Completed"
@@ -406,6 +411,7 @@ class Tournament(models.Model):
             return "Applications full"
         else:
             return "Taking applications"
+
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
@@ -419,7 +425,7 @@ class Pairing(models.Model):
             return self.black_player
         else:
             return self.white_player
-    
+
     def match_exists(self):
         return Match.objects.filter(pairing=self)
 
@@ -479,7 +485,7 @@ def pairing_to_match_group_phase(pairing, winner=None):
         draw_scenario.set_draw()
         draw_scenario.save()
         return draw_scenario
-        
+
 
 class EloRating(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="has_elo_club")
@@ -603,7 +609,6 @@ class Match(models.Model):
     is_draw = models.BooleanField(blank=True)
 
     def set_winner(self):
-
         winner_new_rating = self.set_elo_winner(self.winner, self.loser)
         loser_new_rating = self.set_elo_loser(self.winner, self.loser)
 
@@ -623,7 +628,7 @@ class Match(models.Model):
         user_draw_black = self.pairing.black_player
         user_draw_white = self.pairing.white_player
 
-        black_new_rating = self.set_elo_draw_black(user_draw_white,user_draw_black)
+        black_new_rating = self.set_elo_draw_black(user_draw_white, user_draw_black)
         white_new_rating = self.set_elo_draw_white(user_draw_white, user_draw_black)
 
         b_user = User.objects.get(email=self.pairing.black_player.email)

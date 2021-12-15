@@ -26,12 +26,6 @@ class SignUpFormTestCase(TestCase):
         form = SignUpForm(data=self.form_input)
         self.assertTrue(form.is_valid())
 
-    # #form users model validation
-    # def test_form_uses_model_validation(self):
-    #     self.form_input['password'] = 'password'
-    #     form = SignUpForm(data=self.form_input)
-    #     self.assertFalse(form.is_valid())
-
     # form has necessary fields
     def test_form_has_necessary_fields(self):
         form = SignUpForm()
@@ -52,7 +46,7 @@ class SignUpFormTestCase(TestCase):
 
     # test email uniqueness
     def test_unique_email(self):
-        form = SignUpForm(data=self.form_input)
+        SignUpForm(data=self.form_input)
         form_duplicate = {
             'first_name': 'jane2',
             'last_name': 'Doe2',

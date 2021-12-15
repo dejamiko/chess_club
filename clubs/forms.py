@@ -41,7 +41,7 @@ class SignUpForm(forms.ModelForm):
         if new_password != password_confirmation:
             self.add_error('password_confirmation', 'Confirmation does not match password.')
 
-    def save(self):
+    def save(self, **kwargs):
         super().save(commit=False)
         user = User.objects.create_user(
             first_name=self.cleaned_data.get('first_name'),
@@ -82,7 +82,16 @@ class CreateClubForm(forms.ModelForm):
         )
         return club
 
-class CreateTournamentForm(forms.ModelForm):    
+
+def _generate_officer_tuples(club, current_user):
+    tuple_list = []
+    for officer in club.get_officers():
+        if officer != current_user:
+            tuple_list.append((officer, officer.full_name))
+    return tuple_list
+
+
+class CreateTournamentForm(forms.ModelForm):
     def __init__(self, post=None, club=None, current_user=None, *args, **kwargs):
         if post:
             post = post.copy()
@@ -94,7 +103,7 @@ class CreateTournamentForm(forms.ModelForm):
         else:
             super(CreateTournamentForm, self).__init__(*args, **kwargs)
         if club and current_user:
-            self.fields["coorganisers"].choices = self._generate_officer_tuples(club, current_user)
+            self.fields["coorganisers"].choices = _generate_officer_tuples(club, current_user)
 
     deadline_date = DateField()
     deadline_date.widget = forms.TextInput(attrs={"type": "date"})
@@ -107,13 +116,6 @@ class CreateTournamentForm(forms.ModelForm):
         widgets = {"description": forms.Textarea(), "coorganisers": forms.SelectMultiple()}
         help_texts = {"coorganisers": "Hold Ctrl/⌘ to select multiple"}
 
-    def _generate_officer_tuples(self, club, current_user):
-        tuple_list = []
-        for officer in club.get_officers():
-            if officer != current_user:
-                tuple_list.append((officer, officer.full_name))
-        return tuple_list
-    
     def save(self, user, club):
         super().save(commit=False)
         tournament = Tournament.objects.create(
@@ -121,7 +123,8 @@ class CreateTournamentForm(forms.ModelForm):
             name=self.cleaned_data.get("name"),
             description=self.cleaned_data.get("description"),
             organiser=user,
-            deadline=make_aware(datetime.combine(self.cleaned_data.get("deadline_date"), self.cleaned_data.get("deadline_time")))
+            deadline=make_aware(
+                datetime.combine(self.cleaned_data.get("deadline_date"), self.cleaned_data.get("deadline_time")))
         )
         tournament.coorganisers.set(self.cleaned_data.get("coorganisers"))
         tournament.save()

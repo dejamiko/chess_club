@@ -1,12 +1,12 @@
 [
-    {
-        "model": "clubs.match",
-        "pk": 1,
-        "fields": {
-            "pairing": 1,
-            "winner": 5,
-            "loser": 4,
-            "is_draw": false
-        }
+  {
+    "model": "clubs.match",
+    "pk": 1,
+    "fields": {
+      "pairing": 1,
+      "winner": 5,
+      "loser": 4,
+      "is_draw": false
     }
+  }
 ]

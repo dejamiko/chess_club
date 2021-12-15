@@ -34,7 +34,7 @@ class TournamentModelTestCase(TestCase):
     def test_name_must_be_unique(self):
         self.tournament.name = self.other_tournament.name
         self._assert_tournament_is_invalid()
-    
+
     def test_name_can_be_50_characters_long(self):
         self.tournament.name = "x" * 50
         self._assert_tournament_is_valid()
@@ -73,7 +73,7 @@ class TournamentModelTestCase(TestCase):
         self.assertEquals(self.tournament.coorganisers.count(), 2)
         self.assertTrue(User.objects.get(email="janedoe@example.com") in self.tournament.coorganisers.all())
         self.assertTrue(User.objects.get(email="bobdoe@example.com") in self.tournament.coorganisers.all())
-    
+
     def test_tournament_with_no_coorganisers(self):
         self.tournament.coorganisers.set([])
         self._assert_tournament_is_valid()
@@ -103,7 +103,7 @@ class TournamentModelTestCase(TestCase):
     def test_tournament_status_applications_full(self):
         self.tournament.winner = None
         self.tournament.save()
-        
+
         _create_test_users(100, 94)
         for i in range(100, 194):
             user = User.objects.get(id=i)
@@ -113,7 +113,7 @@ class TournamentModelTestCase(TestCase):
         self.tournament.save()
 
         self.assertEqual(self.tournament.get_status(), "Applications full")
-    
+
     def test_tournament_status_taking_applications(self):
         self.tournament.winner = None
         self.tournament.save()

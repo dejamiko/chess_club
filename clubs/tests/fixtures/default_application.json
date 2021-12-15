@@ -1,6 +1,6 @@
 [
   {
-    "model": "clubs.clubapplicationmodel",
+    "model": "clubs.clubapplication",
     "pk": 1,
     "fields": {
       "associated_club": 1,
