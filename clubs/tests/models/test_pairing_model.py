@@ -1,7 +1,7 @@
 """Unit tests of the pairing model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import User, Club, Tournament, Pairing
+from clubs.models import User, Tournament, Pairing
 
 
 class PairingModelTestCase(TestCase):

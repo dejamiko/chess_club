@@ -21,18 +21,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                            {% for tournament in incomplete_user_tournaments %}
-                                <tr>
-                                    <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
-                                    <td><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></td>
-                                    <td>{{ tournament.get_status }}</td>
-                                    <td>{{ tournament.deadline }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for tournament in incomplete_user_tournaments %}
+                            <tr>
+                                <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
+                                <td><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a>
+                                </td>
+                                <td>{{ tournament.get_status }}</td>
+                                <td>{{ tournament.deadline }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <p>There are no unfinished tournaments currently taking place (in any clubs that you belong to)...</p>
+                    <p>There are no unfinished tournaments currently taking place (in any clubs that you belong
+                        to)...</p>
                 {% endif %}
             </div>
             <div class="col-sm-4">
@@ -40,10 +42,12 @@
                     <div class="card-body">
                         <h4 class="card-subtitle mb-2 text-muted">Daily chess puzzle</h4>
                         <h6 class="card-subtitle mb-2 text-muted"> {{ date }}</h6>
-                        <img style="margin-bottom: 12px;" class="card-img" id="puzzle-image" alt="Daily chess puzzle" />
+                        <img style="margin-bottom: 12px;" class="card-img" id="puzzle-image" alt="Daily chess puzzle"/>
                         <p style="float:right; margin-bottom: 0px;" class="card-text" id="puzzle-text"></p>
-                        <a class="btn btn-outline-secondary btn-sm" id="puzzle-link" href="#" target="_blank">Try to solve</a>
-                        <a class="btn btn-outline-success btn-sm" id="puzzle-solution" href="#" target="_blank">View solution</a>
+                        <a class="btn btn-outline-secondary btn-sm" id="puzzle-link" href="#" target="_blank">Try to
+                            solve</a>
+                        <a class="btn btn-outline-success btn-sm" id="puzzle-solution" href="#" target="_blank">View
+                            solution</a>
                     </div>
                 </div>
             </div>

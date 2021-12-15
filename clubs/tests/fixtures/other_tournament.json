@@ -1,20 +1,22 @@
 [
-    {
-        "model": "clubs.tournament",
-        "pk": 2,
-        "fields": {
-            "club": 1,
-            "name": "Bedroom Tournament",
-            "description": "Everyone's got to start somewhere!",
-            "participants": [
-                4, 5
-            ],
-            "organiser": 1,
-            "coorganisers": [
-                2, 3
-            ],
-            "deadline": "2021-12-10T17:00:00+00:00",
-            "winner": 4
-        }
+  {
+    "model": "clubs.tournament",
+    "pk": 2,
+    "fields": {
+      "club": 1,
+      "name": "Bedroom Tournament",
+      "description": "Everyone's got to start somewhere!",
+      "participants": [
+        4,
+        5
+      ],
+      "organiser": 1,
+      "coorganisers": [
+        2,
+        3
+      ],
+      "deadline": "2021-12-10T17:00:00+00:00",
+      "winner": 4
     }
+  }
 ]

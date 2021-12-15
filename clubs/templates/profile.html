@@ -1,6 +1,8 @@
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js" integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js"
+        integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 {% extends 'base_content.html' %}
 {% block content %}
@@ -8,19 +10,20 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
-                <img style="border-radius: 8px; float:right; margin-left: 20px; margin-bottom: 10px;" src="{{ requested_user.gravatar }}" alt="{{ requested_user.full_name }}'s profile picture">
+                <img style="border-radius: 8px; float:right; margin-left: 20px; margin-bottom: 10px;"
+                     src="{{ requested_user.gravatar }}" alt="{{ requested_user.full_name }}'s profile picture">
                 <h1>{{ requested_user.full_name }}</h1>
                 <p>{{ requested_user.bio }}</p>
-                
+
                 {% if all_user_clubs %}
                     <h5>Clubs</h5>
                     <table id="user-clubs-table" class="table table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Position</th>
-                                <th scope="col">Elo rating</th>
-                            </tr>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Elo rating</th>
+                        </tr>
                         </thead>
                         {% for club in all_user_clubs %}
                             <tr>
@@ -29,11 +32,11 @@
                                     {{ club.1 }}
                                 </td>
                                 <td
-                                    {% if club.0 in user_clubs %}
-                                        >{{ club.2 }}
-                                    {% else %}
-                                        class="text-muted">Hidden
-                                    {% endif %}
+                                        {% if club.0 in user_clubs %}
+                                            >{{ club.2 }}
+                                        {% else %}
+                                            class="text-muted">Hidden
+                                        {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -44,17 +47,17 @@
                     <h5>Tournaments</h5>
                     <table id="user-tournaments-table" class="table table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Outcome</th>
-                            </tr>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Outcome</th>
+                        </tr>
                         </thead>
                         {% for tournament in requested_user.participates_in.all %}
                             <tr>
                                 <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
                                 <td>
                                     {% if tournament in requested_user.tournament_wins.all %}
-                                        Winner! 
+                                        Winner!
                                     {% elif tournament in requested_user.participates_in.all and tournament.winner %}
                                         Participated <!-- later, try add round in the tournament they lost in -->
                                     {% else %}
@@ -75,8 +78,8 @@
                     </div>
                 </div>
 
-                </br>
-                
+                <br>
+
                 <ul class="list-group">
                     {% if requested_user == user %}
                         <li class="list-group-item"><b>Email address:</b> {{ requested_user.email }}</li>
@@ -88,53 +91,56 @@
                     <li class="list-group-item"><b>Average elo rating:</b> {{ requested_user.get_mean_elo }}</li>
                 </ul>
 
-                </br>
+                <br>
 
                 {% if requested_user.get_number_of_tournaments_won > 0 or requested_user.get_number_of_tournaments_lost > 0 %}
-                <div class="card">
+                    <div class="card">
                     <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">Tournaments</h6>
-                            <div>
-                                <canvas id="tournament_chart"></canvas>
-                            </div>
-                            </br>
-                        {% endif %}
-                        <ul class="list-group">
-                            <li class="list-group-item"><b>Tournaments participated in:</b> {{ requested_user.get_number_of_tournaments_participated_in }}</li>
-                            <li class="list-group-item"><b>Tournaments won:</b> {{ requested_user.get_number_of_tournaments_won }}</li>
-                            <li class="list-group-item"><b>Tournaments lost:</b> {{ requested_user.get_number_of_tournaments_lost }}</li>
-                        </ul>
+                    <h6 class="card-subtitle mb-2 text-muted">Tournaments</h6>
+                    <div>
+                        <canvas id="tournament_chart"></canvas>
+                    </div>
+                    <br>
+                {% endif %}
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Tournaments participated in:</b> {{ requested_user.get_number_of_tournaments_participated_in }}</li>
+                    <li class="list-group-item"><b>Tournaments won:</b> {{ requested_user.get_number_of_tournaments_won }}</li>
+                    <li class="list-group-item"><b>Tournaments lost:</b> {{ requested_user.get_number_of_tournaments_lost }}</li>
+                </ul>
                 {% if requested_user.get_number_of_tournaments_won > 0 or requested_user.get_number_of_tournaments_lost > 0 %}
                     </div>
-                </div>
+                    </div>
                 {% endif %}
 
-                </br>
+                <br>
 
                 {% if requested_user.get_number_of_matches_played > 0 %}
-                <div class="card">
+                    <div class="card">
                     <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">Matches</h6>
-                            <div>
-                                <canvas id="match_chart"></canvas>
-                            </div>
-                            </br>
-                        {% endif %}
-                        <ul class="list-group">
-                            <li class="list-group-item"><b>Matches played:</b> {{ requested_user.get_number_of_matches_played }}</li>
-                            <li class="list-group-item"><b>Matches won:</b> {{ requested_user.get_number_of_matches_won }}</li>
-                            <li class="list-group-item"><b>Matches lost:</b> {{ requested_user.get_number_of_matches_lost }}</li>
-                        </ul>
+                    <h6 class="card-subtitle mb-2 text-muted">Matches</h6>
+                    <div>
+                        <canvas id="match_chart"></canvas>
+                    </div>
+                    <br>
+                {% endif %}
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Matches played:</b> {{ requested_user.get_number_of_matches_played }}
+                    </li>
+                    <li class="list-group-item"><b>Matches won:</b> {{ requested_user.get_number_of_matches_won }}</li>
+                    <li class="list-group-item"><b>Matches lost:</b> {{ requested_user.get_number_of_matches_lost }}
+                    </li>
+                </ul>
                 {% if requested_user.get_number_of_matches_played > 0 %}
                     </div>
-                </div>
+                    </div>
                 {% endif %}
-            
-                </br>
+
+                <br>
 
                 {% if requested_user == user %}
-                    <a class="btn btn-outline-secondary" style="width: 100%;" href="{% url 'edit_profile' %}">Edit profile</a>
-                    </br></br>
+                    <a class="btn btn-outline-secondary" style="width: 100%;" href="{% url 'edit_profile' %}">Edit
+                        profile</a>
+                    <br><br>
                 {% endif %}
             </div>
         </div>
@@ -154,8 +160,8 @@
                     labels: ['Wins', 'Losses', 'Draws'],
                     datasets: [{
                         data: [{{ requested_user.get_number_of_matches_won }},
-                               {{ requested_user.get_number_of_matches_lost }},
-                               {{ requested_user.get_number_of_matches_played }} - {{ requested_user.get_number_of_matches_won }} - {{ requested_user.get_number_of_matches_lost }}],
+                            {{ requested_user.get_number_of_matches_lost }},
+                            {{ requested_user.get_number_of_matches_played }} -{{ requested_user.get_number_of_matches_won }} - {{ requested_user.get_number_of_matches_lost }}],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.2)',
                             'rgba(255, 99, 132, 0.2)',
@@ -187,8 +193,8 @@
                     labels: ['Wins', 'Losses', 'Ongoing'],
                     datasets: [{
                         data: [{{ requested_user.get_number_of_tournaments_won }},
-                               {{ requested_user.get_number_of_tournaments_lost }},
-                               {{ requested_user.get_number_of_tournaments_participated_in }} - {{ requested_user.get_number_of_tournaments_won }} - {{ requested_user.get_number_of_tournaments_lost }}],
+                            {{ requested_user.get_number_of_tournaments_lost }},
+                            {{ requested_user.get_number_of_tournaments_participated_in }} -{{ requested_user.get_number_of_tournaments_won }} - {{ requested_user.get_number_of_tournaments_lost }}],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.2)',
                             'rgba(255, 99, 132, 0.2)',
@@ -207,7 +213,6 @@
                     maintainAspectRatio: false
                 }
             });
-            </script>
         {% endif %}
     </script>
 

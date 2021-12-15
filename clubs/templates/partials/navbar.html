@@ -23,7 +23,7 @@
                     <li class="nav-item">
                         {% if selected_club %}
                             <a class="nav-link" href="{% url 'users' selected_club.id %}" name="change_club">Users</a>
-                        {%  elif user_clubs%}
+                        {% elif user_clubs %}
                             <a class="nav-link" href="{% url 'select_club' %}">Users</a>
                         {% else %}
                             <a class="nav-link" href="{% url 'no_club' %}">Users</a>
@@ -38,23 +38,24 @@
                 {% endif %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-              {% if user.is_authenticated %}
-                 {% if user_clubs %}
+                {% if user.is_authenticated %}
+                    {% if user_clubs %}
 
-                 {% if selected_club and selected_club in user.officer_of.all or selected_club in user.owner_of.all %}
-                     <li class="nav-item">
-                         <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
-                     </li>
-                     {% endif %}
-                     {% if user == selected_club.get_owner or user in selected_club.get_officers %}
-                     <li class="nav-item">
-                         <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications </a>
-                     </li>
-                     {% endif %}
+                        {% if selected_club and selected_club in user.officer_of.all or selected_club in user.owner_of.all %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'create_tournament' %}">Create tournament</a>
+                            </li>
+                        {% endif %}
+                        {% if user == selected_club.get_owner or user in selected_club.get_officers %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'manage_applications' %}">Manage applications </a>
+                            </li>
+                        {% endif %}
 
 
-                    <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="club_selection_dropdown" role="button" data-bs-toggle="dropdown"
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="club_selection_dropdown" role="button"
+                               data-bs-toggle="dropdown"
                                aria-expanded="false">
                                 {% if selected_club %}
                                     Club: {{ selected_club.name }}
@@ -64,24 +65,28 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="club_selection_dropdown">
                                 {% if selected_club %}
-                                    <li><a class="dropdown-item" href="{% url 'club_page' selected_club.id %}">View current club</a></li>
-                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'club_page' selected_club.id %}">View
+                                        current club</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                 {% endif %}
                                 {% for club in user_clubs %}
-                                <li><a class="dropdown-item" href="{% url 'users' club.id %}">{{ club.name }}</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'users' club.id %}">{{ club.name }}</a>
+                                    </li>
                                 {% endfor %}
                             </ul>
                         </li>
 
                     {% else %}
-                    <div class="collapse navbar-collapse" id="navbar_club_selection_alt">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <div class="collapse navbar-collapse" id="navbar_club_selection_alt">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'clubs' %}">Search club</a>
-                            </li>
-                    </ul>
-                    </div>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'clubs' %}">Search club</a>
+                                </li>
+                            </ul>
+                        </div>
 
                     {% endif %}
 
