@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club
+from clubs.tests.views.helpers import reverse_with_next
 
 
 class ClubListTest(TestCase):
@@ -34,3 +35,8 @@ class ClubListTest(TestCase):
             self.assertContains(response, club.owner.first_name)
             self.assertContains(response, club.owner.last_name)
             self.assertContains(response, club.owner.bio)
+
+    def test_club_page_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next("log_in", self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

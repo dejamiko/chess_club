@@ -50,7 +50,7 @@ class ClubPageViewTest(TestCase):
             self.assertContains(response, tournament.name)
             self.assertContains(response, tournament.get_number_of_participants())
             self.assertContains(response, tournament.get_status())
-    
+
     def test_club_page_has_owner_info(self):
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("club_page", kwargs={"club_id": self.club.id})
@@ -66,3 +66,11 @@ class ClubPageViewTest(TestCase):
         redirect_url = reverse_with_next("log_in", self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_already_member_text(self):
+        self.client.login(username=self.user.email, password="Password123")
+        self.club.make_applicant(self.user)
+        url = reverse("club_page", kwargs={"club_id": self.club.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You have <b>applied</b> to this club.")
