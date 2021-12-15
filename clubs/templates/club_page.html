@@ -2,14 +2,13 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 
 {% extends 'base_content.html' %}
+{% block title %} | Club page{% endblock %}
 {% block content %}
-
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
                 <h1>{{ club.name }}</h1>
                 <p>{{ club.description }}</p>
-
                 <h5>Tournaments</h5>
                 {% if club.get_all_tournaments %}
                     <table id="tournament-table" class="table table-hover">
