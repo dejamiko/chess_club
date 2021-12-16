@@ -1,11 +1,11 @@
 [
-    {
-        "model": "clubs.EloRating",
-        "pk": 1,
-        "fields": {
-            "club": 1,
-            "user": 1,
-            "elo_rating": 1000
-        }
+  {
+    "model": "clubs.elorating",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "user": 1,
+      "elo_rating": 1000
     }
+  }
 ]

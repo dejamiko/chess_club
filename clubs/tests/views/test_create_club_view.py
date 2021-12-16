@@ -33,15 +33,7 @@ class CreateClubViewTestCase(TestCase):
         self.assertTrue(isinstance(form, CreateClubForm))
         self.assertFalse(form.is_bound)
 
-    # Change once drop down is done
-    # def test_get_create_club_redirect_when_form_completed(self):
-    #     self.client.login(email=self.user.email, password='Password123')
-    #     response = self.client.get(self.url, follow=True)
-    #     redirect_url = reverse('home_page')
-    #     self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
-    #     self.assertTemplateUsed(response, 'home_page.html')
-
-    def test_unsuccesful_create_club(self):
+    def test_unsuccessful_create_club(self):
         self.client.login(email=self.user.email, password='Password123')
         before_count = Club.objects.count()
         self.form_input['name'] = ''

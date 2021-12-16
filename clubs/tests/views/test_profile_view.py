@@ -5,6 +5,7 @@ from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 import clubs.views
 
+
 class ProfileViewTest(TestCase):
     """Unit tests of the profile view"""
     fixtures = ["clubs/tests/fixtures/default_user.json", "clubs/tests/fixtures/other_users.json",

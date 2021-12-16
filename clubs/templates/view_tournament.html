@@ -2,13 +2,17 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 
 {% extends 'base_content.html' %}
+{% block title %} | View tournament{% endblock %}
 {% block content %}
 
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
                 {% if tournament.winner %}
-                    <div class="alert alert-success" role="alert"><b><a href="{% url 'profile' tournament.winner.id %}">{{ tournament.winner.full_name }}</a></b> won this tournament, congratulations!</div>
+                    <div class="alert alert-success" role="alert"><b><a
+                            href="{% url 'profile' tournament.winner.id %}">{{ tournament.winner.full_name }}</a></b>
+                        won this tournament, congratulations!
+                    </div>
                 {% endif %}
 
                 {% if not deadline_passed and user in tournament.club.get_all_users and user != tournament.organiser %}
@@ -32,13 +36,14 @@
                 <h1>{{ tournament.name }}</h1>
                 <p>{{ tournament.description }}</p>
 
-                {% if tournament.organiser == user  %}
+                {% if tournament.organiser == user %}
                     {% if tournament.all_pairings_completed or not deadline_passed %}
                     {% elif tournament.participants.count > 1 %}
                         {% if tournament.pairings_within.count < 1 and tournament.participants.count > 0 %}
                             <h5>Pairings</h5>
                             <form action="#" method="get">
-                                <input class="btn btn-outline-secondary" type="submit" value="Create pairings" name="create_pairings">
+                                <input class="btn btn-outline-secondary" type="submit" value="Create pairings"
+                                       name="create_pairings">
                             </form>
                         {% elif tournament.participants.count == 0 %}
                         {% else %}
@@ -46,12 +51,12 @@
                             <p>Click the player who won the match!</p>
                             <table id="pairing-table" class="table table-hover">
                                 <thead>
-                                    <tr>
-                                        <th scope="col">Round</th>
-                                        <th scope="col">White player</th>
-                                        <th scope="col">Black player</th>
-                                        <th scope="col"></th>
-                                    </tr>
+                                <tr>
+                                    <th scope="col">Round</th>
+                                    <th scope="col">White player</th>
+                                    <th scope="col">Black player</th>
+                                    <th scope="col"></th>
+                                </tr>
                                 </thead>
                                 {% for pairing in tournament.pairings_within.all %}
                                     {% if not pairing.match_exists %}
@@ -59,22 +64,29 @@
                                             <td>{{ pairing.round }}</td>
                                             <td>
                                                 <form action="#" method="get">
-                                                    <input hidden type="text" value="{{ pairing.white_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.white_player.id }}"
+                                                           name="player"/>
                                                     <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.white_player.full_name }}" name="results_entered">
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit"
+                                                           value="{{ pairing.white_player.full_name }}"
+                                                           name="results_entered">
                                                 </form>
                                             </td>
                                             <td>
                                                 <form action="#" method="get">
-                                                    <input hidden type="text" value="{{ pairing.black_player.id }}" name="player"/>
+                                                    <input hidden type="text" value="{{ pairing.black_player.id }}"
+                                                           name="player"/>
                                                     <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="{{ pairing.black_player.full_name }}" name="results_entered">
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit"
+                                                           value="{{ pairing.black_player.full_name }}"
+                                                           name="results_entered">
                                                 </form>
                                             </td>
                                             <td>
                                                 <form action="#" method="get">
                                                     <input hidden type="text" value="{{ pairing.id }}" name="pairing"/>
-                                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="Draw" name="results_entered">
+                                                    <input class="btn btn-outline-secondary btn-sm" type="submit"
+                                                           value="Draw" name="results_entered">
                                                 </form>
                                             </td>
                                         </tr>
@@ -89,27 +101,27 @@
                     <h5>Completed matches</h5>
                     <table id="completed-match-table" class="table table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col" width="10%">Round</th>
-                                <th scope="col">White player</th>
-                                <th scope="col">Black player</th>
-                                <th scope="col"></th>
-                            </tr>
+                        <tr>
+                            <th scope="col" width="10%">Round</th>
+                            <th scope="col">White player</th>
+                            <th scope="col">Black player</th>
+                            <th scope="col"></th>
+                        </tr>
                         </thead>
                         {% for match in tournament.get_all_matches %}
                             <tr>
                                 <td>{{ match.pairing.round }}</td>
                                 <td
-                                    {% if match.pairing.white_player == match.winner %} class="table-success"
-                                    {% elif match.pairing.white_player == match.loser %} class="table-danger"
-                                    {% else %} class="table-light"
-                                    {% endif %}
+                                        {% if match.pairing.white_player == match.winner %} class="table-success"
+                                        {% elif match.pairing.white_player == match.loser %} class="table-danger"
+                                        {% else %} class="table-light"
+                                        {% endif %}
                                 >{{ match.pairing.white_player.full_name }}</td>
                                 <td
-                                    {% if match.pairing.black_player == match.winner %} class="table-success"
-                                    {% elif match.pairing.black_player == match.loser %} class="table-danger"
-                                    {% else %} class="table-light"
-                                    {% endif %}
+                                        {% if match.pairing.black_player == match.winner %} class="table-success"
+                                        {% elif match.pairing.black_player == match.loser %} class="table-danger"
+                                        {% else %} class="table-light"
+                                        {% endif %}
                                 >{{ match.pairing.black_player.full_name }}</td>
                                 <td>{% if match.is_draw %}Draw{% else %}{% endif %}</td>
                             </tr>
@@ -128,17 +140,18 @@
                     {% endif %}
                     <table id="participant-table" class="table table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col"></th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Chess experience</th>
-                                <th scope="col">Average elo rating</th>
-                            </tr>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Chess experience</th>
+                            <th scope="col">Average elo rating</th>
+                        </tr>
                         </thead>
                         {% for participant in tournament.participants.all %}
                             <tr>
                                 <td>
-                                    <img style="border-radius: 8px;" src="{{ participant.mini_gravatar }}" alt="{{ participant.full_name }}'s profile picture">
+                                    <img style="border-radius: 8px;" src="{{ participant.mini_gravatar }}"
+                                         alt="{{ participant.full_name }}'s profile picture">
                                 </td>
                                 <td><a href="{% url 'profile' participant.id %}">{{ participant.full_name }}</a></td>
                                 <td>{{ participant.chess_exp }}</td>
@@ -152,42 +165,52 @@
             <div class="col-sm-4">
                 <div class="card">
                     <div class="card-body">
-                        <img style="border-radius: 8px; float:right;" src="{{ tournament.organiser.mini_gravatar }}" alt="{{ tournament.organiser.full_name }}'s profile picture">
+                        <img style="border-radius: 8px; float:right;" src="{{ tournament.organiser.mini_gravatar }}"
+                             alt="{{ tournament.organiser.full_name }}'s profile picture">
                         <h6 class="card-subtitle mb-2 text-muted">Organised by</h6>
-                        <h5 class="card-title"><a href="{% url 'profile' tournament.organiser.id %}">{{ tournament.organiser.full_name }}</a></h5>
+                        <h5 class="card-title"><a
+                                href="{% url 'profile' tournament.organiser.id %}">{{ tournament.organiser.full_name }}</a>
+                        </h5>
                         <p class="card-text">{{ tournament.organiser.bio }}</p>
                         <ul class="list-group">
-                            <li class="list-group-item"><b>Tournaments organised:</b> {{ tournament.organiser.organises.count }}</li>
-                            <li class="list-group-item"><b>Tournaments won:</b> {{ tournament.organiser.get_number_of_tournaments_won }}</li>
-                            <li class="list-group-item"><b>Chess experience:</b> {{ tournament.organiser.chess_exp }}</li>
-                            <li class="list-group-item"><b>Average elo rating:</b> {{ tournament.organiser.get_mean_elo }}</li>
+                            <li class="list-group-item"><b>Tournaments
+                                organised:</b> {{ tournament.organiser.organises.count }}</li>
+                            <li class="list-group-item"><b>Tournaments
+                                won:</b> {{ tournament.organiser.get_number_of_tournaments_won }}</li>
+                            <li class="list-group-item"><b>Chess experience:</b> {{ tournament.organiser.chess_exp }}
+                            </li>
+                            <li class="list-group-item"><b>Average elo
+                                rating:</b> {{ tournament.organiser.get_mean_elo }}</li>
                         </ul>
                     </div>
                 </div>
 
-                </br>
+                <br>
 
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Hosted by</h6>
-                        <h5 class="card-title"><a href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5>
+                        <h5 class="card-title"><a
+                                href="{% url 'club_page' tournament.club.id %}">{{ tournament.club.name }}</a></h5>
                         <p class="card-text">{{ tournament.club.description }}</p>
                         <ul class="list-group">
-                            <li class="list-group-item"><b>Tournaments hosted:</b> {{ tournament.club.get_number_of_tournaments }}</li>
+                            <li class="list-group-item"><b>Tournaments
+                                hosted:</b> {{ tournament.club.get_number_of_tournaments }}</li>
                             <li class="list-group-item"><b>Location:</b> {{ tournament.club.location }}</li>
                             <li class="list-group-item"><b>Members:</b> {{ tournament.club.get_all_users.count }}</li>
                         </ul>
                     </div>
                 </div>
 
-                </br>
+                <br>
 
                 <ul class="list-group">
                     {% if tournament.coorganisers %}
                         <li class="list-group-item"><b>Coorganisers:</b>
                             <ul>
                                 {% for coorganiser in tournament.coorganisers.all %}
-                                    <li><a href="{% url 'profile' coorganiser.id %}">{{ coorganiser.full_name }}</a></li>
+                                    <li><a href="{% url 'profile' coorganiser.id %}">{{ coorganiser.full_name }}</a>
+                                    </li>
                                 {% endfor %}
                             </ul>
                         </li>
@@ -195,7 +218,7 @@
                     <li class="list-group-item"><b>Application deadline:</b> {{ tournament.deadline }}</li>
                 </ul>
 
-                </br>
+                <br>
             </div>
         </div>
     </div>

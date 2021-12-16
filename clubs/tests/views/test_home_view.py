@@ -1,11 +1,11 @@
 """Unit tests of the home view"""
 from django.test import TestCase
 from django.urls import reverse
-from clubs.models import Tournament, User, Club, Pairing
-from clubs.tests.views.helpers import reverse_with_next
+from clubs.models import Tournament, User, Club
 from django.utils.timezone import make_aware
 from datetime import datetime
 from datetime import timedelta
+
 
 class HomeTest(TestCase):
     """Unit tests of the home view"""
@@ -26,18 +26,17 @@ class HomeTest(TestCase):
         self.alice = User.objects.get(email="alicedoe@example.com")
         self.bob = User.objects.get(email="bobdoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
-        self.other_club = Club.objects.get(name = "Saint Louis Chess Club 2")
+        self.other_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament"),
         self.url = reverse("home_page")
 
     def test_home_displays_correct_upcoming_tournaments(self):
-
-        #the clubs do not have any partiticpants, hence the need for creating one
+        # the clubs do not have any participants, hence the need for creating one
         temp_club = Club.objects.create(
-        name="Test club",
-        location="London",
-        description= ("Test club description"),
-        owner=self.user
+            name="Test club",
+            location="London",
+            description="Test club description",
+            owner=self.user
         )
         user_list_temp = [self.jane, self.michael, self.alice, self.bob]
 
@@ -48,21 +47,21 @@ class HomeTest(TestCase):
             temp_club.make_member(user2)
 
         temp_tournament = Tournament.objects.create(
-        club = temp_club,
-        name = "Test tournament",
-        description = " Test tournament description",
-        organiser=self.user,
-        deadline = make_aware(datetime.now() + timedelta(days = 1))
+            club=temp_club,
+            name="Test tournament",
+            description=" Test tournament description",
+            organiser=self.user,
+            deadline=make_aware(datetime.now() + timedelta(days=1))
         )
 
         for user3 in user_list_temp:
             temp_tournament.make_participant(user3)
 
-        self.client.login(email = self.user.email, password = 'Password123')
+        self.client.login(email=self.user.email, password='Password123')
         response = self.client.get(self.url)
 
-        #django date format is different, hence need for splitting
-        curr_date = make_aware(datetime.now()+timedelta(days=1))
+        # django date format is different, hence need for splitting
+        curr_date = make_aware(datetime.now() + timedelta(days=1))
         self.assertContains(response, "Test tournament")
         self.assertContains(response, "Test club")
         self.assertContains(response, "1")

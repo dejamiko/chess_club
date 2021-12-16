@@ -1,7 +1,7 @@
 """Unit tests of the user model."""
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from clubs.models import User
+from clubs.models import Tournament, User
 
 
 # The tests were inspired by those written for clucker.
@@ -14,6 +14,7 @@ class UserModelTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.get(email='johndoe@example.com')
         self.michael = User.objects.get(email='michaeldoe@example.com')
+        self.tournament = Tournament.objects.get(name='Saint Louis Chess Tournament')
 
     def test_valid_user(self):
         self._assert_user_is_valid()
@@ -117,6 +118,14 @@ class UserModelTestCase(TestCase):
 
     def test_user_has_won_tournaments(self):
         self.assertEqual(self.michael.get_number_of_tournaments_won(), 0)
+    
+    def test_user_has_lost_no_tournaments(self):
+        self.tournament.winner = self.michael
+        self.tournament.save()
+        self.assertEqual(self.michael.get_number_of_tournaments_lost(), 0)
+
+    def test_user_has_lost_tournaments(self):
+        self.assertEqual(self.michael.get_number_of_tournaments_lost(), 1)
 
     def test_user_has_participated_in_tournaments(self):
         self.assertEqual(self.michael.get_number_of_tournaments_participated_in(), 1)

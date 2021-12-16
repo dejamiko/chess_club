@@ -1,5 +1,7 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.test import TestCase
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 from clubs.models import Tournament, User, Club, Match, Pairing
 from .helpers import _create_test_users
 
@@ -18,6 +20,8 @@ class TournamentModelTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(email="johndoe@example.com")
+        self.bob = User.objects.get(email="bobdoe@example.com")
+        self.michael = User.objects.get(email="michaeldoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
@@ -30,7 +34,7 @@ class TournamentModelTestCase(TestCase):
     def test_name_must_be_unique(self):
         self.tournament.name = self.other_tournament.name
         self._assert_tournament_is_invalid()
-    
+
     def test_name_can_be_50_characters_long(self):
         self.tournament.name = "x" * 50
         self._assert_tournament_is_valid()
@@ -69,7 +73,7 @@ class TournamentModelTestCase(TestCase):
         self.assertEquals(self.tournament.coorganisers.count(), 2)
         self.assertTrue(User.objects.get(email="janedoe@example.com") in self.tournament.coorganisers.all())
         self.assertTrue(User.objects.get(email="bobdoe@example.com") in self.tournament.coorganisers.all())
-    
+
     def test_tournament_with_no_coorganisers(self):
         self.tournament.coorganisers.set([])
         self._assert_tournament_is_valid()
@@ -90,10 +94,16 @@ class TournamentModelTestCase(TestCase):
     def test_tournament_status_completed(self):
         self.assertEqual(self.tournament.get_status(), "Completed")
     
+    def test_tournament_status_round(self):
+        self.tournament.winner = None
+        self.tournament.deadline = make_aware(datetime.today() - timedelta(days=1))
+        self.tournament.save()
+        self.assertEqual(self.tournament.get_status(), "Round 1")
+    
     def test_tournament_status_applications_full(self):
         self.tournament.winner = None
         self.tournament.save()
-        
+
         _create_test_users(100, 94)
         for i in range(100, 194):
             user = User.objects.get(id=i)
@@ -103,11 +113,34 @@ class TournamentModelTestCase(TestCase):
         self.tournament.save()
 
         self.assertEqual(self.tournament.get_status(), "Applications full")
-    
+
     def test_tournament_status_taking_applications(self):
         self.tournament.winner = None
         self.tournament.save()
         self.assertEqual(self.tournament.get_status(), "Taking applications")
+    
+    def test_set_tournament_winner(self):
+        self.tournament.set_winner(self.bob)
+        self.assertEqual(self.tournament.winner, self.bob)
+    
+    def test_make_participant(self):
+        self.tournament.make_participant(self.bob)
+        self.assertEqual(self.tournament.get_all_participants().get(email="bobdoe@example.com"), self.bob)
+    
+    def test_tournament_cannot_have_duplicate_participant(self):
+        self.tournament.make_participant(self.bob)
+        with self.assertRaises(ValueError):
+            self.tournament.make_participant(self.bob)
+    
+    def test_remove_participant(self):
+        self.tournament.remove_participant(self.michael)
+        with self.assertRaises(ObjectDoesNotExist):
+            self.tournament.get_all_participants().get(email="michaeldoe@example.com")
+    
+    def test_cannot_remove_participant_twice(self):
+        self.tournament.remove_participant(self.michael)
+        with self.assertRaises(ValueError):
+            self.tournament.remove_participant(self.michael)
     
     def _assert_tournament_is_valid(self):
         try:
