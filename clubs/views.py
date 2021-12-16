@@ -392,62 +392,21 @@ def club_page(request, club_id):
     already_exists = False
 
     if request.method == "POST":
-        if 'apply_to_club' in request.POST:
-            try:
-                temp_app = ClubApplication.objects.get(
-                associated_club = requested_club,
-                associated_user = curr_user
-                )
-            except ClubApplication.DoesNotExist:
-                temp_app = None
-            if temp_app is None and curr_user not in requested_club.get_all_users():
-                club_application = ClubApplication(
-                    associated_club=requested_club,
-                    associated_user=request.user)
-                club_application.save()
-
-        if 'leave_club' in request.POST:
-            if curr_user in requested_club.get_members():
-                if curr_user not in get_occupied_users(requested_club):
-                    for t in curr_tournaments:
-                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() < 2):
-                            if curr_user == t.organiser:
-                                # delete the tournament if the owner is leaving
-                                t.delete()
-                            elif curr_user in t.coorganisers.all():
-                                t.coorganisers.remove(curr_user)
-                            elif curr_user in t.participants.all():
-                                t.participants.remove(curr_user)
-                    try:
-                        elo_to_delete = EloRating.objects.get(club = requested_club, user=curr_user)
-                    except EloRating.DoesNotExist:
-                        elo_to_delete = None
-                    if elo_to_delete is not None:
-                        elo_to_delete.delete()
-                    requested_club.members.remove(curr_user)
-                    return redirect('home_page')
-
-    applications_users = []
-    try:
-        temp = ClubApplication.objects.filter(is_rejected = False, associated_club = requested_club)
-    except ClubApplication.DoesNotExist:
-        temp = None
-    if temp is not None:
-        for app in temp:
-            applications_users.append(app.associated_user)
-
-    rejected_applications_users = []
-    try:
-        temp_rejected = ClubApplication.objects.filter(is_rejected = True, associated_club = requested_club)
-    except ClubApplication.DoesNotExist:
-        temp_rejected = None
-    if temp_rejected is not None:
-        for rej_app in temp_rejected:
-            rejected_applications_users.append(rej_app.associated_user)
+        club_name = request.POST["name"]
+        temp_club = Club.objects.get(name=club_name)
+        club_applicants = temp_club.get_all_applicants()
+        for applicant in club_applicants:
+            if applicant == request.user:
+                already_exists = True
+        if not already_exists:
+            club_application = ClubApplication(
+                associated_club=Club.objects.get(name=club_name),
+                associated_user=request.user)
+            club_application.save()
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_page.html", {"club": requested_club,
-                                               "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
-                                              "today": make_aware(datetime.now()), "curr_user": curr_user,
-                                              "user_clubs": user_clubs, "selected_club": club, 'applications_users': applications_users,
-                                              "rejected_applications_users": rejected_applications_users})
+                                              "owner_elo": EloRating.objects.get(user=requested_club.owner,
+                                                                                 club=requested_club),
+                                              "today": make_aware(datetime.now()), "curr_user": request.user,
+                                              "user_clubs": user_clubs, "selected_club": club})
