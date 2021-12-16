@@ -473,7 +473,6 @@ def club_page(request, club_id):
 
     if request.method == "POST":
         if 'apply_to_club' in request.POST:
-            print("REQ IS POST")
             try:
                 temp_app = ClubApplicationModel.objects.get(
                 associated_club = requested_club,
@@ -482,7 +481,6 @@ def club_page(request, club_id):
             except ClubApplicationModel.DoesNotExist:
                 temp_app = None
             if temp_app is None and curr_user not in requested_club.get_all_users():
-                print("CREATING NEW APP")
                 club_application = ClubApplicationModel(
                     associated_club=requested_club,
                     associated_user=request.user)
@@ -533,4 +531,4 @@ def club_page(request, club_id):
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": curr_user,
                                               "user_clubs": user_clubs, "selected_club": club, 'applications_users': applications_users,
-                                              "rejected_applications_users": rejected_applications_users , "temp": ClubApplicationModel.objects.filter(associated_user = User.objects.get(email='cabe@mailinator.com'))})
+                                              "rejected_applications_users": rejected_applications_users})
