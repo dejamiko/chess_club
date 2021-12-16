@@ -44,7 +44,7 @@
                             <form style="float: right;" method="post">
                                 {% csrf_token %}
                                 <input class="btn btn-secondary" type="submit"
-                                       name="submitbutton" value="Apply"
+                                       id="submit_button", name="submitbutton" value="Apply"
                                       />
                             </form>
                         {% endif %}
@@ -109,6 +109,21 @@
             });
         {% endif %}
 
+        $(document).on('submit', 'form', function (e) {
+            var curr_form = $(this);
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: {
+                    csrfmiddlewaretoken: $(`input[name=csrfmiddlewaretoken]`).val()
+                },
+                success: function () {
+                    curr_form.find('#submit_button').hide();
+                    curr_form.find('#submit_button').attr('disabled', true);
+                }
+            })
+        })
     </script>
 
 {% endblock %}
