@@ -68,18 +68,9 @@ class ClubPageViewTest(TestCase):
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
-    def test_already_applied_text(self):
-        self.client.login(username=self.user.email, password="Password123")
-        self.club.make_applicant(self.user)
-        url = reverse("club_page", kwargs={"club_id": self.club.id})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "You have <b>applied</b> to this club.")
-
     def test_is_member_text(self):
         self.client.login(email=self.alice.email, password="Password123")
-        self.club.make_applicant(self.alice)
-        self.club.make_member(self.alice)
+        self.club.add_new_member(self.alice)
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -87,8 +78,7 @@ class ClubPageViewTest(TestCase):
 
     def test_is_officer_text(self):
         self.client.login(email=self.jane.email, password="Password123")
-        self.club.make_applicant(self.jane)
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         url = reverse("club_page", kwargs={"club_id": self.club.id})
         response = self.client.get(url)
@@ -97,8 +87,7 @@ class ClubPageViewTest(TestCase):
 
     def test_is_owner_text(self):
         self.client.login(email=self.jane.email, password="Password123")
-        self.club.make_applicant(self.jane)
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         self.club.make_owner(self.jane)
         url = reverse("club_page", kwargs={"club_id": self.club.id})
