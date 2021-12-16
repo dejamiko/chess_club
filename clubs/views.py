@@ -129,15 +129,16 @@ def get_occupied_users(curr_club):
             tournaments = None
 
         occupied_users = []
-        for t in tournaments:
-            if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 0 ):
-                occupied_users.append(t.organiser)
-                if t.coorganisers.exists():
-                    for c in t.coorganisers.all():
-                        occupied_users.append(c)
-                if t.participants.exists():
-                    for p in t.participants.all():
-                        occupied_users.append(p)
+        if tournaments is not None:
+            for t in tournaments:
+                if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 0 ):
+                    occupied_users.append(t.organiser)
+                    if t.coorganisers.exists():
+                        for c in t.coorganisers.all():
+                            occupied_users.append(c)
+                    if t.participants.exists():
+                        for p in t.participants.all():
+                            occupied_users.append(p)
         return occupied_users
 
 @login_required
