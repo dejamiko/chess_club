@@ -174,6 +174,7 @@ class Club(models.Model):
     def add_new_member(self, user):
         # Once an application is accepted
         self.members.add(user)
+        self.give_elo(user)
         self.save()
 
     def make_member(self, user):

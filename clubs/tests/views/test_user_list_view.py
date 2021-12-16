@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
-from clubs.models import User, Club, Tournament
+from clubs.models import User, Club, Tournament, EloRating
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
@@ -35,6 +35,7 @@ class UserListTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_member_can_only_see_members(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
 
         self._create_test_users(start_id=5, count=5)
@@ -55,6 +56,7 @@ class UserListTest(TestCase):
             self.assertNotContains(response, f"First {user_id} Last {user_id}")
 
     def test_member_sees_limited_variables(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
 
         response = self._access_user_list_page()
@@ -65,6 +67,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Options")
 
     def test_officer_can_see_everyone(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
@@ -81,6 +84,7 @@ class UserListTest(TestCase):
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_officer_sees_all_variables(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
@@ -92,6 +96,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Options")
 
     def test_owner_can_see_everyone(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
@@ -109,6 +114,7 @@ class UserListTest(TestCase):
             self.assertContains(response, f"{user_id}@test.com")
 
     def test_owner_sees_all_variables(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
@@ -121,6 +127,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Options")
 
     def test_officer_has_promote_button_for_member(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
@@ -130,6 +137,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_officer(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
@@ -139,6 +147,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_officer_has_no_promote_button_for_owner(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
 
@@ -148,6 +157,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_no_promote_button_for_officer(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
@@ -158,6 +168,7 @@ class UserListTest(TestCase):
         self.assertNotContains(response, "Promote")
 
     def test_owner_has_demote_button_for_officer(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
@@ -168,6 +179,7 @@ class UserListTest(TestCase):
         self.assertContains(response, "Demote")
 
     def test_owner_has_switch_ownership_button_for_officer(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
@@ -194,16 +206,20 @@ class UserListTest(TestCase):
                 chess_exp="Beginner",
             )
             if level == "Owner":
+                EloRating.objects.filter(user=temp_user, club=self.club).delete()
                 self.club.add_new_member(temp_user)
                 self.club.make_officer(temp_user)
                 self.club.make_owner(temp_user)
             if level == "Officer":
+                EloRating.objects.filter(user=temp_user, club=self.club).delete()
                 self.club.add_new_member(temp_user)
                 self.club.make_officer(temp_user)
             if level == "Member":
+                EloRating.objects.filter(user=temp_user, club=self.club).delete()
                 self.club.add_new_member(temp_user)
 
     def test_promote_button(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
@@ -212,6 +228,7 @@ class UserListTest(TestCase):
         self.assertIn(self.user, self.club.get_officers())
 
     def test_demote_button(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.client.login(email=self.john.email, password='Password123')
@@ -221,6 +238,7 @@ class UserListTest(TestCase):
         self.assertIn(self.user, self.club.get_members())
 
     def test_switch_ownership_button(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.client.login(email=self.john.email, password='Password123')
@@ -232,6 +250,8 @@ class UserListTest(TestCase):
         self.assertIn(self.john, updated_club.get_officers())
 
     def test_member_cannot_kick(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
+        EloRating.objects.filter(user=self.michael, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.add_new_member(self.michael)
         self.client.login(email=self.user.email, password='Password123')
@@ -259,6 +279,8 @@ class UserListTest(TestCase):
         self.assertEqual(before_count3, after_count3)
 
     def test_officer_can_kick_member_not_in_tournament(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
+        EloRating.objects.filter(user=self.michael, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.add_new_member(self.michael)
@@ -270,6 +292,7 @@ class UserListTest(TestCase):
         self.assertEqual(before_count, after_count+1)
 
     def test_owner_can_kick_member_not_in_tournament(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
@@ -280,6 +303,7 @@ class UserListTest(TestCase):
 
 
     def test_can_kick_member_in_tournament_in_other_club(self):
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         temp_other_tournament = Tournament.objects.create(
         club = self.other_club, name="other tournament", description="other", organiser = self.user,
@@ -297,6 +321,7 @@ class UserListTest(TestCase):
 
     def test_can_kick_member_in_tournament_in_same_club_who_is_participant_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
+        EloRating.objects.filter(user=self.michael, club=self.club).delete()
         self.club.add_new_member(self.michael)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
@@ -308,6 +333,7 @@ class UserListTest(TestCase):
 
     def test_can_kick_member_in_tournament_in_same_club_who_is_coorganiser_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
+        EloRating.objects.filter(user=self.bob, club=self.club).delete()
         self.club.add_new_member(self.bob)
         self.client.login(email=self.john.email, password='Password123')
         self.client.get(self.url)
@@ -318,6 +344,7 @@ class UserListTest(TestCase):
 
     def test_can_kick_member_in_tournament_in_same_club_who_is_owner_that_has_not_started(self):
         # should DELETE the tournament
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         temp_other_tournament = Tournament.objects.create(
         club = self.club, name="other tournament", description="other", organiser = self.user,
@@ -336,6 +363,7 @@ class UserListTest(TestCase):
     def test_can_kick_member_in_active_tournament_who_is_owner_that_has_no_participants(self):
         # should delete the tournament, as it has no participants and the organiser has been kicked
         # from the club
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
         self.club.add_new_member(self.user)
         temp_other_tournament = Tournament.objects.create(
         club = self.club, name="other tournament", description="other", organiser = self.user,
@@ -354,6 +382,8 @@ class UserListTest(TestCase):
 
     def test_cannot_kick_member_who_is_in_active_tournament(self):
         # should not be able to kick a user in a tournament with 1 or more participants
+        EloRating.objects.filter(user=self.user, club=self.club).delete()
+        EloRating.objects.filter(user=self.bob, club=self.club).delete()
         self.club.add_new_member(self.user)
         self.club.add_new_member(self.bob)
         temp_other_tournament = Tournament.objects.create(

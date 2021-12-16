@@ -19,7 +19,6 @@ class ProfileViewTest(TestCase):
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         clubs.views.club = None
         self.url = reverse("profile", kwargs={"user_id": self.target_user.id})
-        self.club.give_elo(self.target_user)
 
     def test_get_profile_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next("log_in", self.url)
@@ -31,15 +30,14 @@ class ProfileViewTest(TestCase):
 
     def test_get_profile_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
-
+        EloRating.objects.filter(user=self.target_user, club=self.club).delete()
         self.club.add_new_member(self.target_user)
         self.club.make_officer(self.target_user)
         self.tournament.participants.add(self.target_user)
 
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
-        #test says "profile.html" was not used?
-        self.assertTemplateUsed(response, "select_club_screen.html")
+        self.assertTemplateUsed(response, "profile.html")
         self.assertContains(response, "Jane Doe")
         self.assertContains(response, "Hi, I&#x27;m Jane Doe")
         self.assertContains(response, "Saint Louis Chess Club")
@@ -48,15 +46,6 @@ class ProfileViewTest(TestCase):
         self.assertContains(response, "Saint Louis Chess Tournament")
         self.assertContains(response, "<b>Tournaments participated in:</b> 1")
         self.assertContains(response, "<b>Tournaments won:</b> 0")
-
-    def test_get_profile_with_own_id(self):
-        self.client.login(email=self.user.email, password="Password123")
-        url = reverse("profile", kwargs={"user_id": self.user.id})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "profile.html")
-        self.assertContains(response, "John Doe")
-        self.assertContains(response, "Hi, I am John Doe")
 
     def test_get_profile_with_invalid_id_and_club_selected(self):
         self.client.login(username=self.user.email, password="Password123")
