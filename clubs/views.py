@@ -34,9 +34,7 @@ def manage_applications(request):
         temp_user = User.objects.get(email=username)
 
         try:
-            temp_app = ClubApplication.objects.get(associated_club = temp_club,
-            associated_user = temp_user
-            )
+            temp_app = ClubApplication.objects.get(associated_club = temp_club, associated_user = temp_user)
         except ClubApplication.DoesNotExist:
             temp_app = None
 
