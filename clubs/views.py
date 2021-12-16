@@ -1,7 +1,5 @@
 from django.shortcuts import redirect, render
-
-from .models import Tournament, User, Club, ClubApplicationModel, Pairing, pairing_to_match_elimination_phase, EloRating
-
+from .models import Tournament, User, Club, ClubApplication, Pairing, pairing_to_match_elimination_phase, EloRating
 from .forms import SignUpForm, LogInForm, EditForm, CreateClubForm, CreateTournamentForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -14,6 +12,7 @@ from pathlib import Path
 
 global club
 club = None
+
 
 def login_prohibited(view_function):
     def modified_view_function(request):
@@ -35,10 +34,10 @@ def manage_applications(request):
         temp_user = User.objects.get(email=username)
 
         try:
-            temp_app = ClubApplicationModel.objects.get(associated_club = temp_club,
+            temp_app = ClubApplication.objects.get(associated_club = temp_club,
             associated_user = temp_user
             )
-        except ClubApplicationModel.DoesNotExist:
+        except ClubApplication.DoesNotExist:
             temp_app = None
 
         if 'accepted' in request.POST:
@@ -64,8 +63,8 @@ def manage_applications(request):
 
     applications = []
     try:
-        temp = ClubApplicationModel.objects.filter(is_rejected = False)
-    except ClubApplicationModel.DoesNotExist:
+        temp = ClubApplication.objects.filter(is_rejected=False)
+    except ClubApplication.DoesNotExist:
         temp = None
     if temp is not None:
         for app in temp:
@@ -74,8 +73,8 @@ def manage_applications(request):
 
     rejected_applications = []
     try:
-        temp_rejected = ClubApplicationModel.objects.filter(is_rejected = True)
-    except ClubApplicationModel.DoesNotExist:
+        temp_rejected = ClubApplication.objects.filter(is_rejected = True)
+    except ClubApplication.DoesNotExist:
         temp_rejected = None
     if temp_rejected is not None:
         for rej_app in temp_rejected:
@@ -87,13 +86,6 @@ def manage_applications(request):
     return render(request, 'manage_applications.html',
                   {'applications': applications, "user_clubs": user_clubs, "selected_club": club, 'rejected_applications': rejected_applications})
 
-@login_required
-def view_club(request, club_id):
-    current_user = request.user
-    user_clubs = user_clubs_finder(request)
-    club_to_view = Club.objects.get(id=club_id)
-    return render(request, "club_profile.html", {"user_clubs": user_clubs, "selected_club": club,
-                                          "club_to_view": club_to_view, 'curr_user': current_user})
 
 @login_required
 def user_list_main(request, club_id):
@@ -111,6 +103,7 @@ def user_list_main(request, club_id):
     else:
         response = render(request, "no_access_screen.html", {"user_clubs": user_clubs})
         return response
+
 
 @login_required
 def user_list_no_club(request):
@@ -226,6 +219,7 @@ def user_clubs_finder(request):
 
 
 
+
 @login_required
 def club_list(request):
     curr_user = request.user
@@ -234,26 +228,26 @@ def club_list(request):
         temp_club = Club.objects.get(name=club_name)
 
         try:
-            temp_app = ClubApplicationModel.objects.get(associated_club = temp_club,
+            temp_app = ClubApplication.objects.get(associated_club = temp_club,
             associated_user = curr_user
             )
-        except ClubApplicationModel.DoesNotExist:
+        except ClubApplication.DoesNotExist:
             temp_app = None
 
         if temp_app is None and curr_user not in temp_club.get_all_users():
-            club_application = ClubApplicationModel(
+            club_application = ClubApplication(
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)
             club_application.save()
 
     try:
-        applications = ClubApplicationModel.objects.filter(is_rejected = False)
-    except ClubApplicationModel.DoesNotExist:
+        applications = ClubApplication.objects.filter(is_rejected = False)
+    except ClubApplication.DoesNotExist:
         applications = None
 
     try:
-        rejected_applications = ClubApplicationModel.objects.filter(is_rejected = True)
-    except ClubApplicationModel.DoesNotExist:
+        rejected_applications = ClubApplication.objects.filter(is_rejected = True)
+    except ClubApplication.DoesNotExist:
         rejected_applications = None
 
 
@@ -277,10 +271,10 @@ def home_page(request):
 
 def _get_current_user_tournaments(user_clubs):
     temp_list = []
-    for club in user_clubs:
-        for tournament in club.get_all_tournaments():
+    for current_club in user_clubs:
+        for tournament in current_club.get_all_tournaments():
             if not tournament.winner:
-                if not(tournament.deadline < make_aware(datetime.now()) and tournament.participants.count() < 2):
+                if not (tournament.deadline < make_aware(datetime.now()) and tournament.participants.count() < 2):
                     temp_list.append(tournament)
     return temp_list
 
@@ -290,7 +284,8 @@ def profile(request, user_id):
     user_clubs = user_clubs_finder(request)
     try:
         requested_user = User.objects.get(id=user_id)
-        all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(requested_user.owner_of.all())
+        all_user_clubs = requested_user.member_of.all().union(requested_user.officer_of.all()).union(
+            requested_user.owner_of.all())
         club_dict_elo = []
         for club_x in all_user_clubs:
             user_elo_club = EloRating.objects.get(user=requested_user, club=club_x)
@@ -301,7 +296,9 @@ def profile(request, user_id):
         else:
             return redirect("select_club")
     else:
-        return render(request, "profile.html", {"requested_user": requested_user, "all_user_clubs": club_dict_elo, "user_clubs": user_clubs, "selected_club": club})
+        return render(request, "profile.html",
+                      {"requested_user": requested_user, "all_user_clubs": club_dict_elo, "user_clubs": user_clubs,
+                       "selected_club": club})
 
 
 @login_prohibited
@@ -414,7 +411,8 @@ def create_tournament(request):
                     return redirect("view_tournament", tournament_id=new_tournament.id)
             else:
                 form = CreateTournamentForm(club=club, current_user=request.user)
-            return render(request, "create_tournament.html", {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
+            return render(request, "create_tournament.html",
+                          {"form": form, "user_clubs": user_clubs, "selected_club": club, "club_id": club.id})
         else:
             messages.add_message(request, messages.ERROR, "Only officers or owners can create tournaments!")
             return redirect("home_page")
@@ -425,7 +423,6 @@ def create_tournament(request):
 
 @login_required
 def view_tournament(request, tournament_id):
-
     temp_user = request.user
     user_clubs = user_clubs_finder(request)
     try:
@@ -446,7 +443,7 @@ def view_tournament(request, tournament_id):
                 tournament.set_winner(match.winner)
                 tournament.save()
             return redirect("view_tournament", tournament_id)
-    except Exception as e:
+    except:
         return redirect("home_page")
 
     if request.method == 'POST' and 'Join_tournament' in request.POST:
@@ -454,12 +451,12 @@ def view_tournament(request, tournament_id):
             tournament.make_participant(temp_user)
 
     if request.method == 'POST' and 'Leave_tournament' in request.POST:
-        if temp_user in tournament.get_all_participants() and make_aware(datetime.now()) < tournament.deadline :
+        if temp_user in tournament.get_all_participants() and make_aware(datetime.now()) < tournament.deadline:
             tournament.remove_participant(temp_user)
 
     return render(request, "view_tournament.html",
-                     {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()), "user_clubs": user_clubs, "selected_club": club})
-
+                  {"tournament": tournament, "deadline_passed": tournament.deadline < make_aware(datetime.now()),
+                   "user_clubs": user_clubs, "selected_club": club})
 
 
 @login_required
@@ -474,14 +471,14 @@ def club_page(request, club_id):
     if request.method == "POST":
         if 'apply_to_club' in request.POST:
             try:
-                temp_app = ClubApplicationModel.objects.get(
+                temp_app = ClubApplication.objects.get(
                 associated_club = requested_club,
                 associated_user = curr_user
                 )
-            except ClubApplicationModel.DoesNotExist:
+            except ClubApplication.DoesNotExist:
                 temp_app = None
             if temp_app is None and curr_user not in requested_club.get_all_users():
-                club_application = ClubApplicationModel(
+                club_application = ClubApplication(
                     associated_club=requested_club,
                     associated_user=request.user)
                 club_application.save()
@@ -509,8 +506,8 @@ def club_page(request, club_id):
 
     applications_users = []
     try:
-        temp = ClubApplicationModel.objects.filter(is_rejected = False, associated_club = requested_club)
-    except ClubApplicationModel.DoesNotExist:
+        temp = ClubApplication.objects.filter(is_rejected = False, associated_club = requested_club)
+    except ClubApplication.DoesNotExist:
         temp = None
     if temp is not None:
         for app in temp:
@@ -518,8 +515,8 @@ def club_page(request, club_id):
 
     rejected_applications_users = []
     try:
-        temp_rejected = ClubApplicationModel.objects.filter(is_rejected = True, associated_club = requested_club)
-    except ClubApplicationModel.DoesNotExist:
+        temp_rejected = ClubApplication.objects.filter(is_rejected = True, associated_club = requested_club)
+    except ClubApplication.DoesNotExist:
         temp_rejected = None
     if temp_rejected is not None:
         for rej_app in temp_rejected:

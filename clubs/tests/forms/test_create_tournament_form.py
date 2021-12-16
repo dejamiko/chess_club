@@ -40,7 +40,7 @@ class CreateTournamentFormTestCase(TestCase):
         self.assertIn("deadline_time", form.fields)
 
     def test_form_rejects_blank_name(self):
-        self.form_input["name"] = None
+        self.form_input["name"] = ""
         form = CreateTournamentForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
@@ -50,12 +50,12 @@ class CreateTournamentFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_form_rejects_blank_deadline_date(self):
-        self.form_input["deadline_date"] = None
+        self.form_input["deadline_date"] = ""
         form = CreateTournamentForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
     def test_form_rejects_blank_deadline_time(self):
-        self.form_input["deadline_time"] = None
+        self.form_input["deadline_time"] = ""
         form = CreateTournamentForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 

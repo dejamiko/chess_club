@@ -3,6 +3,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 
 {% extends 'base_content.html' %}
+{% block title %} | Club page{% endblock %}
 {% block content %}
 
 <div class="container">
@@ -17,27 +18,27 @@
                 <table id="tournament-table" class="table table-hover">
                     <thead>
                         <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Participants</th>
-                        <th scope="col">Status</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Participants</th>
+                            <th scope="col">Status</th>
                         <tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         {% for tournament in club.get_all_tournaments %}
-                        <tr>
-                            <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
-                            <td>{{ tournament.description }}</td>
-                            <td>{{ tournament.get_number_of_participants }}</td>
-                            <td>{{ tournament.get_status }}</td>
-                        </tr>
+                            <tr>
+                                <td><a href="{% url 'view_tournament' tournament.id %}">{{ tournament.name }}</a></td>
+                                <td>{{ tournament.description }}</td>
+                                <td>{{ tournament.get_number_of_participants }}</td>
+                                <td>{{ tournament.get_status }}</td>
+                            </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>This club hasn't hosted any tournaments.</p>
-            {% endif %}
-        </div>
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>This club hasn't hosted any tournaments.</p>
+                {% endif %}
+            </div>
 
         <div class="col-sm-4">
             <div class="card">
@@ -67,52 +68,66 @@
                         {% else %}
                             You are not in this club.
                         {% endif %}
-                    </p>
+                        <p class="card-text">
+                            {% if curr_user in club.get_all_applicants %}
+                                You have <b>applied</b> to this club.
+                            {% elif curr_user in club.get_members %}
+                                You are a <b>member</b> of this club.
+                            {% elif curr_user in club.get_officers %}
+                                You are an <b>officer</b> of this club.
+                            {% elif curr_user == club.get_owner %}
+                                You are the <b>owner</b> of this club.
+                            {% else %}
+                                You are not in this club.
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
-            </div>
 
-            </br>
+                <br>
 
-            <ul class="list-group">
-                <li class="list-group-item"><b>Location:</b> {{ club.location }}</li>
-                <li class="list-group-item"><b>Tournaments hosted:</b> {{ club.get_number_of_tournaments }}</li>
-                <li class="list-group-item"><b>Average elo rating:</b> {{ club.get_average_elo }}</li>
-            </ul>
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Location:</b> {{ club.location }}</li>
+                    <li class="list-group-item"><b>Tournaments hosted:</b> {{ club.get_number_of_tournaments }}</li>
+                    <li class="list-group-item"><b>Average elo rating:</b> {{ club.get_average_elo }}</li>
+                </ul>
 
-            </br>
+                <br>
 
-            <div class="card">
-                <div class="card-body">
-                    <img style="border-radius: 8px; float:right;" src="{{ club.owner.mini_gravatar }}" alt="{{ club.owner.full_name }}'s profile picture">
-                    <h6 class="card-subtitle mb-2 text-muted">Owner</h6>
-                    <h5 class="card-title"><a href="{% url 'profile' club.owner.id %}">{{ club.owner.full_name }}</a></h5>
-                    <p class="card-text">{{ club.owner.bio }}</p>
-                    <ul class="list-group">
-                        <li class="list-group-item"><b>Chess experience:</b> {{ club.owner.chess_exp }}</li>
-                        <li class="list-group-item"><b>Elo rating in this club:</b> {{ owner_elo.elo_rating }}</li>
-                    </ul>
+                <div class="card">
+                    <div class="card-body">
+                        <img style="border-radius: 8px; float:right;" src="{{ club.owner.mini_gravatar }}"
+                             alt="{{ club.owner.full_name }}'s profile picture">
+                        <h6 class="card-subtitle mb-2 text-muted">Owner</h6>
+                        <h5 class="card-title"><a
+                                href="{% url 'profile' club.owner.id %}">{{ club.owner.full_name }}</a></h5>
+                        <p class="card-text">{{ club.owner.bio }}</p>
+                        <ul class="list-group">
+                            <li class="list-group-item"><b>Chess experience:</b> {{ club.owner.chess_exp }}</li>
+                            <li class="list-group-item"><b>Elo rating in this club:</b> {{ owner_elo.elo_rating }}</li>
+                        </ul>
+                    </div>
                 </div>
+
+                <br>
+
+                <ul class="list-group">
+                    <li class="list-group-item"><b>Number of officers:</b> {{ club.officers.count }}</li>
+                    <li class="list-group-item"><b>Number of members:</b> {{ club.members.count }}</li>
+                    <li class="list-group-item"><b>Number of applicants:</b> {{ club.applicants.count }}</li>
+                </ul>
+
+                <br>
             </div>
-
-            </br>
-
-            <ul class="list-group">
-                <li class="list-group-item"><b>Number of officers:</b> {{ club.officers.count }}</li>
-                <li class="list-group-item"><b>Number of members:</b> {{ club.members.count }}</li>
-                <li class="list-group-item"><b>Number of applicants:</b> {{ club.applicants.count }}</li>
-            </ul>
-
-            </br>
         </div>
     </div>
-</div>
 
-<script type="text/javascript">
-    {% if club.get_all_tournaments %}
-        const dataTable = new simpleDatatables.DataTable("#tournament-table", {
-            perPage: 5
-        });
-    {% endif %}
+    <script type="text/javascript">
+        {% if club.get_all_tournaments %}
+            const dataTable = new simpleDatatables.DataTable("#tournament-table", {
+                perPage: 5
+            });
+        {% endif %}
 
 </script>
 

@@ -1,20 +1,22 @@
 [
-    {
-        "model": "clubs.tournament",
-        "pk": 1,
-        "fields": {
-            "club": 1,
-            "name": "Saint Louis Chess Tournament",
-            "description": "The region's most prestigious tournament, held in our purpose-built tournament hall, with afterparty at the basement broadcast studio.",
-            "participants": [
-                4, 5
-            ],
-            "organiser": 1,
-            "coorganisers": [
-                2, 3
-            ],
-            "deadline": "9999-12-10T17:00:00+00:00",
-            "winner": 5
-        }
+  {
+    "model": "clubs.tournament",
+    "pk": 1,
+    "fields": {
+      "club": 1,
+      "name": "Saint Louis Chess Tournament",
+      "description": "The region's most prestigious tournament, held in our purpose-built tournament hall, with afterparty at the basement broadcast studio.",
+      "participants": [
+        4,
+        5
+      ],
+      "organiser": 1,
+      "coorganisers": [
+        2,
+        3
+      ],
+      "deadline": "9999-12-10T17:00:00+00:00",
+      "winner": 5
     }
+  }
 ]

@@ -1,7 +1,7 @@
 """Unit tests of the club list view."""
 from django.test import TestCase
 from django.urls import reverse
-from clubs.models import User, Club, ClubApplicationModel
+from clubs.models import User, Club, ClubApplication
 from clubs.tests.views.helpers import give_all_missing_elos
 
 
@@ -43,28 +43,28 @@ class ClubListTest(TestCase):
 
     def test_apply_to_club(self):
         self.client.login(email=self.bob.email, password='Password123')
-        before_count = ClubApplicationModel.objects.count()
+        before_count = ClubApplication.objects.count()
         self.client.post(self.url, {'name' : self.club.name})
-        after_count = ClubApplicationModel.objects.count()
+        after_count = ClubApplication.objects.count()
         self.assertEqual(before_count+1, after_count)
-        temp_application = ClubApplicationModel.objects.get(associated_club = self.club,
+        temp_application = ClubApplication.objects.get(associated_club = self.club,
         associated_user = self.bob)
         self.assertEqual(self.club, temp_application.associated_club)
         self.assertEqual(self.bob, temp_application.associated_user)
 
     def test_cannot_apply_to_club_twice(self):
         self.client.login(email=self.bob.email, password='Password123')
-        before_count = ClubApplicationModel.objects.count()
+        before_count = ClubApplication.objects.count()
         self.client.post(self.url, {'name' : self.club.name})
-        after_count = ClubApplicationModel.objects.count()
+        after_count = ClubApplication.objects.count()
         self.assertEqual(before_count+1, after_count)
-        temp_application = ClubApplicationModel.objects.get(associated_club = self.club,
+        temp_application = ClubApplication.objects.get(associated_club = self.club,
         associated_user = self.bob)
         self.assertEqual(self.club, temp_application.associated_club)
         self.assertEqual(self.bob, temp_application.associated_user)
-        before_count2 = ClubApplicationModel.objects.count()
+        before_count2 = ClubApplication.objects.count()
         self.client.post(self.url, {'name' : self.club.name})
-        after_count2 = ClubApplicationModel.objects.count()
+        after_count2 = ClubApplication.objects.count()
         self.assertEqual(before_count2, after_count2)
 
     def test_cannot_apply_when_rejected(self):
@@ -75,11 +75,11 @@ class ClubListTest(TestCase):
         self.client.post(self.manage_url, {'uname' : self.bob.email,
         'clubname': self.club.name, 'rejected': True})
         self.client.logout()
-        temp_application = ClubApplicationModel.objects.get(associated_club = self.club,
+        temp_application = ClubApplication.objects.get(associated_club = self.club,
         associated_user = self.bob)
         self.assertEqual(temp_application.is_rejected, True)
-        before_count = ClubApplicationModel.objects.count()
+        before_count = ClubApplication.objects.count()
         self.client.login(email=self.bob.email, password='Password123')
         self.client.post(self.url, {'name' : self.club.name})
-        after_count = ClubApplicationModel.objects.count()
+        after_count = ClubApplication.objects.count()
         self.assertEqual(before_count, after_count)

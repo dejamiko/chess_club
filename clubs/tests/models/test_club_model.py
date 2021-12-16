@@ -86,7 +86,13 @@ class ClubModelTestCase(TestCase):
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)
-    
+
+    # not sure what this test does?
+    ##################################################################################
+    # def test_club_has_non_applicants(self):
+    #     self.assertEqual(self.club.get_all_non_applicants().count(), 5)
+    ####################################################################################
+
     def test_club_average_elo(self):
         give_all_missing_elos(self.club)
         self.assertEqual(self.club.get_average_elo(), 1000)

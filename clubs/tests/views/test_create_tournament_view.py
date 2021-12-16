@@ -7,6 +7,7 @@ from clubs.forms import CreateTournamentForm
 import clubs.views
 from datetime import datetime
 
+
 class CreateTournamentViewTest(TestCase):
     """Unit tests of the create tournament view"""
     fixtures = ["clubs/tests/fixtures/default_user.json",
@@ -93,9 +94,9 @@ class CreateTournamentViewTest(TestCase):
         before_count = Tournament.objects.count()
         response = self.client.post(self.url, self.form_input)
         after_count = Tournament.objects.count()
-        self.assertEqual(after_count, before_count+1)
+        self.assertEqual(after_count, before_count + 1)
         new_tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
-        response_url = reverse("view_tournament", kwargs={"tournament_id":new_tournament.id})
+        response_url = reverse("view_tournament", kwargs={"tournament_id": new_tournament.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertEqual(new_tournament.club, self.club)
         self.assertEqual(new_tournament.name, "Saint Louis Chess Tournament")

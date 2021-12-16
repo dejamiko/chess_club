@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
-from clubs.models import User, Club, Tournament, EloRating
+from clubs.models import User, Club, Tournament, EloRating, ClubApplication
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
@@ -16,6 +16,7 @@ class UserListTest(TestCase):
 
     def setUp(self):
         EloRating.objects.filter(pk=2).delete()
+        EloRating.objects.filter(pk=3).delete()
         self.user = User.objects.get(email='janedoe@example.com')
         self.john = User.objects.get(email='johndoe@example.com')
         self.michael = User.objects.get(email='michaeldoe@example.com')
@@ -34,6 +35,13 @@ class UserListTest(TestCase):
         redirect_url = reverse_with_next('log_in', self.url)
         response = self.client.get(self.url)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_applicant_cannot_access_list(self):
+        new_applicant = ClubApplication.objects.create(associated_club = self.club,
+        associated_user = self.user)
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, follow=True)
+        self.assertTemplateUsed(response, "no_access_screen.html")
 
     def test_member_can_only_see_members(self):
         EloRating.objects.filter(user=self.user, club=self.club).delete()
@@ -189,6 +197,39 @@ class UserListTest(TestCase):
 
         response = self._access_user_list_page()
         self.assertContains(response, "Switch ownership")
+
+    def test_promote_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_member(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "promote": "Promote"}, follow=True)
+        self.assertContains(response, "Bob Doe was promoted to officer!")
+        self.assertEqual(self.club.user_level(self.bob), "Officer")
+
+    def test_demote_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_member(self.bob)
+        self.club.make_officer(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "demote": "Demote"}, follow=True)
+        self.assertContains(response, "Bob Doe was demoted to member!")
+        self.assertEqual(self.club.user_level(self.bob), "Member")
+
+    def test_switch_ownership_button(self):
+        self.club.make_member(self.user)
+        self.club.make_officer(self.user)
+        self.club.make_owner(self.user)
+        self.club.make_member(self.bob)
+        self.club.make_officer(self.bob)
+
+        self.client.login(email=self.user.email, password="Password123")
+        response = self.client.get(self.url, {"listed_user": self.bob.email, "switch_owner": "Switch ownership"}, follow=True)
+        self.assertContains(response, "You switched ownership with Bob Doe!")
+        self.assertEqual(Club.objects.get(name="Saint Louis Chess Club").user_level(self.bob), "Owner")
 
     def _access_user_list_page(self):
         self.client.login(email=self.user.email, password="Password123")

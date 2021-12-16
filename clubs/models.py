@@ -7,7 +7,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model
 from django.utils.timezone import make_aware
 from libgravatar import Gravatar
-import math
 
 
 # This user manager is following tutorial from
@@ -203,10 +202,10 @@ class Club(models.Model):
         # This gets all applicants both REJECTED and NOT rejected
         applicant_list = []
         try:
-            temp = ClubApplicationModel.objects.filter(associated_club =
+            temp = ClubApplication.objects.filter(associated_club =
             self
             ).all()
-        except ClubApplicationModel.DoesNotExist:
+        except ClubApplication.DoesNotExist:
             temp = None
         if temp is not None:
             for t in temp:
@@ -251,10 +250,10 @@ def toggle_superuser(user):
     user.is_superuser = not user.is_superuser
 
 
-class ClubApplicationModel(models.Model):
+class ClubApplication(models.Model):
     associated_club = models.ForeignKey(Club, on_delete=models.CASCADE)
     associated_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # wouldn't allow without null = true
-    is_rejected = models.BooleanField(default = False)
+    is_rejected = models.BooleanField(default=False)
 
 
 class Tournament(models.Model):
@@ -414,6 +413,7 @@ class Tournament(models.Model):
             return "Applications full"
         else:
             return "Taking applications"
+
 
 class Pairing(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name="pairings_within")
@@ -611,7 +611,6 @@ class Match(models.Model):
     is_draw = models.BooleanField(blank=True)
 
     def set_winner(self):
-
         winner_new_rating = self.set_elo_winner(self.winner, self.loser)
         loser_new_rating = self.set_elo_loser(self.winner, self.loser)
 
@@ -631,7 +630,7 @@ class Match(models.Model):
         user_draw_black = self.pairing.black_player
         user_draw_white = self.pairing.white_player
 
-        black_new_rating = self.set_elo_draw_black(user_draw_white,user_draw_black)
+        black_new_rating = self.set_elo_draw_black(user_draw_white, user_draw_black)
         white_new_rating = self.set_elo_draw_white(user_draw_white, user_draw_black)
 
         b_user = User.objects.get(email=self.pairing.black_player.email)
