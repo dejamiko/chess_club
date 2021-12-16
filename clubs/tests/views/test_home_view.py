@@ -5,6 +5,7 @@ from clubs.models import Tournament, User, Club
 from django.utils.timezone import make_aware
 from datetime import datetime
 from datetime import timedelta
+from clubs.tests.views.helpers import reverse_with_next
 
 
 class HomeTest(TestCase):
@@ -65,3 +66,8 @@ class HomeTest(TestCase):
         self.assertContains(response, curr_date.year)
         self.assertContains(response, curr_date.strftime("%b"))
         self.assertContains(response, curr_date.day)
+
+    def test_home_page_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next("log_in", self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
