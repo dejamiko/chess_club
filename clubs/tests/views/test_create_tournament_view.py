@@ -6,6 +6,7 @@ from clubs.models import User, Club, Tournament
 from clubs.forms import CreateTournamentForm
 import clubs.views
 from datetime import datetime
+from clubs.tests.views.helpers import reverse_with_next
 
 
 class CreateTournamentViewTest(TestCase):
@@ -105,3 +106,8 @@ class CreateTournamentViewTest(TestCase):
         self.assertEqual(new_tournament.organiser, self.user)
         self.assertEqual(list(new_tournament.coorganisers.all()), [self.jane])
         self.assertEqual(new_tournament.deadline, make_aware(datetime(2021, 10, 12, 12, 30)))
+
+    def test_create_tournaments_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next("log_in", self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

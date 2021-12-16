@@ -3,6 +3,7 @@ from django.test import TestCase
 from clubs.forms import CreateClubForm
 from django.urls import reverse
 from clubs.models import User, Club
+from clubs.tests.views.helpers import reverse_with_next
 
 
 class CreateClubViewTestCase(TestCase):
@@ -59,3 +60,8 @@ class CreateClubViewTestCase(TestCase):
         self.assertEqual(club.name, 'some club')
         self.assertEqual(club.location, 'KCL')
         self.assertEqual(club.description, 'short description here')
+
+    def test_club_page_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next("log_in", self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
