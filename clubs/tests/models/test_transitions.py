@@ -23,7 +23,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
         self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_user(self.user)
-         # THey are no longer in the club, and must therefore reapply
+         # They are no longer in the club, and must therefore reapply
         self.assertEqual(self.user.user_level(self.club), 'Not in club')
         self._assert_user_is_valid()
 
