@@ -118,7 +118,7 @@ class UserModelTestCase(TestCase):
 
     def test_user_has_won_tournaments(self):
         self.assertEqual(self.michael.get_number_of_tournaments_won(), 0)
-    
+
     def test_user_has_lost_no_tournaments(self):
         self.tournament.winner = self.michael
         self.tournament.save()

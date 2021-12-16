@@ -204,7 +204,7 @@ class Club(models.Model):
         # This gets all applicants both REJECTED and NOT rejected
         applicant_list = []
         try:
-            temp = ClubApplication.objects.filter(associated_club = self).all()
+            temp = ClubApplication.objects.filter(associated_club=self).all()
         except ClubApplication.DoesNotExist:
             temp = None
         if temp is not None:
@@ -230,7 +230,6 @@ class Club(models.Model):
     def get_all_users(self):
         return self.get_members().union(self.get_officers()).union(
             User.objects.filter(email=self.get_owner().email))
-
 
     def get_all_tournaments(self):
         return self.has_tournaments.all()
