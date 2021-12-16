@@ -52,7 +52,6 @@ class ManageApplicationViewTest(TestCase):
 
     def test_submit_creates_application(self):
         self.client.login(email=self.second_user.email, password='Password123')
-        temp = Club.objects.count()
         before_count = ClubApplication.objects.count()
         response = self.client.post(self.apply_url, {'name' : self.second_club.name})
         after_count = ClubApplication.objects.count()
