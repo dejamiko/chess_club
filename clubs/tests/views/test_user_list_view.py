@@ -37,7 +37,7 @@ class UserListTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_applicant_cannot_access_list(self):
-        new_applicant = ClubApplication.objects.create(associated_club = self.club,
+        ClubApplication.objects.create(associated_club = self.club,
         associated_user = self.user)
         self.client.login(email=self.user.email, password="Password123")
         response = self.client.get(self.url, follow=True)

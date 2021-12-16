@@ -153,6 +153,8 @@ class Club(models.Model):
             return "Officer"
         elif self.members.filter(email=user.email):
             return "Member"
+        else:
+            return "Not in club"
 
     def make_owner(self, user):
         if self.user_level(user) == "Officer":
@@ -202,9 +204,7 @@ class Club(models.Model):
         # This gets all applicants both REJECTED and NOT rejected
         applicant_list = []
         try:
-            temp = ClubApplication.objects.filter(associated_club =
-            self
-            ).all()
+            temp = ClubApplication.objects.filter(associated_club = self).all()
         except ClubApplication.DoesNotExist:
             temp = None
         if temp is not None:

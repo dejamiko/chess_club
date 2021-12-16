@@ -154,9 +154,7 @@ def club_list(request):
 
         temp_club = Club.objects.get(name=club_name)
         try:
-            temp_app = ClubApplication.objects.get(associated_club = temp_club,
-            associated_user = curr_user
-            )
+            temp_app = ClubApplication.objects.get(associated_club = temp_club, associated_user = curr_user)
         except ClubApplication.DoesNotExist:
             temp_app = None
 
@@ -388,7 +386,6 @@ def view_tournament(request, tournament_id):
 @login_required
 def club_page(request, club_id):
     requested_club = Club.objects.get(id=club_id)
-    curr_user = request.user
     already_exists = False
 
     if request.method == "POST":
@@ -404,9 +401,14 @@ def club_page(request, club_id):
                 associated_user=request.user)
             club_application.save()
 
+    try:
+        no_of_applicants = ClubApplication.objects.filter(associated_club = requested_club, is_rejected = False).count()
+    except ClubApplication.DoesNotExist:
+        no_of_applicants = 0
+
     user_clubs = user_clubs_finder(request)
     return render(request, "club_page.html", {"club": requested_club,
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner,
                                                                                  club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": request.user,
-                                              "user_clubs": user_clubs, "selected_club": club})
+                                              "user_clubs": user_clubs, "selected_club": club, 'no_of_applicants':no_of_applicants})

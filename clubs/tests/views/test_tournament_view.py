@@ -148,12 +148,9 @@ class ViewTournamentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Join")
 
-    def create_two_members_for_club(self, c, user1, user2):
-        c.add_new_member(user1)
-        c.add_new_member(user2)
-
     def test_user_cannot_join_tournament_after_deadline(self):
-        self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.add_new_member(self.jane)
+        self.other_club.add_new_member(self.michael)
         # create a time that is 5 minutes before current time
         date = make_aware(datetime.now() - timedelta(minutes=5))
 
@@ -180,7 +177,8 @@ class ViewTournamentTest(TestCase):
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
 
     def test_user_cannot_leave_tournament_after_deadline(self):
-        self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.add_new_member(self.jane)
+        self.other_club.add_new_member(self.michael)
         # create a time that is 5 minutes before current time
         date = make_aware(datetime.now() - timedelta(minutes=5))
 
