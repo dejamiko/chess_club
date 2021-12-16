@@ -76,6 +76,15 @@ class ClubPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You have <b>applied</b> to this club.")
 
+    def test_is_member_text(self):
+        self.client.login(email=self.alice.email, password="Password123")
+        self.club.make_applicant(self.alice)
+        self.club.make_member(self.alice)
+        url = reverse("club_page", kwargs={"club_id": self.club.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You are a <b>member</b> of this club.")
+
     def test_is_officer_text(self):
         self.client.login(email=self.jane.email, password="Password123")
         self.club.make_applicant(self.jane)
