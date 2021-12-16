@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from clubs.models import User, Club, ClubApplication
+from clubs.tests.views.helpers import reverse_with_next
 from clubs.tests.views.helpers import give_all_missing_elos
 
 
@@ -25,6 +26,11 @@ class ClubListTest(TestCase):
 
     def test_pending_applications_url(self):
         self.assertEqual(self.url, "/clubs")
+
+    def test_club_list_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next("log_in", self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_get_club_list(self):
         self.client.login(email=self.user.email, password="Password123")
