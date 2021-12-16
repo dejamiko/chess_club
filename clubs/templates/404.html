@@ -1,0 +1,32 @@
+<style>
+    h1 {
+        font-size: 12vw !important;
+        margin: 0px !important;
+    }
+
+    p {
+        margin-bottom: 1.5vw !important;
+    }
+</style>
+
+<head>
+    <meta name="theme-color" content="#3f3f3f">
+</head>
+
+{% extends 'base.html' %}
+{% block body %}
+    <div class="container vh-100">
+        <div class="row h-100">
+            <div class="my-auto mx-auto w-50">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h1 class="card-title">404</h1>
+                        <br>
+                        <p class="card-text">Page not found! <a href="javascript:history.back()">Go back?</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'partials/background.html' with colour="000000" %}
+{% endblock %}
