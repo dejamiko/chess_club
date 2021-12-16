@@ -46,10 +46,11 @@
                         <td>{{ listed_user.1 }}</td>
                         <td>{{ listed_user.2 }}</td>
                         <td>
-                            <form action="#" method="get">
+                            <form method="post">
+                              {% csrf_token %}
                                 <input hidden type="text" value="{{ listed_user.0 }}" name="listed_user"/>
 
-                                {% if user_level != "Member" and listed_user.1 == "Applicant" or listed_user.1 == "Member" %}
+                                {% if user_level != "Member" and listed_user.1 == "Member" %}
                                     <input class="btn btn-outline-success btn-sm" type="submit" value="Promote"
                                            name="promote">
                                 {% endif %}
@@ -58,9 +59,19 @@
                                     <input class="btn btn-outline-danger btn-sm" type="submit" value="Demote"
                                            name="demote">
                                     <input class="btn btn-outline-secondary btn-sm" type="submit"
-                                           value="Switch ownership" name="switch_owner">
+                                           value="Switch ownership" name="switch_owner" onclick="return confirm('Are you sure you want to switch ownership?')">
                                     <!-- popup box for switching ownership -->
                                 {% endif %}
+                                {% if listed_user.0 not in occupied_users %}
+                                {% if user_level == 'Owner' or user_level == 'Officer' %}
+                                {% if listed_user.1 == 'Member' %}
+                                <input class="btn btn-danger btn-sm" type="submit" value="Kick"
+                                       name="kick" onclick="return confirm('Are you sure you want to kick this user?')">
+                                {% endif %}
+                                {% endif %}
+                                {% else %}
+                                {% endif %}
+
                             </form>
                         </td>
                     {% else %}

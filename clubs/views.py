@@ -116,26 +116,70 @@ def user_list_select_club(request):
     response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
 
+def get_occupied_users(curr_club):
+        try:
+            tournaments = Tournament.objects.filter(club= curr_club)
+        except Tournament.DoesNotExist:
+            tournaments = None
+
+        occupied_users = []
+        if tournaments is not None:
+            for t in tournaments:
+                if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 1 ):
+                    occupied_users.append(t.organiser)
+                    if t.coorganisers.exists():
+                        for c in t.coorganisers.all():
+                            occupied_users.append(c)
+                    if t.participants.exists():
+                        for p in t.participants.all():
+                            occupied_users.append(p)
+        return occupied_users
 
 @login_required
 def user_list(request, user_club):
     if request.user not in user_club.get_all_users():
         redirect('home_page')
 
-    if request.GET.get("listed_user"):
-        listed_user = User.objects.get(email=request.GET.get("listed_user"))
+    curr_user = request.user
 
-        if request.GET.get("promote"):
-            listed_user.promote(user_club)
-            messages.add_message(request, messages.SUCCESS,
-                                 f"{listed_user.full_name()} was promoted to {user_club.user_level(listed_user).lower()}!")
-        if request.GET.get("demote"):
+    try:
+        curr_tournaments = Tournament.objects.filter(club= user_club)
+    except Tournament.DoesNotExist:
+        curr_tournaments = None
+
+    if request.method == 'POST':
+        listed_user = User.objects.get(email=request.POST.get("listed_user"))
+        if 'demote' in request.POST and listed_user.user_level(user_club) == 'Officer' and user_club.get_owner() == curr_user:
             listed_user.demote(user_club)
-            messages.add_message(request, messages.SUCCESS,
-                                 f"{listed_user.full_name()} was demoted to {user_club.user_level(listed_user).lower()}!")
-        if request.GET.get("switch_owner"):
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was demoted to {user_club.user_level(listed_user).lower()}!")
+        if 'promote' in request.POST and listed_user.user_level(user_club) == 'Member' and \
+        (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user) :
+            listed_user.promote(user_club)
+            messages.add_message(request, messages.SUCCESS, f"{listed_user.full_name()} was promoted to {user_club.user_level(listed_user).lower()}!")
+        if 'switch_owner' in request.POST and user_club.get_owner() == curr_user and listed_user.user_level(user_club) == 'Officer':
             user_club.make_owner(listed_user)
             messages.add_message(request, messages.SUCCESS, f"You switched ownership with {listed_user.full_name()}!")
+        if 'kick' in request.POST and listed_user.user_level(user_club) == 'Member' and \
+        (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user):
+            if listed_user not in get_occupied_users(user_club):
+                if curr_tournaments is not None:
+                    for t in curr_tournaments:
+                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() < 2):
+                            if listed_user == t.organiser:
+                                # delete the tournament if kicking the owner
+                                t.delete()
+                            elif listed_user in t.coorganisers.all():
+                                t.coorganisers.remove(listed_user)
+                            elif listed_user in t.participants.all():
+                                t.participants.remove(listed_user)
+                try:
+                    elo_to_delete = EloRating.objects.get(club = user_club, user=listed_user)
+                except EloRating.DoesNotExist:
+                    elo_to_delete = None
+                if elo_to_delete is not None:
+                    elo_to_delete.delete()
+                user_club.members.remove(listed_user)
+
 
         return redirect("users", user_club.id)
 
@@ -151,9 +195,14 @@ def user_list(request, user_club):
 
     user_clubs = user_clubs_finder(request)
 
-    return render(request, "user_list.html",
-                  {"users": user_dict_with_levels_elo, "user_level": request.user.user_level(user_club),
-                   "user_clubs": user_clubs, "selected_club": user_club})
+    try:
+        tournaments = Tournament.objects.all()
+    except Tournament.DoesNotExist:
+        tournaments = None
+
+    return render(request, "user_list.html", {"users": user_dict_with_levels_elo, "user_level": request.user.user_level(user_club),
+                   "user_clubs": user_clubs, "selected_club": user_club, 'occupied_users': get_occupied_users(user_club),
+                   'curr_tournaments': curr_tournaments, 'tournaments': tournaments})
 
 
 @login_required
