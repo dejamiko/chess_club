@@ -17,6 +17,7 @@ class ProfileViewTest(TestCase):
         self.user = User.objects.get(email="johndoe@example.com")
         self.target_user = User.objects.get(email="janedoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
+        self.bob = User.objects.get(email="bobdoe@example.com")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
         clubs.views.club = None
         self.url = reverse("profile", kwargs={"user_id": self.target_user.id})
@@ -67,7 +68,7 @@ class ProfileViewTest(TestCase):
         response_url = reverse("users", kwargs={"club_id": self.club.id})
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, "user_list.html")
-    
+
     def test_get_profile_with_invalid_id_and_no_club_selected(self):
         self.client.login(username=self.user.email, password="Password123")
         url = reverse("profile", kwargs={"user_id": self.user.id+9999})
@@ -75,7 +76,7 @@ class ProfileViewTest(TestCase):
         response_url = reverse("select_club")
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, "select_club_screen.html")
-    
+
     def test_own_profile_has_email_address(self):
         self.client.login(email=self.user.email, password="Password123")
         url = reverse("profile", kwargs={"user_id": self.user.id})
@@ -105,3 +106,26 @@ class ProfileViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Saint Louis Chess Tournament")
         self.assertNotContains(response, "Officer")
+
+    def test_can_view_profile_with_no_elo(self):
+        temp_user_no_elo = User.objects.create_user(
+        first_name='Test',last_name='User',email='testuser123@gmail.com',
+        bio='Hi, I am Test User',chess_exp='Advanced',
+        personal_statement=' I love chess it is wonderful',
+        password='Password123')
+        self.client.login(email=temp_user_no_elo.email, password='Password123')
+        temp_url = reverse("profile", kwargs={"user_id": temp_user_no_elo.id})
+        response = self.client.get(temp_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "profile.html")
+        self.assertContains(response, "Test User")
+        self.assertContains(response, temp_user_no_elo.bio)
+        self.assertContains(response, "<b>Number of clubs:</b> 0")
+        self.assertContains(response, "<b>Tournaments participated in:</b> 0")
+        self.assertContains(response, "<b>Tournaments won:</b> 0")
+        self.assertContains(response, "<b>Tournaments lost:</b> 0")
+        self.assertContains(response, "<b>Tournaments lost:</b> 0")
+        self.assertContains(response, "<b>Tournaments lost:</b> 0")
+        self.assertContains(response, "<b>Highest elo rating:</b> 0")
+        self.assertContains(response, "<b>Lowest elo rating:</b> 0")
+        self.assertContains(response, "<b>Average elo rating:</b> 0")
