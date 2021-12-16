@@ -119,14 +119,17 @@ class User(AbstractUser):
         return counter
 
     def get_highest_elo(self):
-        return max(self._get_all_elos())
+        return max(self._get_all_elos(), default=0)
 
     def get_lowest_elo(self):
-        return min(self._get_all_elos())
+        return min(self._get_all_elos(), default=0)
 
     def get_mean_elo(self):
         all_elos = self._get_all_elos()
-        return round(sum(all_elos) / len(all_elos), 2)
+        if sum(all_elos) > 0:
+            return round(sum(all_elos) / len(all_elos), 2)
+        else:
+            return 0
 
     def _get_all_elos(self):
         temp_array = []
