@@ -49,7 +49,7 @@
                         </form>
 
 
-                    {% elif curr_user in club.get_all_users %}
+                    {% elif curr_user in club.get_members %}
                     <form style="float: right;" method="post" >
                         {% csrf_token %}
                         <input class="submit_button" name="leave_club" type="submit"  value="Leave Club"/>

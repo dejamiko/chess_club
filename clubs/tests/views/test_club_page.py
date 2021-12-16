@@ -1,9 +1,10 @@
 """Unit tests of the club page view."""
 from django.test import TestCase
-from clubs.models import Tournament, User, Club, ClubApplicationModel
+from clubs.models import Tournament, User, Club, ClubApplicationModel, EloRating
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
-
+from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 
 class ClubPageViewTest(TestCase):
     """Unit tests of the club page view."""
@@ -12,15 +13,20 @@ class ClubPageViewTest(TestCase):
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/other_clubs.json",
         "clubs/tests/fixtures/default_tournament.json",
+        "clubs/tests/fixtures/other_tournament.json",
         "clubs/tests/fixtures/other_users.json"
     ]
 
     def setUp(self):
         self.user = User.objects.get(email="johndoe@example.com")
         self.bob = User.objects.get(email="bobdoe@example.com")
+        self.alice = User.objects.get(email='alicedoe@example.com')
+        self.michael = User.objects.get(email='michaeldoe@example.com')
         self.club = Club.objects.get(name="Saint Louis Chess Club")
+        self.other_club = Club.objects.get(name="Saint Louis Chess Club 2")
         self.target_user = User.objects.get(email="janedoe@example.com")
         self.tournament = Tournament.objects.get(name="Saint Louis Chess Tournament")
+        self.other_tournament = Tournament.objects.get(name="Bedroom Tournament")
         self.url = reverse("club_page", kwargs={"club_id": self.club.id})
         self.manage_url = reverse("manage_applications")
         self.club.give_elo(self.club.owner)
@@ -46,7 +52,7 @@ class ClubPageViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "club_page.html")
-        self.assertContains(response, "<b>Tournaments hosted:</b> 1")
+        self.assertContains(response, "<b>Tournaments hosted:</b> 2")
         for tournament in self.club.get_all_tournaments():
             self.assertContains(response, tournament.name)
             self.assertContains(response, tournament.get_number_of_participants())
@@ -110,3 +116,52 @@ class ClubPageViewTest(TestCase):
         self.client.post(self.url, {'apply_to_club': True})
         after_count = ClubApplicationModel.objects.count()
         self.assertEqual(before_count, after_count)
+
+# participants = models.ManyToManyField(User, related_name="participates_in")
+# organiser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="organises")
+# coorganisers = models.ManyToManyField(User, related_name="coorganises", blank=True)
+# deadline = models.DateTimeField(blank=False)
+# winner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="tournament_wins")
+# bye = models.ManyToManyField(User)
+# round = models.IntegerField(default=1)
+# group_phase = models.BooleanField(default=False)
+# elimination_phase = models.BooleanField(default=True)
+# is_final = models.BooleanField(default=False)
+
+    def test_member_can_leave_club(self):
+        inactive_tournament = Tournament.objects.create(
+        club = self.other_club, name="inactive tournament",
+        description= "inactive", organiser = self.user, deadline =
+        make_aware(datetime.now() - timedelta(days = 1))
+        )
+        temp_url = reverse("club_page", kwargs={"club_id": self.other_club.id})
+        self.other_club.add_new_member(self.bob)
+        inactive_tournament.participants.add(self.bob)
+        inactive_tournament.save()
+        self.client.login(email=self.bob.email, password='Password123')
+        self.assertTrue(self.bob in self.other_club.get_all_users())
+        self.client.post(temp_url, {'leave_club': True})
+        self.assertFalse(self.bob in self.other_club.get_all_users())
+
+    def test_officer_cannot_leave_club(self):
+        self.club.add_new_member(self.bob)
+        self.club.make_officer(self.bob)
+        self.client.login(email=self.bob.email, password='Password123')
+        self.assertTrue(self.bob in self.club.get_all_users())
+        self.client.post(self.url, {'leave_club': True})
+        self.assertTrue(self.bob in self.club.get_all_users())
+
+    def test_owner_cannot_leave_club(self):
+        self.client.login(email=self.user.email, password='Password123')
+        self.assertEqual(self.club.get_owner(), self.user)
+        self.client.post(self.url, {'leave_club': True})
+        self.assertEqual(self.club.get_owner(), self.user)
+
+    def test_cannot_leave_club_in_active_tournament(self):
+        print(self.other_tournament.deadline)
+        self.club.add_new_member(self.alice)
+        self.club.add_new_member(self.michael)
+        self.client.login(email=self.michael.email, password='Password123')
+        self.assertTrue(self.michael in self.club.get_all_users())
+        self.client.post(self.url, {'leave_club': True})
+        self.assertTrue(self.michael in self.club.get_all_users())

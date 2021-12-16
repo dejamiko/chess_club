@@ -498,14 +498,14 @@ def club_page(request, club_id):
                                 t.coorganisers.remove(curr_user)
                             elif curr_user in t.participants.all():
                                 t.participants.remove(curr_user)
-                try:
-                    elo_to_delete = EloRating.objects.get(club = requested_club, user=curr_user)
-                except EloRating.DoesNotExist:
-                    elo_to_delete = None
-                if elo_to_delete is not None:
-                    elo_to_delete.delete()
-                requested_club.members.remove(curr_user)
-                return redirect('home_page')
+                    try:
+                        elo_to_delete = EloRating.objects.get(club = requested_club, user=curr_user)
+                    except EloRating.DoesNotExist:
+                        elo_to_delete = None
+                    if elo_to_delete is not None:
+                        elo_to_delete.delete()
+                    requested_club.members.remove(curr_user)
+                    return redirect('home_page')
 
     applications_users = []
     try:
