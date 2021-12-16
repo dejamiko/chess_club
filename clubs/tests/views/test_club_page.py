@@ -71,7 +71,7 @@ class ClubPageViewTest(TestCase):
     def test_apply_to_club(self):
         self.client.login(email=self.bob.email, password='Password123')
         before_count = ClubApplicationModel.objects.count()
-        self.client.post(self.url, {'name' : self.club.name})
+        self.client.post(self.url, {'apply_to_club': True})
         after_count = ClubApplicationModel.objects.count()
         self.assertEqual(before_count+1, after_count)
         temp_application = ClubApplicationModel.objects.get(associated_club = self.club,
@@ -82,7 +82,7 @@ class ClubPageViewTest(TestCase):
     def test_cannot_apply_to_club_twice(self):
         self.client.login(email=self.bob.email, password='Password123')
         before_count = ClubApplicationModel.objects.count()
-        self.client.post(self.url, {'name' : self.club.name})
+        self.client.post(self.url, {'apply_to_club': True})
         after_count = ClubApplicationModel.objects.count()
         self.assertEqual(before_count+1, after_count)
         temp_application = ClubApplicationModel.objects.get(associated_club = self.club,
@@ -90,13 +90,13 @@ class ClubPageViewTest(TestCase):
         self.assertEqual(self.club, temp_application.associated_club)
         self.assertEqual(self.bob, temp_application.associated_user)
         before_count2 = ClubApplicationModel.objects.count()
-        self.client.post(self.url, {'name' : self.club.name})
+        self.client.post(self.url, {'apply_to_club': True})
         after_count2 = ClubApplicationModel.objects.count()
         self.assertEqual(before_count2, after_count2)
 
     def test_cannot_apply_when_rejected(self):
         self.client.login(email=self.bob.email, password='Password123')
-        self.client.post(self.url, {'name' : self.club.name})
+        self.client.post(self.url, {'apply_to_club': True})
         self.client.logout()
         self.client.login(email= self.user.email, password='Password123')
         self.client.post(self.manage_url, {'uname' : self.bob.email,
@@ -107,6 +107,6 @@ class ClubPageViewTest(TestCase):
         self.assertEqual(temp_application.is_rejected, True)
         before_count = ClubApplicationModel.objects.count()
         self.client.login(email=self.bob.email, password='Password123')
-        self.client.post(self.url, {'name' : self.club.name})
+        self.client.post(self.url, {'apply_to_club': True})
         after_count = ClubApplicationModel.objects.count()
         self.assertEqual(before_count, after_count)

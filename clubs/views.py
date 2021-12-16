@@ -133,7 +133,7 @@ def get_occupied_users(curr_club):
         occupied_users = []
         if tournaments is not None:
             for t in tournaments:
-                if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 0 ):
+                if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 1 ):
                     occupied_users.append(t.organiser)
                     if t.coorganisers.exists():
                         for c in t.coorganisers.all():
@@ -172,7 +172,7 @@ def user_list(request, user_club):
             if listed_user not in get_occupied_users(user_club):
                 if curr_tournaments is not None:
                     for t in curr_tournaments:
-                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() == 0):
+                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() < 2):
                             if listed_user == t.organiser:
                                 # delete the tournament if kicking the owner
                                 t.delete()
@@ -180,8 +180,12 @@ def user_list(request, user_club):
                                 t.coorganisers.remove(listed_user)
                             elif listed_user in t.participants.all():
                                 t.participants.remove(listed_user)
-                elo_to_delete = EloRating.objects.get(club = user_club, user=listed_user)
-                elo_to_delete.delete()
+                try:
+                    elo_to_delete = EloRating.objects.get(club = user_club, user=listed_user)
+                except EloRating.DoesNotExist:
+                    elo_to_delete = None
+                if elo_to_delete is not None:
+                    elo_to_delete.delete()
                 user_club.members.remove(listed_user)
 
 
@@ -462,21 +466,48 @@ def view_tournament(request, tournament_id):
 def club_page(request, club_id):
     requested_club = Club.objects.get(id=club_id)
     curr_user = request.user
+    try:
+        curr_tournaments = Tournament.objects.filter(club= requested_club)
+    except Tournament.DoesNotExist:
+        curr_tournaments = None
+
     if request.method == "POST":
-        club_name = request.POST.get("name")
-        temp_club = Club.objects.get(name=club_name)
-        try:
-            temp_app = ClubApplicationModel.objects.get(
-            associated_club = temp_club,
-            associated_user = curr_user
-            )
-        except ClubApplicationModel.DoesNotExist:
-            temp_app = None
-        if temp_app is None:
-            club_application = ClubApplicationModel(
-                associated_club=Club.objects.get(name=club_name),
-                associated_user=request.user)
-            club_application.save()
+        if 'apply_to_club' in request.POST:
+            print("REQ IS POST")
+            try:
+                temp_app = ClubApplicationModel.objects.get(
+                associated_club = requested_club,
+                associated_user = curr_user
+                )
+            except ClubApplicationModel.DoesNotExist:
+                temp_app = None
+            if temp_app is None and curr_user not in requested_club.get_all_users():
+                print("CREATING NEW APP")
+                club_application = ClubApplicationModel(
+                    associated_club=requested_club,
+                    associated_user=request.user)
+                club_application.save()
+
+        if 'leave_club' in request.POST:
+            if curr_user in requested_club.get_members():
+                if curr_user not in get_occupied_users(requested_club):
+                    for t in curr_tournaments:
+                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() < 2):
+                            if curr_user == t.organiser:
+                                # delete the tournament if the owner is leaving
+                                t.delete()
+                            elif curr_user in t.coorganisers.all():
+                                t.coorganisers.remove(curr_user)
+                            elif curr_user in t.participants.all():
+                                t.participants.remove(curr_user)
+                try:
+                    elo_to_delete = EloRating.objects.get(club = requested_club, user=curr_user)
+                except EloRating.DoesNotExist:
+                    elo_to_delete = None
+                if elo_to_delete is not None:
+                    elo_to_delete.delete()
+                requested_club.members.remove(curr_user)
+                return redirect('home_page')
 
     applications_users = []
     try:
@@ -502,4 +533,4 @@ def club_page(request, club_id):
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": curr_user,
                                               "user_clubs": user_clubs, "selected_club": club, 'applications_users': applications_users,
-                                              "rejected_applications_users": rejected_applications_users })
+                                              "rejected_applications_users": rejected_applications_users , "temp": ClubApplicationModel.objects.filter(associated_user = User.objects.get(email='cabe@mailinator.com'))})

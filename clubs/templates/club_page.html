@@ -43,17 +43,20 @@
             <div class="card">
                 <div class="card-body">
                     {% if curr_user not in club.get_all_users and curr_user not in rejected_applications_users and curr_user not in applications_users %}
-                        <form style="float: right;">
+                        <form style="float: right;" method="post" >
                             {% csrf_token %}
-
-
-                            <input type="hidden" class="hidden_value" name="obj" value="{{ club.name }}" />
-                            <input class="submit_button" type="submit"  value="Apply"/>
-                            <div class="success_text" <p style="display: none; color:green;"">Applied! </p></div>
+                            <input class="submit_button" name="apply_to_club" type="submit"  value="Apply"/>
                         </form>
 
-                    {% endif %}
+
+                    {% elif curr_user in club.get_all_users %}
+                    <form style="float: right;" method="post" >
+                        {% csrf_token %}
+                        <input class="submit_button" name="leave_club" type="submit"  value="Leave Club"/>
+                    </form>
+                      {% endif %}
                     <p class="card-text">
+                      {{ temp }}
                         {% if curr_user in applications_users %}
                             You have <b>applied</b> to this club.
                         {% elif curr_user in club.get_members %}
@@ -112,23 +115,6 @@
         });
     {% endif %}
 
-    $(document).on('submit', 'form', function(e) {
-      var curr_form = $(this);
-      e.preventDefault();
-      $.ajax({
-        type: 'POST',
-        url: '',
-        data: {
-          name: curr_form.find('.hidden_value').val(),
-          csrfmiddlewaretoken: $(`input[name=csrfmiddlewaretoken]`).val(),
-        },
-        success: function() {
-          curr_form.find('.submit_button').hide();
-          curr_form.find('.success_text').show();
-          curr_form.find('.submit_button').attr('disabled', true);
-        }
-      })
-    })
 </script>
 
 {% endblock %}
