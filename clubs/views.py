@@ -418,7 +418,7 @@ def club_page(request, club_id):
         if club_applications is not None:
             for application in club_applications:
                 applicant_user_list.append(application.associated_user)
-            if request.user not in applicant_user_list:
+            if request.user not in applicant_user_list and request.user not in requested_club.get_all_users():
                 club_application = ClubApplication(associated_club=requested_club,associated_user=request.user)
                 club_application.save()
 
