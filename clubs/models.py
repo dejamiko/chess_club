@@ -84,9 +84,7 @@ class User(AbstractUser):
         return club.user_level(self)
 
     def promote(self, club):
-        if self.user_level(club) == "Applicant":
-            club.make_member(self)
-        elif self.user_level(club) == "Member":
+        if self.user_level(club) == "Member":
             club.make_officer(self)
         else:
             raise ValueError
@@ -131,7 +129,7 @@ class User(AbstractUser):
             return round(sum(all_elos) / len(all_elos), 2)
         else:
             return 0
-            
+
     def _get_all_elos(self):
         temp_array = []
         for elo in self.user_elo.all():
@@ -146,7 +144,6 @@ class Club(models.Model):
 
     members = models.ManyToManyField(User, related_name='member_of')
     officers = models.ManyToManyField(User, related_name='officer_of')
-    applicants = models.ManyToManyField(User, related_name='applicant_of')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner_of')
 
     def user_level(self, user):
@@ -157,7 +154,7 @@ class Club(models.Model):
         elif self.members.filter(email=user.email):
             return "Member"
         else:
-            return "Applicant"
+            return "Not in club"
 
     def make_owner(self, user):
         if self.user_level(user) == "Officer":
@@ -178,13 +175,14 @@ class Club(models.Model):
         else:
             raise ValueError
 
+    def add_new_member(self, user):
+        # Once an application is accepted
+        self.members.add(user)
+        self.give_elo(user)
+        self.save()
+
     def make_member(self, user):
-        if self.user_level(user) == "Applicant":
-            self.members.add(user)
-            self.applicants.remove(user)
-            self.save()
-            self.give_elo(user)
-        elif self.user_level(user) == "Officer":
+        if self.user_level(user) == "Officer":
             self.members.add(user)
             self.officers.remove(user)
             self.save()
@@ -202,11 +200,17 @@ class Club(models.Model):
         else:
             raise ValueError
 
-    def make_applicant(self, user):
-        if user not in self.applicants.all():
-            self.applicants.add(user)
-        else:
-            raise ValueError
+    def get_all_applicants_users(self):
+        # This gets all applicants both REJECTED and NOT rejected
+        applicant_list = []
+        try:
+            temp = ClubApplication.objects.filter(associated_club = self).all()
+        except ClubApplication.DoesNotExist:
+            temp = None
+        if temp is not None:
+            for t in temp:
+                applicant_list.append(t.associated_user)
+        return applicant_list
 
     def get_number_of_members(self):
         return self.members.count()
@@ -227,11 +231,6 @@ class Club(models.Model):
         return self.get_members().union(self.get_officers()).union(
             User.objects.filter(email=self.get_owner().email))
 
-    def get_all_applicants(self):
-        return self.applicants.all()
-
-    def get_all_non_applicants(self):
-        return User.objects.difference(self.get_all_applicants())
 
     def get_all_tournaments(self):
         return self.has_tournaments.all()

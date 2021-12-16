@@ -103,16 +103,14 @@ class ViewTournamentTest(TestCase):
 
     def test_join_buttons_if_not_participant_but_in_club(self):
         self.client.login(email=self.jane.email, password="Password123")
-        self.club.make_applicant(self.jane)
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Join")
 
     def test_join_buttons_if_already_participant(self):
         self.client.login(email=self.michael.email, password="Password123")
-        self.club.make_applicant(self.michael)
-        self.club.make_member(self.michael)
+        self.club.add_new_member(self.michael)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Joined!")
@@ -120,8 +118,7 @@ class ViewTournamentTest(TestCase):
 
     def test_user_can_join_tournament_before_deadline(self):
         self.client.login(email=self.jane.email, password="Password123")
-        self.club.make_applicant(self.jane)
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         tournament_before_join = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.assertNotIn(self.jane, tournament_before_join.get_all_participants())
         self.client.post(self.url, {'Join_tournament': True})
@@ -130,8 +127,7 @@ class ViewTournamentTest(TestCase):
 
     def test_user_can_leave_tournament_before_deadline(self):
         self.client.login(email=self.michael.email, password="Password123")
-        self.club.make_applicant(self.michael)
-        self.club.make_member(self.michael)
+        self.club.add_new_member(self.michael)
         tournament_before_leave = Tournament.objects.get(name="Saint Louis Chess Tournament")
         self.assertIn(self.michael, tournament_before_leave.get_all_participants())
         self.client.post(self.url, {'Leave_tournament': True})
@@ -144,8 +140,7 @@ class ViewTournamentTest(TestCase):
         _create_test_users(100, 94)
         for i in range(100, 194):
             user = User.objects.get(id=i)
-            self.club.make_applicant(user)
-            self.club.make_member(user)
+            self.club.add_new_member(user)
             self.other_tournament.participants.add(user)
         self.other_tournament.save()
 
@@ -153,14 +148,9 @@ class ViewTournamentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Join")
 
-    def create_two_members_for_club(self, c, user1, user2):
-        c.make_applicant(user1)
-        c.make_member(user1)
-        c.make_applicant(user2)
-        c.make_member(user2)
-
     def test_user_cannot_join_tournament_after_deadline(self):
-        self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.add_new_member(self.jane)
+        self.other_club.add_new_member(self.michael)
         # create a time that is 5 minutes before current time
         date = make_aware(datetime.now() - timedelta(minutes=5))
 
@@ -178,8 +168,7 @@ class ViewTournamentTest(TestCase):
 
         self.client.login(username="alicedoe@example.com", password='Password123')
         late_t_url = reverse("view_tournament", kwargs={"tournament_id": late_tournament.id})
-        self.other_club.make_applicant(self.alice)
-        self.other_club.make_member(self.alice)
+        self.other_club.add_new_member(self.alice)
 
         # before joining, should not be in tournament
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
@@ -188,7 +177,8 @@ class ViewTournamentTest(TestCase):
         self.assertNotIn(self.alice, late_tournament.get_all_participants())
 
     def test_user_cannot_leave_tournament_after_deadline(self):
-        self.create_two_members_for_club(self.other_club, self.jane, self.michael)
+        self.other_club.add_new_member(self.jane)
+        self.other_club.add_new_member(self.michael)
         # create a time that is 5 minutes before current time
         date = make_aware(datetime.now() - timedelta(minutes=5))
 

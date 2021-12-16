@@ -38,7 +38,7 @@ class ManageApplicationViewTest(TestCase):
         self.assertTemplateUsed(response, "manage_applications.html")
         self.assertEqual(self.first_club_application.associated_user, self.first_user)
         self.assertEqual(self.first_club_application.associated_club, self.first_club)
-    
+
     def test_manage_applications_list_when_no_applications(self):
         self.first_club_application.delete()
         self.client.login(email=self.first_user.email, password="Password123")
@@ -51,11 +51,11 @@ class ManageApplicationViewTest(TestCase):
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_submit_creates_application(self):
-        self.client.login(email=self.first_user.email, password='Password123')
+        self.client.login(email=self.second_user.email, password='Password123')
         before_count = ClubApplication.objects.count()
-        response = self.client.post(self.apply_url, {'name': self.second_club.name})
+        response = self.client.post(self.apply_url, {'name' : self.second_club.name})
         after_count = ClubApplication.objects.count()
-        self.assertEqual(after_count, before_count + 1)
+        self.assertEqual(after_count, before_count+1)
         self.assertEqual(response.status_code, 200)
 
     def test_accept_application_deletes_application(self):
@@ -144,27 +144,26 @@ class ManageApplicationViewTest(TestCase):
 
     def test_owner_cannot_apply_to_their_club(self):
         self.client.login(email=self.first_user.email, password='Password123')
-        self.client.post(self.apply_url, {'name': self.first_club.name})
-        with self.assertRaises(ValueError):
-            self.client.post(self.url, {'uname': self.first_user.email,
-                                        'clubname': self.first_club.name, 'accepted': True})
+        before_count = ClubApplication.objects.count()
+        self.client.post(self.apply_url, {'name' : self.first_club.name})
+        after_count = ClubApplication.objects.count()
+        self.assertEqual(before_count, after_count)
+
 
     def test_user_cannot_apply_to_their_club(self):
+        self.second_club.add_new_member(self.second_user)
+        before_count = ClubApplication.objects.count()
         self.client.login(email=self.second_user.email, password='Password123')
-        self.client.post(self.apply_url, {'name': self.second_club.name})
-        self.client.post(self.url, {'uname': self.second_user.email,
-                                    'clubname': self.second_club.name, 'accepted': True})
+        self.client.post(self.apply_url, {'name' : self.second_club.name})
+        after_count = ClubApplication.objects.count()
+        self.assertEqual(before_count, after_count)
 
-        self.client.login(email=self.second_user.email, password='Password123')
-        self.client.post(self.apply_url, {'name': self.second_club.name})
 
-        with self.assertRaises(ValueError):
-            self.client.post(self.url, {'uname': self.second_user.email,
-                                        'clubname': self.second_club.name, 'accepted': True})
 
     def test_only_officers_and_owners_can_see_manage_applications_navbar_icon(self):
         self.client.login(email=self.first_user.email, password='Password123')
-        select_club = self.client.get('/1/users')
+        # NOTE: this may need to change as the URLs change
+        select_club = self.client.get(reverse('users', kwargs={"club_id": self.first_club.id}))
         html_content = str(select_club.content)
         str_to_test = """href="/manage_applications">"""
         res = str_to_test in html_content

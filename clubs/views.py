@@ -32,7 +32,7 @@ def manage_applications(request):
         club_name = request.POST.get('clubname')  # the club they wish to become a member of
         temp_club = Club.objects.get(name=club_name)
         temp_user = User.objects.get(email=username)
-        temp_club.make_member(temp_user)
+        temp_club.add_new_member(temp_user)
         temp_club.save()
         form_to_be_deleted = ClubApplication.objects.get(associated_club=temp_club, associated_user=temp_user)
         form_to_be_deleted.delete()
@@ -96,7 +96,7 @@ def user_list_select_club(request):
 
 @login_required
 def user_list(request, user_club):
-    if user_club.user_level(request.user) == 'Applicant':
+    if request.user not in user_club.get_all_users():
         redirect('home_page')
 
     if request.GET.get("listed_user"):
@@ -145,55 +145,35 @@ def user_clubs_finder(request):
     return user_clubs
 
 
-@login_required
-# Finds all clubs the logged in user belongs to and returns this information in a list
-def user_applied_clubs_finder(request):
-    user_clubs = []
-
-    clubs = Club.objects.all()
-    for temp_club in clubs:
-        if request.user in temp_club.get_all_applicants():
-            user_clubs.append(temp_club)
-
-    return user_clubs
-
 
 @login_required
 def club_list(request):
     curr_user = request.user
-    already_exists = False
     if request.method == 'POST':
         club_name = request.POST.get('name')
 
         temp_club = Club.objects.get(name=club_name)
-        club_applicants = temp_club.get_all_applicants()
-        for applicant in club_applicants:
-            if applicant == curr_user:
-                already_exists = True
-        if not already_exists:
+        try:
+            temp_app = ClubApplication.objects.get(associated_club = temp_club, associated_user = curr_user)
+        except ClubApplication.DoesNotExist:
+            temp_app = None
+
+        if temp_app is None and curr_user not in temp_club.get_all_users():
             club_application = ClubApplication(
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=curr_user)
             club_application.save()
-            temp_club = Club.objects.get(name=club_name)
-            temp_club.make_applicant(curr_user)
-            temp_club.save()
 
-    applications = []
     try:
-        apps = ClubApplication.objects.filter(is_rejected=False)
+        applications = ClubApplication.objects.filter(is_rejected=False)
     except ClubApplication.DoesNotExist:
-        apps = None
-    for a in apps:
-        applications.append(a)
+        applications = None
 
-    rejected_applications = []
     try:
-        rejected = ClubApplication.objects.filter(is_rejected=True)
+        rejected_applications = ClubApplication.objects.filter(is_rejected=True)
     except ClubApplication.DoesNotExist:
-        rejected = None
-    for r in rejected:
-        rejected_applications.append(r)
+        rejected_applications = None
+
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_list.html",
@@ -420,13 +400,15 @@ def club_page(request, club_id):
                 associated_club=Club.objects.get(name=club_name),
                 associated_user=request.user)
             club_application.save()
-            temp_club = Club.objects.get(name=club_name)
-            temp_club.make_applicant(request.user)
-            temp_club.save()
+
+    try:
+        no_of_applicants = ClubApplication.objects.filter(associated_club = requested_club, is_rejected = False).count()
+    except ClubApplication.DoesNotExist:
+        no_of_applicants = 0
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_page.html", {"club": requested_club,
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner,
                                                                                  club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": request.user,
-                                              "user_clubs": user_clubs, "selected_club": club})
+                                              "user_clubs": user_clubs, "selected_club": club, 'no_of_applicants':no_of_applicants})

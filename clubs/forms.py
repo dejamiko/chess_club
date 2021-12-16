@@ -133,5 +133,5 @@ class CreateTournamentForm(forms.ModelForm):
 #
 # class ClubApplicationForm(forms.ModelForm):
 #     class Meta:
-#         model = ClubApplicationModel
+#         model = ClubApplication
 #         fields = ['status']
