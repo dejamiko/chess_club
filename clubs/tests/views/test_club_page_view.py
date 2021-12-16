@@ -94,3 +94,13 @@ class ClubPageViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You are the <b>owner</b> of this club.")
+
+    def test_user_can_apply_to_club(self):
+        pass
+
+    def test_user_cannot_apply_if_accepted(self):
+        pass
+
+    def test_user_cannot_apply_if_rejected(self):
+        pass
+    

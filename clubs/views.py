@@ -407,25 +407,44 @@ def view_tournament(request, tournament_id):
 @login_required
 def club_page(request, club_id):
     requested_club = Club.objects.get(id=club_id)
-    already_exists = False
+    applicant_user_list = []
 
-    if request.method == "POST":
-        club_name = request.POST["name"]
-        temp_club = Club.objects.get(name=club_name)
-        club_applicants = temp_club.get_all_applicants()
-        for applicant in club_applicants:
-            if applicant == request.user:
-                already_exists = True
-        if not already_exists:
-            club_application = ClubApplication(
-                associated_club=Club.objects.get(name=club_name),
-                associated_user=request.user)
-            club_application.save()
+    if request.method == "POST" and 'submitbutton' in request.POST:
+        print("REACHED HERE")
+        try:
+            club_applications = ClubApplication.objects.filter(associated_club = requested_club)
+        except ClubApplication.DoesNotExist:
+            club_applications = None
+        if club_applications is not None:
+            for application in club_applications:
+                applicant_user_list.append(application.associated_user)
+            if request.user not in applicant_user_list:
+                club_application = ClubApplication(associated_club=requested_club,associated_user=request.user)
+                club_application.save()
 
     try:
         no_of_applicants = ClubApplication.objects.filter(associated_club=requested_club, is_rejected=False).count()
     except ClubApplication.DoesNotExist:
         no_of_applicants = 0
+
+    applications = []
+    try:
+        temp = ClubApplication.objects.filter(associated_club = requested_club, is_rejected=False)
+    except ClubApplication.DoesNotExist:
+        temp = None
+    if temp is not None:
+        for app in temp:
+            applications.append(app.associated_user)
+
+    rejected_applications = []
+    try:
+        temp_rejected = ClubApplication.objects.filter(associated_club = requested_club, is_rejected=True)
+    except ClubApplication.DoesNotExist:
+        temp_rejected = None
+    if temp_rejected is not None:
+        for rej_app in temp_rejected:
+            rejected_applications.append(rej_app.associated_user)
+
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_page.html", {"club": requested_club,
@@ -433,4 +452,4 @@ def club_page(request, club_id):
                                                                                  club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": request.user,
                                               "user_clubs": user_clubs, "selected_club": club,
-                                              'no_of_applicants': no_of_applicants})
+                                              'no_of_applicants': no_of_applicants, 'applications': applications, 'rejected_applications':rejected_applications})
