@@ -1,5 +1,5 @@
 from django import forms
-from django.forms.fields import DateField, TimeField, CharField
+from django.forms.fields import DateField, TimeField
 from .models import User, Club, Tournament
 from django.core.validators import RegexValidator
 from datetime import datetime
@@ -129,9 +129,3 @@ class CreateTournamentForm(forms.ModelForm):
         tournament.coorganisers.set(self.cleaned_data.get("coorganisers"))
         tournament.save()
         return tournament
-
-#
-# class ClubApplicationForm(forms.ModelForm):
-#     class Meta:
-#         model = ClubApplication
-#         fields = ['status']

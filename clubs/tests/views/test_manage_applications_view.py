@@ -53,9 +53,9 @@ class ManageApplicationViewTest(TestCase):
     def test_submit_creates_application(self):
         self.client.login(email=self.second_user.email, password='Password123')
         before_count = ClubApplication.objects.count()
-        response = self.client.post(self.apply_url, {'name' : self.second_club.name})
+        response = self.client.post(self.apply_url, {'name': self.second_club.name})
         after_count = ClubApplication.objects.count()
-        self.assertEqual(after_count, before_count+1)
+        self.assertEqual(after_count, before_count + 1)
         self.assertEqual(response.status_code, 200)
 
     def test_accept_application_deletes_application(self):
@@ -145,20 +145,17 @@ class ManageApplicationViewTest(TestCase):
     def test_owner_cannot_apply_to_their_club(self):
         self.client.login(email=self.first_user.email, password='Password123')
         before_count = ClubApplication.objects.count()
-        self.client.post(self.apply_url, {'name' : self.first_club.name})
+        self.client.post(self.apply_url, {'name': self.first_club.name})
         after_count = ClubApplication.objects.count()
         self.assertEqual(before_count, after_count)
-
 
     def test_user_cannot_apply_to_their_club(self):
         self.second_club.add_new_member(self.second_user)
         before_count = ClubApplication.objects.count()
         self.client.login(email=self.second_user.email, password='Password123')
-        self.client.post(self.apply_url, {'name' : self.second_club.name})
+        self.client.post(self.apply_url, {'name': self.second_club.name})
         after_count = ClubApplication.objects.count()
         self.assertEqual(before_count, after_count)
-
-
 
     def test_only_officers_and_owners_can_see_manage_applications_navbar_icon(self):
         self.client.login(email=self.first_user.email, password='Password123')
@@ -186,14 +183,15 @@ class ManageApplicationViewTest(TestCase):
         c1 = ClubApplication.objects.get(associated_club=self.first_club, associated_user=self.second_user)
         self.assertFalse(c1.is_rejected)
         before_reverted_count = ClubApplication.objects.count()
-        self.client.post(self.url, {'uname': self.second_user.email,'clubname': self.first_club.name, 'rejected': True})
-        self.client.post(self.url, {'uname': self.second_user.email,'clubname': self.first_club.name, 'revert': True})
+        self.client.post(self.url,
+                         {'uname': self.second_user.email, 'clubname': self.first_club.name, 'rejected': True})
+        self.client.post(self.url, {'uname': self.second_user.email, 'clubname': self.first_club.name, 'revert': True})
         after_reverted_count = ClubApplication.objects.count()
         # The revert deletes the application, so the user can reapply
-        self.assertEqual(before_reverted_count, after_reverted_count+1)
+        self.assertEqual(before_reverted_count, after_reverted_count + 1)
         before_reapply_count = ClubApplication.objects.count()
         self.client.post(self.apply_url, {'name': self.first_club.name})
         after_reapply_count = ClubApplication.objects.count()
-        self.assertEqual(before_reapply_count+1, after_reapply_count)
+        self.assertEqual(before_reapply_count + 1, after_reapply_count)
         c2 = ClubApplication.objects.get(associated_club=self.first_club, associated_user=self.second_user)
         self.assertFalse(c2.is_rejected)

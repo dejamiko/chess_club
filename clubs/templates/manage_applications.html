@@ -1,162 +1,167 @@
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
 
 {% extends 'base_content.html' %}
 {% block title %} | Manage applications{% endblock %}
 {% block content %}
-<div>
-  <button type="button" class="btn btn-success" id="show_pending" disabled="disabled">Pending</button>
-<button type="button" class="btn btn-danger" id="show_rejected">Rejected</button>
-</div>
-<script type="text/javascript">
-  $('#show_pending').click(function(){
-  $('#show_rejected').removeAttr("disabled");
-  $('#show_pending').attr("disabled", true);
-  $("#accepted_apps").removeClass('d-none');
-  $("#rejected_apps").addClass('d-none');
-});
-$('#show_rejected').click(function(){
-  $('#show_pending').removeAttr("disabled");
-  $('#show_rejected').attr("disabled", true);
-  $("#accepted_apps").addClass('d-none');
-  $("#rejected_apps").removeClass('d-none');
-});
-  </script>
+    <div>
+        <button type="button" class="btn btn-success" id="show_pending" disabled="disabled">Pending</button>
+        <button type="button" class="btn btn-danger" id="show_rejected">Rejected</button>
+    </div>
+    <script type="text/javascript">
+        $('#show_pending').click(function () {
+            $('#show_rejected').removeAttr("disabled");
+            $('#show_pending').attr("disabled", true);
+            $("#accepted_apps").removeClass('d-none');
+            $("#rejected_apps").addClass('d-none');
+        });
+        $('#show_rejected').click(function () {
+            $('#show_pending').removeAttr("disabled");
+            $('#show_rejected').attr("disabled", true);
+            $("#accepted_apps").addClass('d-none');
+            $("#rejected_apps").removeClass('d-none');
+        });
+    </script>
     <div id="accepted_apps">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1>Manage applications</h1>
-                <table id="manage_applications-table" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col" style="width: 15%;">Name</th>
-                        <th scope="col" style="width: 15%;">Location</th>
-                        <th scope="col" style="width: 30%;">Description</th>
-                        <th scope="col" style="width: 10%;">Members</th>
-                        <th scope="col" style="width: 30%;">Applicant</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% if applications is not None %}
-                        {% for app in applications %}
-                            {% if app.associated_club == selected_club %}
-                                <tr>
-                                    <td>{{ app.associated_club.name }}</td>
-                                    <td>{{ app.associated_club.location }}</td>
-                                    <td>{{ app.associated_club.description }}</td>
-                                    <td>{{ app.associated_club.get_number_of_members }}</td>
-                                    <td>
-                                        <img style="border-radius: 8px; margin: 0 10px 10px 0;"
-                                             src="{{ app.associated_user.mini_gravatar }}"
-                                             alt="{{ app.associated_user.email }}'s profile picture">
-                                        {{ app.associated_user.first_name }} {{ app.associated_user.last_name }}
-                                        <br>
-                                        {{ app.associated_user.bio }}
-                                        <p><b>Applicant: {{ app.associated_user.email }}</b></p>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Manage applications</h1>
+                    <table id="manage_applications-table" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col" style="width: 15%;">Name</th>
+                            <th scope="col" style="width: 15%;">Location</th>
+                            <th scope="col" style="width: 30%;">Description</th>
+                            <th scope="col" style="width: 10%;">Members</th>
+                            <th scope="col" style="width: 30%;">Applicant</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if applications is not None %}
+                            {% for app in applications %}
+                                {% if app.associated_club == selected_club %}
+                                    <tr>
+                                        <td>{{ app.associated_club.name }}</td>
+                                        <td>{{ app.associated_club.location }}</td>
+                                        <td>{{ app.associated_club.description }}</td>
+                                        <td>{{ app.associated_club.get_number_of_members }}</td>
+                                        <td>
+                                            <img style="border-radius: 8px; margin: 0 10px 10px 0;"
+                                                 src="{{ app.associated_user.mini_gravatar }}"
+                                                 alt="{{ app.associated_user.email }}'s profile picture">
+                                            {{ app.associated_user.first_name }} {{ app.associated_user.last_name }}
+                                            <br>
+                                            {{ app.associated_user.bio }}
+                                            <p><b>Applicant: {{ app.associated_user.email }}</b></p>
 
-                                        <form method="post">
-                                            {% csrf_token %}
+                                            <form method="post">
+                                                {% csrf_token %}
 
-                                            {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
-                                                <input type="hidden" name="uname"
-                                                       value="{{ app.associated_user.email }}">
-                                                <input type="hidden" name="clubname"
-                                                       value="{{ app.associated_club.name }}">
-                                                <input style="background-color:green;" type="submit" name="accepted"
-                                                       value="Accept" class="btn btn-sm btn-secondary">
-                                                <input style="background-color:#B22222;" type="submit" name="rejected"
-                                                       value="Reject" class="btn btn-sm btn-secondary">
+                                                {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
+                                                    <input type="hidden" name="uname"
+                                                           value="{{ app.associated_user.email }}">
+                                                    <input type="hidden" name="clubname"
+                                                           value="{{ app.associated_club.name }}">
+                                                    <input style="background-color:green;" type="submit" name="accepted"
+                                                           value="Accept" class="btn btn-sm btn-secondary">
+                                                    <input style="background-color:#B22222;" type="submit"
+                                                           name="rejected"
+                                                           value="Reject" class="btn btn-sm btn-secondary">
 
-                                            {% endif %}
-                                        </form>
+                                                {% endif %}
+                                            </form>
 
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
+        <script>
+            var dataTable = new simpleDatatables.DataTable("#manage_applications-table", {
+                columns: [{select: [4], sortable: false}],
+                perPage: 15,
+                fixedColumns: false
+            })
+        </script>
     </div>
 
-    <script>
-  var dataTable = new simpleDatatables.DataTable("#manage_applications-table", {
-    columns: [{select: [4], sortable: false}],
-    perPage: 15,
-    fixedColumns: false
-  })
-</script>
-</div>
 
-
-<div id="rejected_apps" class="d-none">
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1>Manage applications</h1>
-            <table id="rejected_applications-table" class="table table-hover">
-                <thead>
-                <tr>
-                    <th scope="col" style="width: 15%;">Name</th>
-                    <th scope="col" style="width: 15%;">Location</th>
-                    <th scope="col" style="width: 30%;">Description</th>
-                    <th scope="col" style="width: 10%;">Members</th>
-                    <th scope="col" style="width: 30%;">Applicant</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% if rejected_applications is not None %}
-                    {% for rej in rejected_applications %}
-                    {% if rej.associated_club == selected_club %}
+    <div id="rejected_apps" class="d-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Manage applications</h1>
+                    <table id="rejected_applications-table" class="table table-hover">
+                        <thead>
                         <tr>
-                            <td>{{ rej.associated_club.name }}</td>
-                            <td>{{ rej.associated_club.location }}</td>
-                            <td>{{ rej.associated_club.description }}</td>
-                            <td>{{ rej.associated_club.get_number_of_members }}</td>
-                            <td>
-                                <img style="border-radius: 8px; margin: 0 10px 10px 0;"
-                                     src="{{ rej.associated_user.mini_gravatar }}"
-                                     alt="{{ rej.associated_user.email }}'s profile picture">
-                                {{ rej.associated_user.first_name }} {{ rej.associated_user.last_name }}
-                                <br>
-                                {{ rej.associated_user.bio }}
-                                <p><b>Applicant: {{ rej.associated_user.email }}</b></p>
-
-                                <form method="post">
-                                    {% csrf_token %}
-
-                                    {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
-                                        <input type="hidden" name="uname" value="{{ rej.associated_user.email }}">
-                                        <input type="hidden" name="clubname" value="{{ rej.associated_club.name }}">
-                                        <input style="background-color:green;" type="submit"  name="revert" value="Revert" class="btn btn-sm btn-secondary" >
-
-                                    {% endif %}
-                                </form>
-
-                            </td>
+                            <th scope="col" style="width: 15%;">Name</th>
+                            <th scope="col" style="width: 15%;">Location</th>
+                            <th scope="col" style="width: 30%;">Description</th>
+                            <th scope="col" style="width: 10%;">Members</th>
+                            <th scope="col" style="width: 30%;">Applicant</th>
                         </tr>
+                        </thead>
+                        <tbody>
+                        {% if rejected_applications is not None %}
+                            {% for rej in rejected_applications %}
+                                {% if rej.associated_club == selected_club %}
+                                    <tr>
+                                        <td>{{ rej.associated_club.name }}</td>
+                                        <td>{{ rej.associated_club.location }}</td>
+                                        <td>{{ rej.associated_club.description }}</td>
+                                        <td>{{ rej.associated_club.get_number_of_members }}</td>
+                                        <td>
+                                            <img style="border-radius: 8px; margin: 0 10px 10px 0;"
+                                                 src="{{ rej.associated_user.mini_gravatar }}"
+                                                 alt="{{ rej.associated_user.email }}'s profile picture">
+                                            {{ rej.associated_user.first_name }} {{ rej.associated_user.last_name }}
+                                            <br>
+                                            {{ rej.associated_user.bio }}
+                                            <p><b>Applicant: {{ rej.associated_user.email }}</b></p>
+
+                                            <form method="post">
+                                                {% csrf_token %}
+
+                                                {% if curr_user in listed_club.get_officers or curr_user == listed_club.get_owner %}
+                                                    <input type="hidden" name="uname"
+                                                           value="{{ rej.associated_user.email }}">
+                                                    <input type="hidden" name="clubname"
+                                                           value="{{ rej.associated_club.name }}">
+                                                    <input style="background-color:green;" type="submit" name="revert"
+                                                           value="Revert" class="btn btn-sm btn-secondary">
+
+                                                {% endif %}
+                                            </form>
+
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         {% endif %}
-                    {% endfor %}
-                {% endif %}
 
-                </tbody>
-            </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+
+        <script>
+            var dataTable = new simpleDatatables.DataTable("#rejected_applications-table", {
+                columns: [{select: [4], sortable: false}],
+                perPage: 15,
+                fixedColumns: false
+            })
+        </script>
     </div>
-</div>
-
-
-<script>
-var dataTable = new simpleDatatables.DataTable("#rejected_applications-table", {
-columns: [{select: [4], sortable: false}],
-perPage: 15,
-fixedColumns: false
-})
-</script>
-</div>
 {% endblock %}

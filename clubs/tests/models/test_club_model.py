@@ -62,7 +62,6 @@ class ClubModelTestCase(TestCase):
         self.club.owner = None
         self._assert_club_is_invalid()
 
-
     def test_club_can_have_members(self):
         self.club.add_new_member(self.jane)
         self.assertEqual(self.club.get_number_of_members(), 1)
@@ -87,7 +86,6 @@ class ClubModelTestCase(TestCase):
     def test_club_has_tournaments(self):
         self.assertTrue(self.tournament in self.club.get_all_tournaments())
         self.assertEquals(self.club.get_number_of_tournaments(), 1)
-
 
     def test_club_average_elo(self):
         give_all_missing_elos(self.club)

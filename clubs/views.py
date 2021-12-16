@@ -34,13 +34,13 @@ def manage_applications(request):
         temp_user = User.objects.get(email=username)
 
         try:
-            temp_app = ClubApplication.objects.get(associated_club = temp_club, associated_user = temp_user)
+            temp_app = ClubApplication.objects.get(associated_club=temp_club, associated_user=temp_user)
         except ClubApplication.DoesNotExist:
             temp_app = None
 
         if 'accepted' in request.POST:
             if temp_app is not None and temp_user not in temp_club.get_all_users():
-                if temp_app.is_rejected == False:
+                if not temp_app.is_rejected:
                     temp_club.add_new_member(temp_user)
                     temp_club.save()
                     temp_app.delete()
@@ -48,14 +48,14 @@ def manage_applications(request):
 
         if 'rejected' in request.POST:
             if temp_app is not None and temp_user not in temp_club.get_all_users():
-                if temp_app.is_rejected == False:
+                if not temp_app.is_rejected:
                     temp_app.is_rejected = True
                     temp_app.save()
                     return redirect('manage_applications')
 
         if 'revert' in request.POST:
             if temp_app is not None and temp_user not in temp_club.get_all_users():
-                if temp_app.is_rejected == True:
+                if temp_app.is_rejected:
                     temp_app.delete()
                     return redirect('manage_applications')
 
@@ -71,7 +71,7 @@ def manage_applications(request):
 
     rejected_applications = []
     try:
-        temp_rejected = ClubApplication.objects.filter(is_rejected = True)
+        temp_rejected = ClubApplication.objects.filter(is_rejected=True)
     except ClubApplication.DoesNotExist:
         temp_rejected = None
     if temp_rejected is not None:
@@ -82,8 +82,8 @@ def manage_applications(request):
     user_clubs = user_clubs_finder(request)
 
     return render(request, 'manage_applications.html',
-                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club, 'rejected_applications': rejected_applications})
-
+                  {'applications': applications, "user_clubs": user_clubs, "selected_club": club,
+                   'rejected_applications': rejected_applications})
 
 
 @login_required
@@ -168,7 +168,6 @@ def user_clubs_finder(request):
     return user_clubs
 
 
-
 @login_required
 def club_list(request):
     curr_user = request.user
@@ -177,7 +176,7 @@ def club_list(request):
 
         temp_club = Club.objects.get(name=club_name)
         try:
-            temp_app = ClubApplication.objects.get(associated_club = temp_club, associated_user = curr_user)
+            temp_app = ClubApplication.objects.get(associated_club=temp_club, associated_user=curr_user)
         except ClubApplication.DoesNotExist:
             temp_app = None
 
@@ -196,7 +195,6 @@ def club_list(request):
         rejected_applications = ClubApplication.objects.filter(is_rejected=True)
     except ClubApplication.DoesNotExist:
         rejected_applications = None
-
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_list.html",
@@ -425,7 +423,7 @@ def club_page(request, club_id):
             club_application.save()
 
     try:
-        no_of_applicants = ClubApplication.objects.filter(associated_club = requested_club, is_rejected = False).count()
+        no_of_applicants = ClubApplication.objects.filter(associated_club=requested_club, is_rejected=False).count()
     except ClubApplication.DoesNotExist:
         no_of_applicants = 0
 
@@ -434,4 +432,5 @@ def club_page(request, club_id):
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner,
                                                                                  club=requested_club),
                                               "today": make_aware(datetime.now()), "curr_user": request.user,
-                                              "user_clubs": user_clubs, "selected_club": club, 'no_of_applicants':no_of_applicants})
+                                              "user_clubs": user_clubs, "selected_club": club,
+                                              'no_of_applicants': no_of_applicants})
