@@ -177,8 +177,10 @@ def user_list(request, user_club):
                                 t.coorganisers.remove(listed_user)
                             elif listed_user in t.participants.all():
                                 t.participants.remove(listed_user)
-
+                elo_to_delete = EloRating.objects.get(club = user_club, user=listed_user)
+                elo_to_delete.delete()
                 user_club.members.remove(listed_user)
+
 
         return redirect("users", user_club.id)
 
@@ -189,8 +191,13 @@ def user_list(request, user_club):
 
     user_dict_with_levels_elo = []
     for user in user_dict:
-        user_elo_club = EloRating.objects.get(user=user, club=user_club)
-        user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
+        user_elo_club = None
+        try:
+            user_elo_club = EloRating.objects.get(user=user, club=user_club)
+        except EloRating.DoesNotExist:
+            pass
+        if user_elo_club is not None:
+            user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
 
     user_clubs = user_clubs_finder(request)
 
