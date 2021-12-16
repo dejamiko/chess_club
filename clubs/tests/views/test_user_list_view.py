@@ -358,8 +358,9 @@ class UserListTest(TestCase):
         self.club.add_new_member(self.user)
         before_elo_count = EloRating.objects.count()
         temp_other_tournament = Tournament.objects.create(
-        club = self.other_club, name="other tournament", description="other", organiser = self.user,
-        deadline = make_aware(datetime.now()+timedelta(days = 1))
+            club = self.other_club, name="other tournament",
+            description="other", organiser = self.user,
+            deadline = make_aware(datetime.now()+timedelta(days = 1))
         )
         before_tournament_count = Tournament.objects.count()
         self.client.login(email=self.john.email, password='Password123')
@@ -373,7 +374,7 @@ class UserListTest(TestCase):
         after_elo_count = EloRating.objects.count()
         self.assertEqual(before_elo_count, after_elo_count+1)
 
-    def test_can_kick_member_in_tournament_in_same_club_who_is_participant_that_has_not_started(self):
+    def test_can_kick_member_who_is_participant_in_tournament_in_same_club_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
         EloRating.objects.filter(user=self.michael, club=self.club).delete()
         self.club.add_new_member(self.michael)
@@ -388,7 +389,7 @@ class UserListTest(TestCase):
         self.assertEqual(before_elo_count, after_elo_count+1)
 
 
-    def test_can_kick_member_in_tournament_in_same_club_who_is_coorganiser_that_has_not_started(self):
+    def test_can_kick_member_who_is_coorganiser_in_tournament_in_same_club_that_has_not_started(self):
         # can kick a member in a tournament in the current club that has not started
         EloRating.objects.filter(user=self.bob, club=self.club).delete()
         self.club.add_new_member(self.bob)
@@ -408,8 +409,8 @@ class UserListTest(TestCase):
         self.club.add_new_member(self.user)
         before_elo_count = EloRating.objects.count()
         temp_other_tournament = Tournament.objects.create(
-        club = self.club, name="other tournament", description="other", organiser = self.user,
-        deadline = make_aware(datetime.now()+timedelta(days = 1))
+            club = self.club, name="other tournament", description="other", organiser = self.user,
+            deadline = make_aware(datetime.now()+timedelta(days = 1))
         )
         before_tournament_count = Tournament.objects.count()
         self.client.login(email=self.john.email, password='Password123')
@@ -430,8 +431,8 @@ class UserListTest(TestCase):
         self.club.add_new_member(self.user)
         before_elo_count = EloRating.objects.count()
         temp_other_tournament = Tournament.objects.create(
-        club = self.club, name="other tournament", description="other", organiser = self.user,
-        deadline = make_aware(datetime.now()-timedelta(days = 1))
+            club = self.club, name="other tournament", description="other", organiser = self.user,
+            deadline = make_aware(datetime.now()-timedelta(days = 1))
         )
         before_tournament_count = Tournament.objects.count()
         self.client.login(email=self.john.email, password='Password123')
@@ -454,8 +455,8 @@ class UserListTest(TestCase):
         self.club.add_new_member(self.bob)
         before_elo_count = EloRating.objects.count()
         temp_other_tournament = Tournament.objects.create(
-        club = self.club, name="other tournament", description="other", organiser = self.user,
-        deadline = make_aware(datetime.now()-timedelta(days = 1))
+            club = self.club, name="other tournament", description="other", organiser = self.user,
+            deadline = make_aware(datetime.now()-timedelta(days = 1))
         )
         temp_other_tournament.participants.add(self.bob)
         temp_other_tournament.participants.add(self.alice)

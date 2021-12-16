@@ -62,7 +62,7 @@
                                            value="Switch ownership" name="switch_owner" onclick="return confirm('Are you sure you want to switch ownership?')">
                                     <!-- popup box for switching ownership -->
                                 {% endif %}
-                                {% if listed_user.0 not in occupied_users %}
+                                {% if listed_user.0 not in active_users %}
                                 {% if user_level == 'Owner' or user_level == 'Officer' %}
                                 {% if listed_user.1 == 'Member' %}
                                 <input class="btn btn-danger btn-sm" type="submit" value="Kick"

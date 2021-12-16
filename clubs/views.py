@@ -116,24 +116,24 @@ def user_list_select_club(request):
     response = render(request, "select_club_screen.html", {"user_clubs": user_clubs})
     return response
 
-def get_occupied_users(curr_club):
+def get_users_in_active_tournament(curr_club):
         try:
             tournaments = Tournament.objects.filter(club= curr_club)
         except Tournament.DoesNotExist:
             tournaments = None
 
-        occupied_users = []
+        active_users = []
         if tournaments is not None:
             for t in tournaments:
                 if (t.deadline < make_aware(datetime.now())) and (t.participants.count() > 1 ):
-                    occupied_users.append(t.organiser)
+                    active_users.append(t.organiser)
                     if t.coorganisers.exists():
                         for c in t.coorganisers.all():
-                            occupied_users.append(c)
+                            active_users.append(c)
                     if t.participants.exists():
                         for p in t.participants.all():
-                            occupied_users.append(p)
-        return occupied_users
+                            active_users.append(p)
+        return active_users
 
 @login_required
 def user_list(request, user_club):
@@ -161,17 +161,17 @@ def user_list(request, user_club):
             messages.add_message(request, messages.SUCCESS, f"You switched ownership with {listed_user.full_name()}!")
         if 'kick' in request.POST and listed_user.user_level(user_club) == 'Member' and \
         (curr_user.user_level(user_club) == 'Officer' or user_club.get_owner() ==curr_user):
-            if listed_user not in get_occupied_users(user_club):
+            if listed_user not in get_users_in_active_tournament(user_club):
                 if curr_tournaments is not None:
-                    for t in curr_tournaments:
-                        if (make_aware(datetime.now()) < t.deadline)or (make_aware(datetime.now()) > t.deadline and t.participants.count() < 2):
-                            if listed_user == t.organiser:
+                    for temp_tournament in curr_tournaments:
+                        if (make_aware(datetime.now()) < temp_tournament.deadline)or (make_aware(datetime.now()) > temp_tournament.deadline and temp_tournament.participants.count() < 2):
+                            if listed_user == temp_tournament.organiser:
                                 # delete the tournament if kicking the owner
-                                t.delete()
-                            elif listed_user in t.coorganisers.all():
-                                t.coorganisers.remove(listed_user)
-                            elif listed_user in t.participants.all():
-                                t.participants.remove(listed_user)
+                                temp_tournament.delete()
+                            elif listed_user in temp_tournament.coorganisers.all():
+                                temp_tournament.coorganisers.remove(listed_user)
+                            elif listed_user in temp_tournament.participants.all():
+                                temp_tournament.participants.remove(listed_user)
                 try:
                     elo_to_delete = EloRating.objects.get(club = user_club, user=listed_user)
                 except EloRating.DoesNotExist:
@@ -201,7 +201,7 @@ def user_list(request, user_club):
         tournaments = None
 
     return render(request, "user_list.html", {"users": user_dict_with_levels_elo, "user_level": request.user.user_level(user_club),
-                   "user_clubs": user_clubs, "selected_club": user_club, 'occupied_users': get_occupied_users(user_club),
+                   "user_clubs": user_clubs, "selected_club": user_club, 'active_users': get_users_in_active_tournament(user_club),
                    'curr_tournaments': curr_tournaments, 'tournaments': tournaments})
 
 
