@@ -9,7 +9,7 @@
             <div class="col-12">
 
                 <h1>Manage applications</h1>
-                <table id="club-table" class="table table-hover">
+                <table id="applications-table" class="table table-hover">
                     <thead>
                     <tr>
                         <th scope="col" style="width: 15%;">Name</th>
@@ -64,4 +64,11 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#applications-table", {
+            perPage: 15,
+            fixedColumns: false
+        })
+    </script>
 {% endblock %}
