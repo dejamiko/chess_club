@@ -191,13 +191,8 @@ def user_list(request, user_club):
 
     user_dict_with_levels_elo = []
     for user in user_dict:
-        user_elo_club = None
-        try:
-            user_elo_club = EloRating.objects.get(user=user, club=user_club)
-        except EloRating.DoesNotExist:
-            pass
-        if user_elo_club is not None:
-            user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
+        user_elo_club = EloRating.objects.get(user=user, club=user_club)
+        user_dict_with_levels_elo.append((user, user_club.user_level(user), user_elo_club.elo_rating))
 
     user_clubs = user_clubs_finder(request)
 
