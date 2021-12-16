@@ -40,11 +40,8 @@ class HomeTest(TestCase):
         )
         user_list_temp = [self.jane, self.michael, self.alice, self.bob]
 
-        for user1 in user_list_temp:
-            temp_club.make_applicant(user1)
-
         for user2 in user_list_temp:
-            temp_club.make_member(user2)
+            temp_club.add_new_member(user2)
 
         temp_tournament = Tournament.objects.create(
             club=temp_club,

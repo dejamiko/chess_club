@@ -15,26 +15,27 @@ class TransitionsBetweenModelsTestCase(TestCase):
 
     def test_make_user_a_member(self):
         self._assert_user_is_valid()
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self._assert_user_is_valid()
 
     def test_make_member_a_user(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_user(self.user)
-        self.assertEqual(self.user.user_level(self.club), 'Applicant')
+         # THey are no longer in the club, and must therefore reapply
+        self.assertEqual(self.user.user_level(self.club), None)
         self._assert_user_is_valid()
 
     def test_make_member_an_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
         self._assert_user_is_valid()
 
     def test_make_officer_a_member(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -43,7 +44,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
         self._assert_user_is_valid()
 
     def test_make_officer_an_owner(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -52,7 +53,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
         self._assert_user_is_valid()
 
     def test_make_owner_an_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -67,7 +68,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
             self.club.make_user(self.user)
 
     def test_make_officer_a_user_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -75,7 +76,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
             self.club.make_user(self.user)
 
     def test_make_owner_a_user_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -85,13 +86,13 @@ class TransitionsBetweenModelsTestCase(TestCase):
             self.club.make_user(self.user)
 
     def test_make_member_a_member_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         with self.assertRaises(ValueError):
             self.club.make_member(self.user)
 
     def test_make_owner_a_member_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -105,7 +106,7 @@ class TransitionsBetweenModelsTestCase(TestCase):
             self.club.make_officer(self.user)
 
     def test_make_officer_an_officer_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -117,13 +118,13 @@ class TransitionsBetweenModelsTestCase(TestCase):
             self.club.make_owner(self.user)
 
     def test_make_member_an_owner_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         with self.assertRaises(ValueError):
             self.club.make_owner(self.user)
 
     def test_make_owner_an_owner_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Member')
         self.club.make_officer(self.user)
         self.assertEqual(self.user.user_level(self.club), 'Officer')
@@ -132,43 +133,39 @@ class TransitionsBetweenModelsTestCase(TestCase):
         with self.assertRaises(ValueError):
             self.club.make_owner(self.user)
 
-    def test_promote_applicant_to_member(self):
-        self.user.promote(self.club)
-        self.assertEqual(self.user.user_level(self.club), "Member")
-
     def test_promote_member_to_officer(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.user.promote(self.club)
         self.assertEqual(self.user.user_level(self.club), "Officer")
 
     def test_demote_officer_to_member(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.user.demote(self.club)
         self.assertEqual(self.user.user_level(self.club), "Member")
 
     def test_promote_officer_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         with self.assertRaises(ValueError):
             self.user.promote(self.club)
 
     def test_promote_owner_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
         with self.assertRaises(ValueError):
             self.user.promote(self.club)
 
     def test_demote_owner_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         self.club.make_officer(self.user)
         self.club.make_owner(self.user)
         with self.assertRaises(ValueError):
             self.user.demote(self.club)
 
     def test_demote_member_fails(self):
-        self.club.make_member(self.user)
+        self.club.add_new_member(self.user)
         with self.assertRaises(ValueError):
             self.user.demote(self.club)
 

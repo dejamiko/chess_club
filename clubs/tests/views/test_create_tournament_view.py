@@ -42,8 +42,7 @@ class CreateTournamentViewTest(TestCase):
     def test_get_create_tournament_with_club_selected_when_not_officer(self):
         self.client.login(email=self.jane.email, password="Password123")
         clubs.views.club = self.club
-        self.club.make_applicant(self.jane)
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "home_page.html")
@@ -61,7 +60,7 @@ class CreateTournamentViewTest(TestCase):
     def test_get_create_tournament_with_club_selected_when_officer(self):
         self.client.login(email=self.jane.email, password="Password123")
         clubs.views.club = self.club
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -73,7 +72,7 @@ class CreateTournamentViewTest(TestCase):
     def test_unsuccessful_create_tournament(self):
         self.client.login(email=self.user.email, password="Password123")
         clubs.views.club = self.club
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         before_count = Tournament.objects.count()
         self.form_input["name"] = ""
@@ -89,7 +88,7 @@ class CreateTournamentViewTest(TestCase):
     def test_successful_create_tournament(self):
         self.client.login(email=self.user.email, password="Password123")
         clubs.views.club = self.club
-        self.club.make_member(self.jane)
+        self.club.add_new_member(self.jane)
         self.club.make_officer(self.jane)
         self.club.give_elo(self.user)
         before_count = Tournament.objects.count()

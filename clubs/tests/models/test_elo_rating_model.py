@@ -39,7 +39,7 @@ class EloRatingModelTestCase(TestCase):
         self.assertEquals(self.user_elo.elo_rating, elo_test_value.elo_rating)
 
     def test_user_has_elo_after_joining_club(self):
-        self.second_club.make_member(self.second_user)
+        self.second_club.add_new_member(self.second_user)
         elo_test_value = EloRating.objects.get(user=self.second_user, club=self.second_club)
         self.assertEquals(elo_test_value.elo_rating, self.second_user_elo.elo_rating)
 
@@ -58,7 +58,7 @@ class EloRatingModelTestCase(TestCase):
         self.assertEquals(alice_rating.elo_rating, 1191)
 
     def test_separate_elo_for_different_club(self):
-        self.second_club.make_member(self.second_user)
+        self.second_club.add_new_member(self.second_user)
         jane_elo_club_1 = EloRating.objects.get(user=self.second_user, club=self.club)
         jane_elo_club_2 = EloRating.objects.get(user=self.second_user, club=self.second_club)
         self.assertEquals(jane_elo_club_1.elo_rating, 1000)

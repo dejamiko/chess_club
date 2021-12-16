@@ -1,6 +1,6 @@
 """Unit tests of the club page view."""
 from django.test import TestCase
-from clubs.models import Tournament, User, Club
+from clubs.models import Tournament, User, Club, ClubApplication, EloRating
 from django.urls import reverse
 from clubs.tests.views.helpers import reverse_with_next
 
@@ -37,7 +37,6 @@ class ClubPageViewTest(TestCase):
         self.assertContains(response, "The Saint Louis Chess Club (previously named the Chess Club and Scholastic Center of Saint Louis) is a chess venue located in the Central West End in St. Louis, Missouri, United States. Opened on July 17, 2008, it contains a tournament hall and a basement broadcast studio. Classes are held at the adjacent chess-themed Kingside Diner.")
         self.assertContains(response, "<b>Number of officers:</b> 0")
         self.assertContains(response, "<b>Number of members:</b> 0")
-        self.assertContains(response, "<b>Number of applicants:</b> 0")
 
     def test_club_page_has_tournament_info(self):
         self.client.login(username=self.user.email, password="Password123")

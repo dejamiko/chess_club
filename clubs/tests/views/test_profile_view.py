@@ -33,9 +33,8 @@ class ProfileViewTest(TestCase):
 
     def test_get_profile_with_valid_id(self):
         self.client.login(email=self.user.email, password="Password123")
-        self.club.make_applicant(self.target_user)
         EloRating.objects.filter(user=self.target_user, club=self.club).delete()
-        self.club.make_member(self.target_user)
+        self.club.add_new_member(self.target_user)
         self.club.make_officer(self.target_user)
         self.tournament.participants.add(self.target_user)
 

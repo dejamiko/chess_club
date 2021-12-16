@@ -1,7 +1,7 @@
 """Unit tests of the club list view."""
 from django.test import TestCase
 from django.urls import reverse
-from clubs.models import User, Club
+from clubs.models import User, Club, ClubApplication
 from clubs.tests.views.helpers import give_all_missing_elos
 
 
@@ -11,12 +11,15 @@ class ClubListTest(TestCase):
         "clubs/tests/fixtures/default_user.json",
         "clubs/tests/fixtures/default_club.json",
         "clubs/tests/fixtures/other_clubs.json",
+        "clubs/tests/fixtures/other_users.json"
     ]
 
     def setUp(self):
         self.url = reverse("clubs")
+        self.manage_url = reverse("manage_applications")
         self.user = User.objects.get(email="johndoe@example.com")
         self.club = Club.objects.get(name="Saint Louis Chess Club")
+        self.bob = User.objects.get(email="bobdoe@example.com")
         for club in Club.objects.all():
             give_all_missing_elos(club)
 
