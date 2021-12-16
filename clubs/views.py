@@ -410,7 +410,6 @@ def club_page(request, club_id):
     applicant_user_list = []
 
     if request.method == "POST":
-        print("REACHED HERE")
         try:
             club_applications = ClubApplication.objects.filter(associated_club = requested_club)
         except ClubApplication.DoesNotExist:
