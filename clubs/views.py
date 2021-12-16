@@ -67,18 +67,20 @@ def manage_applications(request):
         temp = ClubApplicationModel.objects.filter(is_rejected = False)
     except ClubApplicationModel.DoesNotExist:
         temp = None
-    for app in temp:
-        if user in app.associated_club.get_officers() or user == app.associated_club.get_owner():
-            applications.append(app)
+    if temp is not None:
+        for app in temp:
+            if user in app.associated_club.get_officers() or user == app.associated_club.get_owner():
+                applications.append(app)
 
     rejected_applications = []
     try:
         temp_rejected = ClubApplicationModel.objects.filter(is_rejected = True)
     except ClubApplicationModel.DoesNotExist:
         temp_rejected = None
-    for rej_app in temp_rejected:
-        if user in rej_app.associated_club.get_officers() or user == rej_app.associated_club.get_owner():
-            rejected_applications.append(rej_app)
+    if temp_rejected is not None:
+        for rej_app in temp_rejected:
+            if user in rej_app.associated_club.get_officers() or user == rej_app.associated_club.get_owner():
+                rejected_applications.append(rej_app)
 
     user_clubs = user_clubs_finder(request)
 
@@ -459,9 +461,9 @@ def view_tournament(request, tournament_id):
 @login_required
 def club_page(request, club_id):
     requested_club = Club.objects.get(id=club_id)
-
+    curr_user = request.user
     if request.method == "POST":
-        club_name = request.POST["name"]
+        club_name = request.POST.get("name")
         temp_club = Club.objects.get(name=club_name)
         try:
             temp_app = ClubApplicationModel.objects.get(
@@ -476,9 +478,28 @@ def club_page(request, club_id):
                 associated_user=request.user)
             club_application.save()
 
+    applications_users = []
+    try:
+        temp = ClubApplicationModel.objects.filter(is_rejected = False, associated_club = requested_club)
+    except ClubApplicationModel.DoesNotExist:
+        temp = None
+    if temp is not None:
+        for app in temp:
+            applications_users.append(app.associated_user)
+
+    rejected_applications_users = []
+    try:
+        temp_rejected = ClubApplicationModel.objects.filter(is_rejected = True, associated_club = requested_club)
+    except ClubApplicationModel.DoesNotExist:
+        temp_rejected = None
+    if temp_rejected is not None:
+        for rej_app in temp_rejected:
+            rejected_applications_users.append(rej_app.associated_user)
+
 
     user_clubs = user_clubs_finder(request)
     return render(request, "club_page.html", {"club": requested_club,
                                               "owner_elo": EloRating.objects.get(user=requested_club.owner, club=requested_club),
-                                              "today": make_aware(datetime.now()), "curr_user": request.user,
-                                              "user_clubs": user_clubs, "selected_club": club})
+                                              "today": make_aware(datetime.now()), "curr_user": curr_user,
+                                              "user_clubs": user_clubs, "selected_club": club, 'applications_users': applications_users,
+                                              "rejected_applications_users": rejected_applications_users })
